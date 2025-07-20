@@ -4,6 +4,8 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { spawn } from 'child_process'
 import type { ChildProcess } from 'child_process'
+import * as db from './db';
+
 
 let mainWindow: BrowserWindow | null = null
 let childProcess: ChildProcess | null = null
@@ -56,8 +58,8 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  // IPC 
+  //打开文件夹获取路径
   ipcMain.handle('dialog:openFile',async()=>{
     const { canceled, filePaths } = await dialog.showOpenDialog({
       properties: ['openFile'] // 指定只选择文件
@@ -67,22 +69,23 @@ app.whenReady().then(() => {
     }
     return null // 如果用户取消了选择，返回 null
   })
-  ipcMain.handle('shell:executeFile',async(_event,filePath:string)=>{
+  //运行程序
+  ipcMain.handle('shell:executeFile',async(_event,game:{id:number;path:string})=>{
     if (childProcess) {
       return { success: false, message: '已有另一个应用在运行中。' }
     }
     try {
       // 使用 spawn 启动进程
-      childProcess = spawn(filePath, [], { stdio: 'ignore' })
+      childProcess = spawn(game.path, [], { stdio: 'ignore' })
       startTime = Date.now()
 
-      // 监听进程的 'error' 事件 (例如，文件未找到)
+      // 监听进程的 'error' 事件 
       childProcess.on('error', (err) => {
         console.error(`启动子进程失败: ${err.message}`)
         childProcess = null // 清理
       })
 
-      // 监听进程的 'close' 事件 (当应用关闭时触发)
+      // 监听进程的 'close' 事件 
       childProcess.on('close', (code) => {
         console.log(`子进程已退出，退出码：${code}`)
         if (timerInterval) {
@@ -91,6 +94,8 @@ app.whenReady().then(() => {
         // 向前端发送进程已停止的信号
         const finalElapsedTime = startTime ? Date.now() - startTime : 0
         mainWindow?.webContents.send('timer:stopped', { code, finalElapsedTime })
+
+        db.updateGameOnClose(game.id,finalElapsedTime)
         
         // 清理状态
         childProcess = null
@@ -111,17 +116,24 @@ app.whenReady().then(() => {
     } catch (err: any) {
       console.error(`执行文件时发生异常: ${err.message}`)
       return { success: false, message: err.message }
-    }
-    // try {
-    //   const error = await shell.openPath(filePath);
-    //   if (error) {
-    //     return {success:false ,message:error}
-    //   }
-    //   return {success:true,message:'运行成功'}      
-    // } catch(e){
-    //   return {success:false,message:e}
-    // } 
+    }    
   })
+  //查询游戏
+  ipcMain.handle('db:getAllGames', () => {
+    return db.getAllGames();
+  });
+  //添加游戏
+  ipcMain.handle('db:addGame', (_event, { gameName, launchPath }) => {
+    const existingGame = db.getGameByPath(launchPath);
+    if (existingGame) {      
+      throw new Error('这个游戏已经被添加过了！');
+    }
+    return db.addGame(gameName, launchPath);
+  });
+  //删除游戏
+  ipcMain.handle('db:deleteGame', (_event, id: number) => {
+    return db.deleteGame(id);
+  });
 
   createWindow()
 

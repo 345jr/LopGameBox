@@ -3,9 +3,8 @@ import { electronAPI } from '@electron-toolkit/preload'
 // Custom APIs for renderer
 const api = {
   openFile: (): Promise<string | null> => ipcRenderer.invoke('dialog:openFile'),
-  executeFile:(filePath:string): Promise<{ success: boolean; message?: string }> => ipcRenderer.invoke('shell:executeFile', filePath),
+  executeFile:(game:{id:number;path:string}): Promise<{ success: boolean; message?: string }> => ipcRenderer.invoke('shell:executeFile', game),
   // ✨ 新增：监听计时器更新
-  // callback 是一个函数，当主进程发来 'timer:update' 消息时会被调用
   onTimerUpdate: (callback: (elapsedTime: number) => void) => {
     ipcRenderer.on('timer:update', (_event, elapsedTime) => {
       callback(elapsedTime)
@@ -17,7 +16,11 @@ const api = {
     ipcRenderer.on('timer:stopped', (_event, result) => {
       callback(result)
     })
-  }
+  },
+  //数据库操作
+  getAllGames: () => ipcRenderer.invoke('db:getAllGames'),
+  addGame: (game: { gameName: string; launchPath: string }) => ipcRenderer.invoke('db:addGame', game),
+  deleteGame: (id: number) => ipcRenderer.invoke('db:deleteGame', id),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

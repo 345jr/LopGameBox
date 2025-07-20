@@ -61,10 +61,9 @@ export function getGameByPath(launchPath: string) {
 /**
  * 当一个游戏运行结束后，更新它的统计数据
  * @param id - 游戏ID
- * @param elapsedTimeInMs - 游戏运行的总毫秒数
+ * @param elapsedTime - 游戏运行的总秒数
  */
-export function updateGameOnClose(id: number, elapsedTimeInMs: number) {
-  const elapsedSeconds = Math.round(elapsedTimeInMs / 1000);
+export function updateGameOnClose(id: number, elapsedTime: number) {
   const stmt = db.prepare(`
     UPDATE games
     SET
@@ -74,7 +73,7 @@ export function updateGameOnClose(id: number, elapsedTimeInMs: number) {
       updated_at = strftime('%s', 'now')
     WHERE id = ?
   `);
-  stmt.run(elapsedSeconds, id);
+  stmt.run(elapsedTime, id);
 }
 
 /**

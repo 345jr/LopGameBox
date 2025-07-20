@@ -5,5 +5,7 @@ export interface Game {
     total_play_time: number;
     last_launch_time: number | null;
     launch_count: number;
+    created_at:number;
+    updated_at:number;
   }
   

@@ -7,6 +7,7 @@ import type { ChildProcess } from 'child_process'
 import * as db from './db';
 
 
+
 let mainWindow: BrowserWindow | null = null
 let childProcess: ChildProcess | null = null
 let timerInterval: NodeJS.Timeout | null = null
@@ -17,6 +18,8 @@ function createWindow(): void {
   mainWindow = new BrowserWindow({
     width: 850,
     height: 600,
+    minWidth:850,
+    minHeight:600,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -76,47 +79,69 @@ app.whenReady().then(() => {
     }
     try {
       // 使用 spawn 启动进程
-      childProcess = spawn(game.path, [], { stdio: 'ignore' })
-      startTime = Date.now()
-
-      // 监听进程的 'error' 事件 
-      childProcess.on('error', (err) => {
-        console.error(`启动子进程失败: ${err.message}`)
-        childProcess = null // 清理
-      })
-
-      // 监听进程的 'close' 事件 
-      childProcess.on('close', (code) => {
-        console.log(`子进程已退出，退出码：${code}`)
-        if (timerInterval) {
-          clearInterval(timerInterval) // 停止计时器
-        }
-        // 向前端发送进程已停止的信号
-        const finalElapsedTime = startTime ? Date.now() - startTime : 0
-        mainWindow?.webContents.send('timer:stopped', { code, finalElapsedTime })
-
-        db.updateGameOnClose(game.id,finalElapsedTime)
-        
-        // 清理状态
-        childProcess = null
-        timerInterval = null
-        startTime = null
-      })
-
-      // 启动成功，现在设置一个每秒更新一次的定时器
-      timerInterval = setInterval(() => {
-        if (startTime) {
-          const elapsedTime = Date.now() - startTime
-          // 每秒向前端发送当前经过的时间
-          mainWindow?.webContents.send('timer:update', elapsedTime)
-        }
-      }, 1000)
-
-      return { success: true } // 表示启动成功
+      childProcess = spawn(game.path, [], { stdio: 'ignore' });
+      startTime = Date.now();
+  
+      // 返回一个 Promise，确保错误和成功都能被正确处理
+      return new Promise((resolve) => {
+        // 监听进程的 'error' 事件
+        childProcess?.on('error', (err) => {
+          console.error(`启动子进程失败: ${err.message}`);
+          mainWindow?.webContents.send('timer:stopped', {
+            code: -1,
+            finalElapsedTime: 0,
+            error: err.message,
+          });
+  
+          // 清理状态
+          childProcess = null;
+          timerInterval = null;
+          startTime = null;
+  
+          // 解析为失败状态
+          resolve({ success: false, message: `启动子进程失败: ${err.message}` });
+        });
+  
+        // 监听进程的 'spawn' 事件，确保进程成功启动
+        childProcess?.on('spawn', () => {
+          // 启动成功，设置定时器
+          timerInterval = setInterval(() => {
+            if (startTime) {
+              const elapsedTime = Date.now() - startTime;
+              const elapsedTimeSeconds = Math.round(elapsedTime/1000)
+              mainWindow?.webContents.send('timer:update', elapsedTimeSeconds);
+            }
+          }, 1000);
+  
+          // 解析为成功状态
+          resolve({ success: true });
+        });
+  
+        // 监听进程的 'close' 事件
+        childProcess?.on('close', (code) => {
+          console.log(`子进程已退出，退出码：${code}`);
+          if (timerInterval) {
+            clearInterval(timerInterval);
+          }
+          const finalElapsedTime = startTime ? Date.now() - startTime : 0;
+          const finalElapsedSeconds = Math.round(finalElapsedTime / 1000);
+          mainWindow?.webContents.send('timer:stopped', { code, finalElapsedSeconds });
+          db.updateGameOnClose(game.id, finalElapsedSeconds);
+  
+          // 清理状态
+          childProcess = null;
+          timerInterval = null;
+          startTime = null;
+        });
+      });
     } catch (err: any) {
-      console.error(`执行文件时发生异常: ${err.message}`)
-      return { success: false, message: err.message }
-    }    
+      console.error(`发生异常: ${err.message}`);
+      // 清理状态
+      childProcess = null;
+      timerInterval = null;
+      startTime = null;
+      return { success: false, message: err.message };
+    }
   })
   //查询游戏
   ipcMain.handle('db:getAllGames', () => {

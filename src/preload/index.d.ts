@@ -1,5 +1,4 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-
 declare global {
   interface Window {
     electron: ElectronAPI
@@ -12,6 +11,8 @@ declare global {
       getAllGames: () => Promise<Game[]>;
       addGame: (game: { gameName: string; launchPath: string }) => Promise<Game>;
       deleteGame: (id: number) => Promise<{ changes: number }>;
+      getBanners:()=> Promise<Banners[]>;
+      addBanner:(gameImage:{gameId:number;imagePath:string})=>Promise<GameImage>;
     }
   }
 }

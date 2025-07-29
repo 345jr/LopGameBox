@@ -10,19 +10,32 @@ if (app.isPackaged) {
   dbPath = path.join(process.cwd(), 'db/gameData.db');
 }
 const db = new Database(dbPath);
-// 在应用启动时，执行一次建表操作。
-// IF NOT EXISTS 确保了表只在不存在时被创建。
+// 启用外键支持
+db.pragma('foreign_keys = ON');
+
+//初始化
 db.exec(`
+  -- 游戏主表
   CREATE TABLE IF NOT EXISTS games (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    game_name TEXT NOT NULL,
+    id INTEGER PRIMARY KEY AUTOINCREMENT, --游戏主id
+    game_name TEXT NOT NULL, -- 游戏名字
     launch_path TEXT NOT NULL UNIQUE, -- UNIQUE约束防止添加重复路径的游戏
     total_play_time INTEGER DEFAULT 0, -- 单位：秒
     last_launch_time INTEGER,          -- UNIX 时间戳 (秒)
-    launch_count INTEGER DEFAULT 0,
-    created_at INTEGER DEFAULT (strftime('%s', 'now')),
-    updated_at INTEGER DEFAULT (strftime('%s', 'now'))
+    launch_count INTEGER DEFAULT 0, --启动次数
+    created_at INTEGER DEFAULT (strftime('%s', 'now')), -- 创建时间
+    updated_at INTEGER DEFAULT (strftime('%s', 'now')), -- 更新时间
+    disk_size INTEGER DEFAULT 0  -- 磁盘占用大小
   );
+  -- 游戏图集表
+    CREATE TABLE IF NOT EXISTS game_gallery (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    game_id INTEGER NOT NULL,
+    image_path TEXT NOT NULL,           -- 图片文件路径
+    image_type TEXT NOT NULL,           -- 'banner' 或 'screenshot'
+    created_at INTEGER DEFAULT (strftime('%s', 'now')),
+    FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
+    );
 `);
 
 console.log(`数据库已在路径 ${dbPath} 初始化`);
@@ -33,10 +46,10 @@ console.log(`数据库已在路径 ${dbPath} 初始化`);
  * @param launchPath - 游戏启动路径
  * @returns 新添加的游戏对象
  */
-export function addGame(gameName: string, launchPath: string) {
-  const stmt = db.prepare('INSERT INTO games (game_name, launch_path) VALUES (?, ?)');
-  const info = stmt.run(gameName, launchPath);
-  return { id: info.lastInsertRowid, gameName, launchPath };
+export function addGame(gameName: string, launchPath: string,disk_size:number) {
+  const stmt = db.prepare('INSERT INTO games (game_name, launch_path , disk_size) VALUES (?,?,?)');
+  const info = stmt.run(gameName, launchPath ,disk_size);
+  return { id: info.lastInsertRowid, gameName, launchPath,disk_size };
 }
 
 /**

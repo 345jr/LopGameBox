@@ -4,6 +4,7 @@ const db = require('better-sqlite3')('gameData.db')
 try {
   // 创建游戏数据表
   db.exec(`
+    -- 游戏表
     CREATE TABLE IF NOT EXISTS games (
       id INTEGER PRIMARY KEY AUTOINCREMENT,     
       game_name TEXT NOT NULL,
@@ -13,10 +14,21 @@ try {
       launch_count INTEGER DEFAULT 0,
       created_at INTEGER DEFAULT (strftime('%s', 'now')),
       updated_at INTEGER DEFAULT (strftime('%s', 'now'))
+      disk_size INTEGER DEFAULT 0
     );
+    -- 游戏图集表
+    CREATE TABLE IF NOT EXISTS game_gallery (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    game_id INTEGER NOT NULL,
+    image_path TEXT NOT NULL,           -- 图片文件路径
+    image_type TEXT NOT NULL,           -- 'banner' 或 'screenshot'
+    created_at INTEGER DEFAULT (strftime('%s', 'now')),
+    FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
+    );
+
   `);
 
-  console.log('数据库初始化成功！表 "games" 已创建或已存在');
+  console.log('数据库初始化成功！');
 } catch (err) {
   console.error('数据库初始化失败:', err);
 } finally {

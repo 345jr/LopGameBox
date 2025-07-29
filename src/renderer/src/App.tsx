@@ -1,19 +1,20 @@
-import { useCallback, useEffect,useState } from 'react';
+import { useCallback, useEffect,useRef,useState } from 'react';
 import { formatTime,formatTimeCalender } from './util/timeFormat';
-import type { Game } from './types/Game';
+import gameSizeFormat from './util/gameSizeFormat'
+import type { Game,Banners } from './types/Game';
 
 function App(): React.JSX.Element {
   const [games, setGames] = useState<Game[]>([]);
-  
-
+  const BannersRef = useRef<Banners[]>(null)
   const [runningGame, setRunningGame] = useState<Game | null>(null);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [message, setMessage] = useState<string>('');
   // 加载游戏列表
   const fetchGames = useCallback(async () => {
-    const gameList = await window.api.getAllGames();
-    
+    const gameList = await window.api.getAllGames(); 
+    BannersRef.current = await window.api.getBanners(); 
     setGames(gameList);
+
   }, []);
 
   // 组件加载时获取游戏列表和设置监听器
@@ -72,6 +73,18 @@ function App(): React.JSX.Element {
       setRunningGame(null);
     }
   };
+  //添加封面
+  const handleAddBanner = async (game:Game)=>{
+    const path = await window.api.openFile();
+    if (!path) return;
+    try {
+      await window.api.addBanner({ gameId:game.id,imagePath:path });
+      setMessage(`✅ 游戏${game.game_name}已成功添加封面图！`);
+      fetchGames(); 
+    } catch (error: any) {
+      setMessage(`❌ 添加失败: ${error.message}`);
+    }
+  }
   return (
     <>
       <button onClick={handleAddGame} >添加新游戏</button>      
@@ -79,27 +92,32 @@ function App(): React.JSX.Element {
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
+            <th style={styles.th}>封面图</th>
             <th style={styles.th}>游戏名称</th>
             <th style={styles.th}>总游戏时长</th>
             <th style={styles.th}>启动次数</th>
             <th style={styles.th}>上次启动时间</th>
-            <th style={styles.th}>创建时间</th>
-            <th style={styles.th}>更新时间</th>
+            <th style={styles.th}>游戏大小</th>
+            {/* <th style={styles.th}>创建时间</th>
+            <th style={styles.th}>更新时间</th> */}
             <th style={styles.th}>操作</th>            
           </tr>
         </thead>
         <tbody>
           {games.map((game) => (
             <tr key={game.id}>
+              <td style={styles.td}><img src={((BannersRef.current)?.find((i: Banners) => i.game_id === game.id))?.image_path} alt="banner图" /></td>
               <td style={styles.td}>{game.game_name}</td>
               <td style={styles.td}>{formatTime(game.total_play_time)}</td>
               <td style={styles.td}>{game.launch_count}</td>
               <td style={styles.td}>{game.last_launch_time?formatTimeCalender(game.last_launch_time):'暂无'}</td>
-              <td style={styles.td}>{formatTimeCalender(game.created_at)}</td>
-              <td style={styles.td}>{formatTimeCalender(game.updated_at)}</td>
+              <td style={styles.td}>{gameSizeFormat(game.disk_size)}</td>
+              {/* <td style={styles.td}>{formatTimeCalender(game.created_at)}</td>
+              <td style={styles.td}>{formatTimeCalender(game.updated_at)}</td> */}
               <td style={styles.td}>
                 <button onClick={() => handleRunGame(game)} >运行</button>
                 <button onClick={() => handleDeleteGame(game)}  style={{ marginLeft: '10px' }}>删除</button>
+                <button onClick={() => handleAddBanner(game)}>封面</button>
               </td>
             </tr>
           ))}

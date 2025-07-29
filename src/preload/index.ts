@@ -21,6 +21,8 @@ const api = {
   getAllGames: () => ipcRenderer.invoke('db:getAllGames'),
   addGame: (game: { gameName: string; launchPath: string }) => ipcRenderer.invoke('db:addGame', game),
   deleteGame: (id: number) => ipcRenderer.invoke('db:deleteGame', id),
+  addBanner:(gameImage:{gameId:number;imagePath:string}) =>ipcRenderer.invoke('db:addBanner',gameImage),
+  getBanners: ()=>ipcRenderer.invoke('db:getBanners')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

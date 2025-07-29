@@ -15,3 +15,27 @@ VALUES ('未玩新游戏', 'F:/games/newgame.exe', 0, NULL, 0);
 UPDATE games SET created_at = strftime('%s', 'now') - 2592000 WHERE id = 1;  -- 30天前
 UPDATE games SET created_at = strftime('%s', 'now') - 1728000 WHERE id = 2;  -- 20天前
 UPDATE games SET created_at = strftime('%s', 'now') - 864000 WHERE id = 3;   -- 10天前
+
+-- 添加新字段
+ALTER TABLE games ADD COLUMN disk_size INTEGER DEFAULT 0;
+
+
+-- 创建一个新表
+CREATE TABLE IF NOT EXISTS games_new (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,     
+      game_name TEXT NOT NULL,
+      launch_path TEXT NOT NULL,
+      total_play_time INTEGER DEFAULT 0,  -- 单位：秒
+      last_launch_time INTEGER,           -- UNIX 时间戳
+      launch_count INTEGER DEFAULT 0,
+      created_at INTEGER DEFAULT (strftime('%s', 'now')),
+      updated_at INTEGER DEFAULT (strftime('%s', 'now'))
+    );
+-- 复制数据
+INSERT INTO games_new (id, game_name, launch_path , total_play_time , last_launch_time , launch_count ,created_at,updated_at)
+SELECT id, game_name, launch_path , total_play_time , last_launch_time , launch_count ,created_at,updated_at FROM games;
+-- 删除旧表
+DROP TABLE games;
+-- 重命名
+ALTER TABLE games_new RENAME TO games;
+

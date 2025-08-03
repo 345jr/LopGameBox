@@ -22,6 +22,7 @@ export class DatabaseManager {
   //初始化数据库
   private static initSchema() {
     this.dbInstance.exec(`
+      -- 游戏表
       CREATE TABLE IF NOT EXISTS games (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         game_name TEXT NOT NULL,
@@ -33,7 +34,7 @@ export class DatabaseManager {
         updated_at INTEGER DEFAULT (strftime('%s', 'now')),
         disk_size INTEGER DEFAULT 0
       );
-
+      -- 画廊表
       CREATE TABLE IF NOT EXISTS game_gallery (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         game_id INTEGER NOT NULL,

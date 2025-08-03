@@ -1,30 +1,29 @@
-import { useCallback, useEffect,useRef,useState } from 'react';
-import { formatTime,formatTimeCalender } from './util/timeFormat';
-import gameSizeFormat from './util/gameSizeFormat'
-import type { Game,Banners } from './types/Game';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { formatTime, formatTimeCalender } from './util/timeFormat';
+import gameSizeFormat from './util/gameSizeFormat';
+import type { Game, Banners } from './types/Game';
 
 function App(): React.JSX.Element {
   const [games, setGames] = useState<Game[]>([]);
-  const BannersRef = useRef<Banners[]>(null)
+  const BannersRef = useRef<Banners[]>(null);
   const [runningGame, setRunningGame] = useState<Game | null>(null);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [message, setMessage] = useState<string>('');
   // 加载游戏列表
   const fetchGames = useCallback(async () => {
-    const gameList = await window.api.getAllGames(); 
-    BannersRef.current = await window.api.getBanners(); 
+    const gameList = await window.api.getAllGames();
+    BannersRef.current = await window.api.getBanners();
     setGames(gameList);
-
   }, []);
 
   // 组件加载时获取游戏列表和设置监听器
   useEffect(() => {
-    fetchGames();    
+    fetchGames();
     window.api.onTimerUpdate(setElapsedTime);
     window.api.onTimerStopped(() => {
       setMessage(`《${runningGame?.game_name}》已关闭。`);
       setRunningGame(null);
-      fetchGames(); 
+      fetchGames();
     });
   }, [fetchGames, runningGame]);
   //添加游戏
@@ -33,9 +32,9 @@ function App(): React.JSX.Element {
     if (!path) return;
 
     const defaultName = path.split('\\').pop()?.replace('.exe', '') || '新游戏';
-    
+
     try {
-      await window.api.addGame({ gameName:defaultName, launchPath: path });
+      await window.api.addGame({ gameName: defaultName, launchPath: path });
       setMessage(`✅ 游戏《${defaultName}》已成功添加！`);
       fetchGames(); // 刷新列表
     } catch (error: any) {
@@ -58,12 +57,15 @@ function App(): React.JSX.Element {
   const handleRunGame = async (game: Game) => {
     if (runningGame) {
       setMessage('已有另一个游戏在运行中！');
-      console.log(runningGame)
+      console.log(runningGame);
       return;
     }
     setMessage(`正在启动《${game.game_name}》...`);
-    const result = await window.api.executeFile({ id: game.id, path: game.launch_path });
-    console.log(result)
+    const result = await window.api.executeFile({
+      id: game.id,
+      path: game.launch_path,
+    });
+    console.log(result);
     if (result.success) {
       setRunningGame(game);
       setElapsedTime(0);
@@ -74,20 +76,32 @@ function App(): React.JSX.Element {
     }
   };
   //添加封面
-  const handleAddBanner = async (game:Game)=>{
+  const handleAddBanner = async (game: Game) => {
+    const targetPath = 'banner/';
     const path = await window.api.openFile();
     if (!path) return;
     try {
-      await window.api.addBanner({ gameId:game.id,imagePath:path });
+      //先复制一份到资源目录下
+      const result = await window.api.copyImages({
+        origin: path,
+        target: targetPath,
+        gameName: game.game_name,
+      });
+      //再添加封面
+      await window.api.addBanner({
+        gameId: game.id,
+        imagePath: path,
+        relativePath: result.relativePath,
+      });
       setMessage(`✅ 游戏${game.game_name}已成功添加封面图！`);
-      fetchGames(); 
+      fetchGames();
     } catch (error: any) {
       setMessage(`❌ 添加失败: ${error.message}`);
     }
-  }
+  };
   return (
     <>
-      <button onClick={handleAddGame} >添加新游戏</button>      
+      <button onClick={handleAddGame}>添加新游戏</button>
       {/* 游戏列表 */}
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
@@ -100,23 +114,46 @@ function App(): React.JSX.Element {
             <th style={styles.th}>游戏大小</th>
             {/* <th style={styles.th}>创建时间</th>
             <th style={styles.th}>更新时间</th> */}
-            <th style={styles.th}>操作</th>            
+            <th style={styles.th}>操作</th>
           </tr>
         </thead>
         <tbody>
           {games.map((game) => (
             <tr key={game.id}>
-              <td style={styles.td}><img src={((BannersRef.current)?.find((i: Banners) => i.game_id === game.id))?.image_path} alt="banner图" /></td>
+              {BannersRef.current ? (
+                <td style={styles.td}>
+                  <img
+                    src={
+                      'lop://' +
+                      BannersRef.current
+                        ?.find((i: Banners) => i.game_id === game.id)
+                        ?.relative_path?.replace(/\\/g, '/')
+                    }
+                    alt="banner图"
+                  />
+                </td>
+              ) : (
+                <></>
+              )}
               <td style={styles.td}>{game.game_name}</td>
               <td style={styles.td}>{formatTime(game.total_play_time)}</td>
               <td style={styles.td}>{game.launch_count}</td>
-              <td style={styles.td}>{game.last_launch_time?formatTimeCalender(game.last_launch_time):'暂无'}</td>
+              <td style={styles.td}>
+                {game.last_launch_time
+                  ? formatTimeCalender(game.last_launch_time)
+                  : '暂无'}
+              </td>
               <td style={styles.td}>{gameSizeFormat(game.disk_size)}</td>
               {/* <td style={styles.td}>{formatTimeCalender(game.created_at)}</td>
               <td style={styles.td}>{formatTimeCalender(game.updated_at)}</td> */}
               <td style={styles.td}>
-                <button onClick={() => handleRunGame(game)} >运行</button>
-                <button onClick={() => handleDeleteGame(game)}  style={{ marginLeft: '10px' }}>删除</button>
+                <button onClick={() => handleRunGame(game)}>运行</button>
+                <button
+                  onClick={() => handleDeleteGame(game)}
+                  style={{ marginLeft: '10px' }}
+                >
+                  删除
+                </button>
                 <button onClick={() => handleAddBanner(game)}>封面</button>
               </td>
             </tr>
@@ -124,13 +161,18 @@ function App(): React.JSX.Element {
         </tbody>
       </table>
       {`消息通知 :${message}`}
-      {elapsedTime?`运行时间 :${formatTime(elapsedTime)}`:<></>}
+      {elapsedTime ? `运行时间 :${formatTime(elapsedTime)}` : <></>}
+      <img src="lop://icon.png" className="w-20"></img>
     </>
   );
-  
 }
 const styles: { th: React.CSSProperties; td: React.CSSProperties } = {
-  th: { border: '1px solid #ccc', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' },
-  td: { border: '1px solid #ccc', padding: '8px' }
+  th: {
+    border: '1px solid #ccc',
+    padding: '8px',
+    textAlign: 'left',
+    backgroundColor: '#f2f2f2',
+  },
+  td: { border: '1px solid #ccc', padding: '8px' },
 };
 export default App;

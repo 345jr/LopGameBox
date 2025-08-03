@@ -20,4 +20,5 @@ export interface Banners {
   image_path: string;
   image_type: string;
   created_at: number;
+  relative_path:string;
 }

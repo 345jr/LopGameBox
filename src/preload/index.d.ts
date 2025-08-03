@@ -12,7 +12,9 @@ declare global {
       addGame: (game: { gameName: string; launchPath: string }) => Promise<Game>;
       deleteGame: (id: number) => Promise<{ changes: number }>;
       getBanners:()=> Promise<Banners[]>;
-      addBanner:(gameImage:{gameId:number;imagePath:string})=>Promise<GameImage>;
+      addBanner:(gameImage:{gameId:number;imagePath:string;relativePath:string})=>Promise<GameImage>;
+      //操作本地
+      copyImages:(move:{origin:string,target:string,gameName:string}) => Promise<{relativePath:string}>
     }
   }
 }

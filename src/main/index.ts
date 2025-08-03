@@ -1,9 +1,19 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron';
-import { join } from 'path';
+import {
+  app,
+  shell,
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  protocol,
+  net,
+} from 'electron';
+import path, { join } from 'path';
+import url from 'node:url';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
 import icon from '../../resources/icon.png?asset';
 import { spawn } from 'child_process';
 import type { ChildProcess } from 'child_process';
+import * as fs from 'fs/promises';
 
 import { GameService } from './services/gameService';
 import { GameRepository } from './services/gameRepository';
@@ -19,7 +29,7 @@ let startTime: number | null = null;
 // const gameService = new GameService();
 const gameService = new GameService(
   new GameRepository(),
-  new GalleryRepository()
+  new GalleryRepository(),
 );
 function createWindow(): void {
   // Create the browser window.
@@ -51,16 +61,52 @@ function createWindow(): void {
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
+    mainWindow.loadFile(join(__dirname, '../renderer/index.html'), {});
   }
 }
-
+// function getPortableUserDataPath() {
+//   if (app.isPackaged) {
+//     //生产环境
+//     return path.join(path.dirname(app.getPath('exe')), 'data');
+//   }
+//   //开发环境
+//   return path.join(process.cwd(), 'data');
+// }
+// app.setPath('userData', getPortableUserDataPath());
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+
+//自定义协议
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'lop',
+    privileges: {
+      bypassCSP: true,
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+    },
+  },
+]);
+
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron');
+  //使用自定义协议
+  protocol.handle('lop', (request) => {
+    const filePath = request.url.slice('lop://'.length);
+    const projectRoot = path.resolve(__dirname, '../../public');
+    // console.log(path.join(projectRoot, filePath))
+    // console.log(`A----------A`)
+    // console.log(url.pathToFileURL(path.join(projectRoot, filePath)).toString())
+    const absPath = path.join(projectRoot, filePath);
+    const cleanPath = absPath.replace(/[\\/]+$/, '');
+    console.log(cleanPath)
+    return net.fetch(
+      url.pathToFileURL(path.join(cleanPath)).toString(),
+    );
+  });
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -181,28 +227,52 @@ app.whenReady().then(() => {
       if (error instanceof Error) {
         throw new Error(error.message);
       } else {
-        throw new Error('一个不知道的错误发生了!');        
+        throw new Error('一个不知道的错误发生了!');
       }
     }
-    
   });
   //删除游戏
   ipcMain.handle('db:deleteGame', (_event, id: number) => {
     return gameService.deleteGame(id);
   });
+  //复制游戏图片到资源目录
+  ipcMain.handle(
+    'op:copyImages',
+    async (_event, { origin, target, gameName }) => {
+      try {
+        const time = new Date().toDateString();
+        const targetPath = app.isPackaged
+          ? path.join(path.dirname(app.getPath('exe')), target)
+          : path.join(path.join(process.cwd(), 'public'), target);
+
+        const gameNameExtension = `${gameName}-${time}.jpg`;
+        const cleangameBannerName = gameNameExtension.replace(/\s/g,'')
+        const imageName = path.join(targetPath, cleangameBannerName);
+        await fs.copyFile(origin, imageName);
+        console.log(`File Copy Success`);
+        return { relativePath: path.join(target, cleangameBannerName) };
+      } catch (error) {
+        console.log(error);
+        return { relativePath: path.join(target, 'default.jpg') };
+      }
+    },
+  );
   //添加Banner
-  ipcMain.handle('db:addBanner',async(_event,{gameId,imagePath})=>{
-    try{
-      return gameService.setGameBanner(gameId,imagePath)
-    } catch (error:any) {
-      console.error(`发生异常: ${error.message}`);
-    }
-    return null
-  })
+  ipcMain.handle(
+    'db:addBanner',
+    async (_event, { gameId, imagePath, relativePath }) => {
+      try {
+        return gameService.setGameBanner(gameId, imagePath, relativePath);
+      } catch (error: any) {
+        console.error(`发生异常: ${error.message}`);
+      }
+      return null;
+    },
+  );
   // 查询Banner
-  ipcMain.handle('db:getBanners',()=>{
-      return gameService.getBanners()
-  })
+  ipcMain.handle('db:getBanners', () => {
+    return gameService.getBanners();
+  });
   createWindow();
 
   app.on('activate', function () {

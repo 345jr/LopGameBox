@@ -18,6 +18,7 @@ UPDATE games SET created_at = strftime('%s', 'now') - 864000 WHERE id = 3;   -- 
 
 -- 添加新字段
 ALTER TABLE games ADD COLUMN disk_size INTEGER DEFAULT 0;
+ALTER TABLE game_gallery ADD COLUMN relative_path TEXT NOT NULL DEFAULT '';
 
 
 -- 创建一个新表

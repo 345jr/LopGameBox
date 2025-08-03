@@ -25,9 +25,10 @@ export class GameService {
   public deleteGame(id: number) {
     return this.gameRepo.deleteGame(id);
   }
+  
   //添加游戏封面图
-  public setGameBanner(gameId:number,imagePath:string) {
-    return this.galleryRepo.setGameBanner(gameId,imagePath)
+  public setGameBanner(gameId:number,imagePath:string,relativePath:string) {
+    return this.galleryRepo.setGameBanner(gameId,imagePath,relativePath)
   }
   //获取游戏封面图
   public getBanners(){

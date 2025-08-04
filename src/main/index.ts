@@ -18,7 +18,8 @@ import * as fs from 'fs/promises';
 import { GameService } from './services/gameService';
 import { GameRepository } from './services/gameRepository';
 import { GalleryRepository } from './services/galleryRepository';
-import { getSize } from './util';
+import { getSize } from './util/diskSize';
+import { getDelectPath } from './util/path';
 
 // 变量区
 let mainWindow: BrowserWindow | null = null;
@@ -238,19 +239,24 @@ app.whenReady().then(() => {
   //复制游戏图片到资源目录
   ipcMain.handle(
     'op:copyImages',
-    async (_event, { origin, target, gameName }) => {
+    async (_event, { origin, target, gameName ,oldFilePath }) => {
       try {
         const time = new Date().toDateString();
-        const targetPath = app.isPackaged
-          ? path.join(path.dirname(app.getPath('exe')), target)
-          : path.join(path.join(process.cwd(), 'public'), target);
-
-        const gameNameExtension = `${gameName}-${time}.jpg`;
-        const cleangameBannerName = gameNameExtension.replace(/\s/g,'')
-        const imageName = path.join(targetPath, cleangameBannerName);
+        //构建游戏名       
+        const gameNameExtension = `${gameName}-${time}.jpg`.replace(/\s/g,'');
+        const imageName = path.join(
+          app.isPackaged
+            ? path.join(path.dirname(app.getPath('exe')), target)  // 生产环境
+            : path.join(process.cwd(), 'public', target),          // 开发环境
+          gameNameExtension
+        );
+        const filePath = getDelectPath(oldFilePath) as string
+        //如果有旧的封面图 ，先删除旧的封面图
+        if (filePath !== 'skip') await fs.unlink(filePath)                     
+        //复制文件到相对路径文件夹
         await fs.copyFile(origin, imageName);
         console.log(`File Copy Success`);
-        return { relativePath: path.join(target, cleangameBannerName) };
+        return { relativePath: path.join(target, gameNameExtension) };
       } catch (error) {
         console.log(error);
         return { relativePath: path.join(target, 'default.jpg') };

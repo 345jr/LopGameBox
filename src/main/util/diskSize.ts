@@ -1,6 +1,6 @@
 import * as fs from 'fs/promises';
 import path from 'path';
-
+//获取游戏文件夹大小
 export async function getSize(filePath:string) {
   const dirPath = path.dirname(filePath);
 

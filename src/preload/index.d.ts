@@ -14,7 +14,7 @@ declare global {
       getBanners:()=> Promise<Banners[]>;
       addBanner:(gameImage:{gameId:number;imagePath:string;relativePath:string})=>Promise<GameImage>;
       //操作本地
-      copyImages:(move:{origin:string,target:string,gameName:string}) => Promise<{relativePath:string}>
+      copyImages:(move:{origin:string,target:string,gameName:string,oldFilePath:string}) => Promise<{relativePath:string}>
     }
   }
 }

@@ -24,7 +24,7 @@ const api = {
   addBanner:(gameImage:{gameId:number;imagePath:string;relativePath:string}) =>ipcRenderer.invoke('db:addBanner',gameImage),
   getBanners: ()=>ipcRenderer.invoke('db:getBanners'),
   //文件操作
-  copyImages:(move:{origin:string,target:string,gameName:string}) => ipcRenderer.invoke('op:copyImages',move)
+  copyImages:(move:{origin:string,target:string,gameName:string,oldFilePath:string}) => ipcRenderer.invoke('op:copyImages',move)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

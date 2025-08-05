@@ -19,16 +19,50 @@ function App(): React.JSX.Element {
     setGames(gameList);
   }, []);
 
-  // 组件加载时获取游戏列表和设置监听器
-  useEffect(() => {
+  // // 组件加载时获取游戏列表和设置监听器
+  // useEffect(() => {
+  //   console.log(`loading success!`)
+  //   fetchGames();
+  //   window.api.onTimerUpdate(setElapsedTime);
+  //   window.api.onTimerStopped(() => {
+  //     setMessage(`《${runningGame?.game_name}》已关闭。`);
+  //     setRunningGame(null);
+  //     fetchGames();
+  //   })
+  //    //页面跳转时清理注册的监听器
+  //    return ()=>{
+  //     console.log(`cleaned!`)
+  //     window.api.offTimerUpdate(setElapsedTime)
+  //     window.api.offTimerStopped(() => {
+  //       setMessage(`《${runningGame?.game_name}》已关闭。`);
+  //       setRunningGame(null);
+  //       fetchGames();
+  //     })
+  //    };
+  // }, [fetchGames, runningGame]);
+
+  useEffect(()=>{
+    console.log(`loading gameList success!`)
     fetchGames();
-    window.api.onTimerUpdate(setElapsedTime);
-    window.api.onTimerStopped(() => {
+  },[fetchGames])
+
+  useEffect(()=>{
+    const handleTimerStopped = () => {
       setMessage(`《${runningGame?.game_name}》已关闭。`);
       setRunningGame(null);
       fetchGames();
-    });
-  }, [fetchGames, runningGame]);
+    };
+    console.log(`listener on!`)
+    window.api.onTimerUpdate(setElapsedTime);
+    window.api.onTimerStopped(handleTimerStopped)
+     //页面跳转时清理注册的监听器
+     return ()=>{
+      console.log(`listener clean!`)
+      window.api.offTimerUpdate(setElapsedTime)
+      window.api.offTimerStopped(handleTimerStopped)
+     };
+  },[])
+
   //添加游戏
   const handleAddGame = async () => {
     const path = await window.api.openFile();
@@ -68,7 +102,6 @@ function App(): React.JSX.Element {
       id: game.id,
       path: game.launch_path,
     });
-    console.log(result);
     if (result.success) {
       setRunningGame(game);
       setElapsedTime(0);
@@ -83,8 +116,10 @@ function App(): React.JSX.Element {
     const targetPath = 'banner/';
     const path = await window.api.openFile();
     //获取旧的封面地址便于删除和替换
-    const oldFilePath = (BannersRef.current?.find(i=>i.game_id===game.id))?.relative_path as string
+    let oldFilePath = (BannersRef.current?.find(i=>i.game_id===game.id))?.relative_path as string
     if (!path) return;
+    //首次默认为封面，所以跳过
+    if (oldFilePath == undefined) oldFilePath = 'skip'
     try {
       //先复制一份到资源目录下
       const result = await window.api.copyImages({
@@ -141,7 +176,7 @@ function App(): React.JSX.Element {
                   />
                 </td>
               ) : (
-                <td style={styles.td}><img src="lop://default.jpg" alt="默认封面图" className='w-60 h-40'/></td>
+                <td style={styles.td}><img src="lop://banner/default.jpg" alt="默认封面图" className='w-60 h-40'/></td>
               )}
               <td style={styles.td}>{game.game_name}</td>
               <td style={styles.td}>{formatTime(game.total_play_time)}</td>

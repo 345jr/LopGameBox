@@ -7,6 +7,8 @@ declare global {
       executeFile:(game: { id: number; path: string })=> Promise<{ success: boolean; message?: string }>
       onTimerUpdate: (callback: (elapsedTime: number) => void) => void
       onTimerStopped: (callback: (result: { code: number; finalElapsedTime: number }) => void) => void
+      offTimerUpdate:(callback: (elapsedTime: number) => void)=>void
+      offTimerStopped:(callback: (result: { code: number; finalElapsedTime: number }) => void)=>void
       // 数据库
       getAllGames: () => Promise<Game[]>;
       addGame: (game: { gameName: string; launchPath: string }) => Promise<Game>;

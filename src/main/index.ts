@@ -27,7 +27,6 @@ let childProcess: ChildProcess | null = null;
 let timerInterval: NodeJS.Timeout | null = null;
 let startTime: number | null = null;
 //创建 数据库操控实例
-// const gameService = new GameService();
 const gameService = new GameService(
   new GameRepository(),
   new GalleryRepository(),
@@ -65,15 +64,9 @@ function createWindow(): void {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'), {});
   }
 }
-// function getPortableUserDataPath() {
-//   if (app.isPackaged) {
-//     //生产环境
-//     return path.join(path.dirname(app.getPath('exe')), 'data');
-//   }
-//   //开发环境
-//   return path.join(process.cwd(), 'data');
-// }
-// app.setPath('userData', getPortableUserDataPath());
+
+
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -97,13 +90,9 @@ app.whenReady().then(() => {
   //使用自定义协议
   protocol.handle('lop', (request) => {
     const filePath = request.url.slice('lop://'.length);
-    const projectRoot = path.resolve(__dirname, '../../public');
-    // console.log(path.join(projectRoot, filePath))
-    // console.log(`A----------A`)
-    // console.log(url.pathToFileURL(path.join(projectRoot, filePath)).toString())
+    const projectRoot = path.resolve(__dirname, '../../public');    
     const absPath = path.join(projectRoot, filePath);
     const cleanPath = absPath.replace(/[\\/]+$/, '');
-    // console.log(cleanPath)
     return net.fetch(
       url.pathToFileURL(path.join(cleanPath)).toString(),
     );
@@ -258,7 +247,7 @@ app.whenReady().then(() => {
         console.log(`File Copy Success`);
         return { relativePath: path.join(target, gameNameExtension) };
       } catch (error) {
-        console.log(error);
+        console.log(`复制错误:${error}`);
         return { relativePath: path.join(target, 'default.jpg') };
       }
     },
@@ -310,6 +299,7 @@ app.whenReady().then(() => {
       console.log(`删除文件发生错误:${error.message}`)
     }
   })
+
   createWindow();
 
   app.on('activate', function () {

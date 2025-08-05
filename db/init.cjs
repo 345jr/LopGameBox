@@ -23,6 +23,7 @@ try {
     image_path TEXT NOT NULL,           -- 图片文件路径
     image_type TEXT NOT NULL,           -- 'banner' 或 'screenshot'
     created_at INTEGER DEFAULT (strftime('%s', 'now')),
+    relative_path TEXT NOT NULL,
     FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
     );
 

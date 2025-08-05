@@ -19,6 +19,13 @@ UPDATE games SET created_at = strftime('%s', 'now') - 864000 WHERE id = 3;   -- 
 -- 添加新字段
 ALTER TABLE games ADD COLUMN disk_size INTEGER DEFAULT 0;
 ALTER TABLE game_gallery ADD COLUMN relative_path TEXT NOT NULL DEFAULT '';
+ALTER TABLE game_gallery ADD COLUMN image_id TEXT NOT NULL AUTOINCREMENT;
+ALTER TABLE game_gallery ADD COLUMN image_id TEXT UNIQUE;
+-- 添加唯一索引(不能直接添加)
+ALTER TABLE game_gallery ADD COLUMN image_id INTEGER;
+CREATE UNIQUE INDEX idx_game_gallery_image_id ON game_gallery(image_id);
+-- 删除表字段
+DELETE FROM game_gallery WHERE game_id = 8 AND image_type = 'snapshot'
 
 
 -- 创建一个新表
@@ -39,4 +46,25 @@ SELECT id, game_name, launch_path , total_play_time , last_launch_time , launch_
 DROP TABLE games;
 -- 重命名
 ALTER TABLE games_new RENAME TO games;
+
+
+
+CREATE TABLE IF NOT EXISTS game_gallery_new_new (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    game_id INTEGER NOT NULL,
+    image_path TEXT NOT NULL,           -- 图片文件路径
+    image_type TEXT NOT NULL,           -- 'banner' 或 'screenshot'
+    created_at INTEGER DEFAULT (strftime('%s', 'now')),
+    relative_path TEXT NOT NULL,
+    FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
+    );
+
+INSERT INTO game_gallery_new_new (id,game_id,image_path,image_type,created_at,relative_path)
+SELECT id,game_id,image_path,image_type,created_at,relative_path  FROM game_gallery;
+
+DROP TABLE game_gallery;
+
+ALTER TABLE game_gallery_new_new RENAME TO game_gallery;
+
+
 

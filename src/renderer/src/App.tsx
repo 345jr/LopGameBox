@@ -168,7 +168,7 @@ function App(): React.JSX.Element {
                 >
                   封面
                 </button>
-                <Link to={'/gallery'}>
+                <Link to={`/gallery/${game.id}`}>
                   <button>图集</button>
                 </Link>
               </td>

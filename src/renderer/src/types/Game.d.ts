@@ -22,3 +22,12 @@ export interface Banners {
   created_at: number;
   relative_path:string;
 }
+
+export interface Snapshot {
+  id: number;
+  game_id: number;
+  image_path: string;
+  image_type: string;
+  created_at: number;
+  relative_path:string;
+}

@@ -1,2 +1,8 @@
 @import "tailwindcss";
 
+@layer components {
+    /* 过渡动画效果 */
+    .Tr_ani {
+        @apply opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition duration-600 ease-out pointer-events-none group-hover:pointer-events-auto
+    }
+}

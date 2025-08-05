@@ -8,7 +8,7 @@ import Updata from './components/Updata'
 import App from './App'
 const router = createBrowserRouter([
   {path:"/",element:<App />},
-  {path:"/gallery",element:<Gallery />},
+  {path:"/gallery/:gameId",element:<Gallery />},
   {path:'/updata',element:<Updata />}
 ])
 createRoot(document.getElementById('root')!).render(

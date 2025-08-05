@@ -47,8 +47,41 @@ const Updata = () => {
             </ul>
           </div>
         </div>
-
-      
+        {/* 2025年8月5号 */}
+        <div>
+          <div className="flex flex-row">
+            <FaClock className="text-2xl mr-5 mt-0.5 text-amber-500" />
+            <p className="text-xl font-bold">2025年8月5号</p>
+          </div>
+          <div>
+            <div className="flex flex-row">
+              <FaCircleCheck className="text-2xl mr-5 mt-1 text-green-500" />
+              <div className="w-60 h-1 mt-3.5 rounded-r-full bg-gradient-to-l from-green-200 via-green-400 to-green-600"></div>
+            </div>
+            <ul className="ml-15 font-serif">
+              <li>1.添加功能:可以给游戏添加快照图</li>
+            </ul>
+          </div>
+          <div>
+            <div className="flex flex-row">
+              <FaCalendarPlus className="text-2xl mr-5 mt-1 text-blue-500" />
+              <div className="w-60 h-1 mt-3.5 rounded-r-full bg-gradient-to-l from-blue-200 via-blue-400 to-blue-600"></div>
+            </div>
+            <ul className="ml-15 font-serif">
+              <li>1.代办事项:快照图添加删除功能</li>
+            </ul>
+          </div>
+          <div>
+            <div className="flex flex-row">
+              <FaHeart className="text-2xl mr-5 mt-1 text-red-500" />
+              <div className="w-60 h-1 mt-3.5 rounded-r-full bg-gradient-to-l from-red-200 via-red-400 to-red-600"></div>
+            </div>
+            <ul className="ml-15 font-serif">
+              <li>1.优化代码:使用tailwindCSS的配置,简化代码,提高复用性</li>
+              <li>2.撰写批注:在关键地方添加注释,增加可读性</li>
+            </ul>
+          </div>
+        </div>
 
         <div className="mt-20 text-xl">
           <Link to={'/'}>

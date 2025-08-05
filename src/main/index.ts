@@ -103,7 +103,7 @@ app.whenReady().then(() => {
     // console.log(url.pathToFileURL(path.join(projectRoot, filePath)).toString())
     const absPath = path.join(projectRoot, filePath);
     const cleanPath = absPath.replace(/[\\/]+$/, '');
-    console.log(cleanPath)
+    // console.log(cleanPath)
     return net.fetch(
       url.pathToFileURL(path.join(cleanPath)).toString(),
     );
@@ -279,6 +279,37 @@ app.whenReady().then(() => {
   ipcMain.handle('db:getBanners', () => {
     return gameService.getBanners();
   });
+  // 查询Snapshot
+  ipcMain.handle('db:getSnapshot',async(_event , gameId) =>{
+    return gameService.getGameSnapshot(gameId)
+  })
+  // 添加Snapshot
+  ipcMain.handle('db:addSnapshot',async(_event , {gameId, imagePath, relativePath})=>{
+    try {
+      return gameService.setGameSnapshot(gameId, imagePath, relativePath)
+    } catch (error:any) {
+      console.log(`发生异常: ${error.message}`)
+      return null
+    }
+  })
+  //删除Snapshot
+  ipcMain.handle('db:delectSnapshot',async(_event,id)=>{
+    try {
+      return gameService.delectSnapshot(id)
+    } catch(error:any) {
+      console.log(`删除记录发生错误:${error.message}`)
+    }
+  })
+  //删除图片文件
+  ipcMain.handle('op:delectImages',async(_event,relative_path)=>{
+    try {
+      const path = getDelectPath(relative_path)
+      await fs.unlink(path)
+      console.log(`删除成功`)
+    } catch (error:any) {
+      console.log(`删除文件发生错误:${error.message}`)
+    }
+  })
   createWindow();
 
   app.on('activate', function () {

@@ -6,6 +6,8 @@ export const getDelectPath = (oldFilePath:string)=>{
             console.log(`default image skip`)
             return 'skip';
           }
+          if (oldFilePath === 'skip')
+            return 'skip'
           const filePath = path.join('public',...(oldFilePath.split('\\')))          
           return filePath
         }

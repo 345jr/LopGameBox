@@ -23,8 +23,12 @@ const api = {
   deleteGame: (id: number) => ipcRenderer.invoke('db:deleteGame', id),
   addBanner:(gameImage:{gameId:number;imagePath:string;relativePath:string}) =>ipcRenderer.invoke('db:addBanner',gameImage),
   getBanners: ()=>ipcRenderer.invoke('db:getBanners'),
+  getGameSnapshot:(gameId:number)=>ipcRenderer.invoke('db:getSnapshot',gameId),
+  addGameSnapshot:(gameImage:{gameId:number;imagePath:string;relativePath:string}) =>ipcRenderer.invoke('db:addSnapshot',gameImage),
+  delectSnapshot:(id:number)=>ipcRenderer.invoke('db:delectSnapshot',id),
   //文件操作
-  copyImages:(move:{origin:string,target:string,gameName:string,oldFilePath:string}) => ipcRenderer.invoke('op:copyImages',move)
+  copyImages:(move:{origin:string,target:string,gameName:string,oldFilePath:string}) => ipcRenderer.invoke('op:copyImages',move),
+  delectImages:(relative_path:string) =>ipcRenderer.invoke('op:delectImages',relative_path),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

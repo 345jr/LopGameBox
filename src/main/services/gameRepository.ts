@@ -40,4 +40,10 @@ export class GameRepository {
     const info = stmt.run(id);
     return { changes: info.changes };
   }
+  //修改游戏名
+  public modifyGameName(id:number,newName:string) {
+    const stmt = this.db.prepare(`UPDATE games SET game_name = ? WHERE id = ?`)
+    stmt.run(newName,id)
+    console.log(`modify success!`)
+  }
 }

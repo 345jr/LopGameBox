@@ -299,6 +299,14 @@ app.whenReady().then(() => {
       console.log(`删除文件发生错误:${error.message}`)
     }
   })
+  //修改游戏名
+  ipcMain.handle('db:modifyGameName',async(_event,id,newName)=>{
+    try{
+      gameService.modifyGameName(id,newName)
+    } catch (error){
+      console.log(`修改游戏名发生错误${error}`)
+    }
+  })
 
   createWindow();
 

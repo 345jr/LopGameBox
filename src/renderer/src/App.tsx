@@ -4,6 +4,8 @@ import gameSizeFormat from './util/gameSizeFormat';
 import type { Game, Banners } from './types/Game';
 import { Link } from 'react-router-dom';
 
+import NavHeader from './components/NavHeader';
+import Portal from './components/Portal';
 function App(): React.JSX.Element {
   const [games, setGames] = useState<Game[]>([]);
   const BannersRef = useRef<Banners[]>(null);
@@ -19,49 +21,29 @@ function App(): React.JSX.Element {
     setGames(gameList);
   }, []);
 
-  // // 组件加载时获取游戏列表和设置监听器
-  // useEffect(() => {
-  //   console.log(`loading success!`)
-  //   fetchGames();
-  //   window.api.onTimerUpdate(setElapsedTime);
-  //   window.api.onTimerStopped(() => {
-  //     setMessage(`《${runningGame?.game_name}》已关闭。`);
-  //     setRunningGame(null);
-  //     fetchGames();
-  //   })
-  //    //页面跳转时清理注册的监听器
-  //    return ()=>{
-  //     console.log(`cleaned!`)
-  //     window.api.offTimerUpdate(setElapsedTime)
-  //     window.api.offTimerStopped(() => {
-  //       setMessage(`《${runningGame?.game_name}》已关闭。`);
-  //       setRunningGame(null);
-  //       fetchGames();
-  //     })
-  //    };
-  // }, [fetchGames, runningGame]);
-
+  // 缓存停止计时函数
+  const handleTimerStopped = useCallback(()=>{
+    setMessage(`《${runningGame?.game_name}》已关闭。`);
+    setRunningGame(null);
+    fetchGames();
+  },[runningGame, setMessage, setRunningGame, fetchGames])  
+    
   useEffect(()=>{
-    console.log(`loading gameList success!`)
+    console.log(`loading gameList success!`)    
     fetchGames();
   },[fetchGames])
 
-  useEffect(()=>{
-    const handleTimerStopped = () => {
-      setMessage(`《${runningGame?.game_name}》已关闭。`);
-      setRunningGame(null);
-      fetchGames();
-    };
-    console.log(`listener on!`)
-    window.api.onTimerUpdate(setElapsedTime);
-    window.api.onTimerStopped(handleTimerStopped)
-     //页面跳转时清理注册的监听器
-     return ()=>{
-      console.log(`listener clean!`)
-      window.api.offTimerUpdate(setElapsedTime)
-      window.api.offTimerStopped(handleTimerStopped)
-     };
-  },[])
+  // useEffect(()=>{
+  //   // console.log(`listener on!`)
+  //   // window.api.onTimerUpdate(setElapsedTime);
+  //   // window.api.onTimerStopped(handleTimerStopped)
+  //    //页面跳转时清理注册的监听器
+  //    return ()=>{
+  //     console.log(`listener clean!`)
+  //     window.api.offTimerUpdate(setElapsedTime)
+  //     window.api.offTimerStopped(handleTimerStopped)
+  //    };
+  // },[setElapsedTime, handleTimerStopped])
 
   //添加游戏
   const handleAddGame = async () => {
@@ -92,6 +74,9 @@ function App(): React.JSX.Element {
   };
   // 运行游戏
   const handleRunGame = async (game: Game) => {
+    //注册监听器
+    window.api.onTimerUpdate(setElapsedTime);
+    window.api.onTimerStopped(handleTimerStopped)
     if (runningGame) {
       setMessage('已有另一个游戏在运行中！');
       console.log(runningGame);
@@ -102,6 +87,8 @@ function App(): React.JSX.Element {
       id: game.id,
       path: game.launch_path,
     });
+    
+
     if (result.success) {
       setRunningGame(game);
       setElapsedTime(0);
@@ -140,12 +127,21 @@ function App(): React.JSX.Element {
       setMessage(`❌ 添加失败: ${error.message}`);
     }
   };
+  //修改游戏名
+  // const handleModifyGameName = async (id: number) => {
+  //   const newName = prompt('请输入新的游戏名称:');
+  //   if (!newName) return;
+  //   try {
+  //     await window.api.modifyGameName(id, newName);
+  //     setMessage(`✅ 游戏名称已修改为《${newName}》`);
+  //     fetchGames(); // 刷新列表
+  //   } catch (error: any) {
+  //     setMessage(`❌ 修改失败: ${error.message}`);
+  //   }
+  // };
   return (
     <>
-      <button onClick={handleAddGame}>添加新游戏</button>
-      <Link to={'/updata'} className='ml-5'>
-        <button>更新记录</button>
-      </Link>
+      <NavHeader AddGame={handleAddGame}/>
       {/* 游戏列表 */}
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
@@ -178,7 +174,12 @@ function App(): React.JSX.Element {
               ) : (
                 <td style={styles.td}><img src="lop://banner/default.jpg" alt="默认封面图" className='w-60 h-40'/></td>
               )}
-              <td style={styles.td}>{game.game_name}</td>
+
+              <td style={styles.td} className='flex flex-col'>
+                <p>{game.game_name}</p>
+                <Portal gameId={game.id} updata={setGames}/>
+              </td>
+
               <td style={styles.td}>{formatTime(game.total_play_time)}</td>
               <td style={styles.td}>{game.launch_count}</td>
               <td style={styles.td}>

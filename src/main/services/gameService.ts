@@ -46,4 +46,8 @@ export class GameService {
   public delectSnapshot(id:number){
     return this.galleryRepo.delectSnapshot(id)
   }
+  //修改游戏名
+  public modifyGameName(id:number,newName:string){
+    return this.gameRepo.modifyGameName(id,newName)
+  }
 }

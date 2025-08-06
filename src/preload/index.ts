@@ -53,6 +53,7 @@ const api = {
     relativePath: string;
   }) => ipcRenderer.invoke('db:addSnapshot', gameImage),
   delectSnapshot: (id: number) => ipcRenderer.invoke('db:delectSnapshot', id),
+  modifyGameName: (id: number, newName: string) =>ipcRenderer.invoke('db:modifyGameName', id, newName),
   //文件操作
   copyImages: (move: {
     origin: string;

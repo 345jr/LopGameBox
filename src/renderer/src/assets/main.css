@@ -1,8 +1,24 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
+@font-face {
+  font-family: 'LXGW';
+  src: url('../fonts/LXGWWenKai-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'LXGW-L';
+  src: url('../fonts/LXGWWenKai-Light.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'LXGW-M';
+  src: url('../fonts/LXGWWenKai-Medium.ttf') format('truetype');
+}
 @layer components {
-    /* 过渡动画效果 */
-    .Tr_ani {
-        @apply opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition duration-600 ease-out pointer-events-none group-hover:pointer-events-auto
-    }
+  /* 过渡动画效果 */
+  .Tr_ani {
+    @apply pointer-events-none scale-75 opacity-0 transition duration-600 ease-out group-hover:pointer-events-auto group-hover:scale-100 group-hover:opacity-100;
+  }
+}
+
+body {
+  font-family: 'LXGW-M';
 }

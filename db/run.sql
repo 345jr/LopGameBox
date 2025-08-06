@@ -66,5 +66,7 @@ DROP TABLE game_gallery;
 
 ALTER TABLE game_gallery_new_new RENAME TO game_gallery;
 
+UPDATE games SET game_name = '女仆电器街' WHERE id = 13
+
 
 

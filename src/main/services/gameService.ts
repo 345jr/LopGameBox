@@ -50,4 +50,8 @@ export class GameService {
   public modifyGameName(id:number,newName:string){
     return this.gameRepo.modifyGameName(id,newName)
   }
+  //更新游戏大小
+  public updateGameSize(id:number,disk_size:number){
+    return this.gameRepo.updateGameSize(id,disk_size)
+  }
 }

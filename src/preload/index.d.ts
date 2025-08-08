@@ -19,9 +19,11 @@ declare global {
       addGameSnapshot:(gameImage:{gameId:number;imagePath:string;relativePath:string})=>Promise<GameImage>
       delectSnapshot:(id:number)=> Promise<{changes:number}>
       modifyGameName:(id:number,newName:string)=>Promise<void>
+      updateGameSize:(id:number,launch_path:string)=>Promise<number>
       //操作本地
       copyImages:(move:{origin:string,target:string,gameName:string,oldFilePath:string}) => Promise<{relativePath:string}>
       delectImages:(relative_path:string)=> Promise<string>
+      openFolder:(folderPath:string)=>Promise<void>
     }
   }
 }

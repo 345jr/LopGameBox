@@ -34,9 +34,9 @@ const gameService = new GameService(
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 850,
+    width: 900,
     height: 600,
-    minWidth: 850,
+    minWidth: 900,
     minHeight: 600,
     show: false,
     autoHideMenuBar: true,
@@ -89,10 +89,14 @@ app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron');
   //使用自定义协议
   protocol.handle('lop', (request) => {
-    const filePath = request.url.slice('lop://'.length);
+    // console.log(request.url);
+    let filePath = request.url.slice('lop://'.length);
+    filePath = decodeURIComponent(filePath);
+    console.log(filePath)
     const projectRoot = path.resolve(__dirname, '../../public');    
     const absPath = path.join(projectRoot, filePath);
     const cleanPath = absPath.replace(/[\\/]+$/, '');
+    // console.log(cleanPath)
     return net.fetch(
       url.pathToFileURL(path.join(cleanPath)).toString(),
     );
@@ -221,6 +225,17 @@ app.whenReady().then(() => {
       }
     }
   });
+  //获取游戏大小
+  ipcMain.handle('db:updateGameSize',async(_event,id,launch_path)=>{
+    try {
+      const disk_size = await getSize(launch_path)
+      gameService.updateGameSize(id,disk_size)
+      return disk_size
+    } catch (error:any) {
+      console.log(`获取游戏大小发生错误:${error.message}`)
+      return 0
+    }
+  })
   //删除游戏
   ipcMain.handle('db:deleteGame', (_event, id: number) => {
     return gameService.deleteGame(id);
@@ -307,7 +322,14 @@ app.whenReady().then(() => {
       console.log(`修改游戏名发生错误${error}`)
     }
   })
-
+  //打开文件夹
+  ipcMain.handle('op:openFolder',(_event,folderPath)=>{
+    try {
+      shell.showItemInFolder(folderPath)
+    } catch (error:any) {
+      console.log(`打开文件夹发生错误:${error.message}`)
+    }
+  })
   createWindow();
 
   app.on('activate', function () {

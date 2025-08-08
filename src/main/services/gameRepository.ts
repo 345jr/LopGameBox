@@ -46,4 +46,10 @@ export class GameRepository {
     stmt.run(newName,id)
     console.log(`modify success!`)
   }
+  //重新计算游戏大小
+  public updateGameSize(id:number,disk_size:number) {
+    const stmt = this.db.prepare(`UPDATE games SET disk_size = ? WHERE id = ?`)
+    stmt.run(disk_size,id)
+    console.log('get disk_size success');    
+  }
 }

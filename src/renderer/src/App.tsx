@@ -3,9 +3,11 @@ import { formatTime, formatTimeCalender } from './util/timeFormat';
 import gameSizeFormat from './util/gameSizeFormat';
 import type { Game, Banners } from './types/Game';
 import { Link } from 'react-router-dom';
+import { VscFolder } from "react-icons/vsc";
 
 import NavHeader from './components/NavHeader';
 import Portal from './components/Portal';
+import GameCards from './components/GameCards';
 function App(): React.JSX.Element {
   const [games, setGames] = useState<Game[]>([]);
   const BannersRef = useRef<Banners[]>(null);
@@ -33,17 +35,7 @@ function App(): React.JSX.Element {
     fetchGames();
   },[fetchGames])
 
-  // useEffect(()=>{
-  //   // console.log(`listener on!`)
-  //   // window.api.onTimerUpdate(setElapsedTime);
-  //   // window.api.onTimerStopped(handleTimerStopped)
-  //    //页面跳转时清理注册的监听器
-  //    return ()=>{
-  //     console.log(`listener clean!`)
-  //     window.api.offTimerUpdate(setElapsedTime)
-  //     window.api.offTimerStopped(handleTimerStopped)
-  //    };
-  // },[setElapsedTime, handleTimerStopped])
+  
 
   //添加游戏
   const handleAddGame = async () => {
@@ -60,18 +52,7 @@ function App(): React.JSX.Element {
       setMessage(`❌ 添加失败: ${error.message}`);
     }
   };
-  // 删除游戏
-  const handleDeleteGame = async (game: Game) => {
-    if (runningGame?.id === game.id) {
-      setMessage('不能删除正在运行的游戏！');
-      return;
-    }
-    if (confirm(`确定要删除游戏《${game.game_name}》吗？此操作不可撤销。`)) {
-      await window.api.deleteGame(game.id);
-      setMessage(`游戏《${game.game_name}》已删除。`);
-      fetchGames(); // 刷新列表
-    }
-  };
+  
   // 运行游戏
   const handleRunGame = async (game: Game) => {
     //注册监听器
@@ -127,103 +108,17 @@ function App(): React.JSX.Element {
       setMessage(`❌ 添加失败: ${error.message}`);
     }
   };
-  //修改游戏名
-  // const handleModifyGameName = async (id: number) => {
-  //   const newName = prompt('请输入新的游戏名称:');
-  //   if (!newName) return;
-  //   try {
-  //     await window.api.modifyGameName(id, newName);
-  //     setMessage(`✅ 游戏名称已修改为《${newName}》`);
-  //     fetchGames(); // 刷新列表
-  //   } catch (error: any) {
-  //     setMessage(`❌ 修改失败: ${error.message}`);
-  //   }
-  // };
+  
+  
+
   return (
     <>
       <NavHeader AddGame={handleAddGame}/>
-      {/* 游戏列表 */}
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            <th style={styles.th}>封面图</th>
-            <th style={styles.th}>游戏名称</th>
-            <th style={styles.th}>总游戏时长</th>
-            <th style={styles.th}>启动次数</th>
-            <th style={styles.th}>上次启动时间</th>
-            <th style={styles.th}>游戏大小</th>
-            {/* <th style={styles.th}>创建时间</th>
-            <th style={styles.th}>更新时间</th> */}
-            <th style={styles.th}>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {games.map((game) => (
-            <tr key={game.id}>
-              {BannersRef.current?.find((i: Banners) => i.game_id === game.id) ? (
-                <td style={styles.td}>
-                  <img
-                    src={'lop://' + BannersRef.current
-                        ?.find((i: Banners) => i.game_id === game.id)
-                        ?.relative_path?.replace(/\\/g, '/')
-                        }
-                    alt="banner图"
-                    className="w-60 h-40"
-                  />
-                </td>
-              ) : (
-                <td style={styles.td}><img src="lop://banner/default.jpg" alt="默认封面图" className='w-60 h-40'/></td>
-              )}
-
-              <td style={styles.td} className='flex flex-col'>
-                <p>{game.game_name}</p>
-                <Portal gameId={game.id} updata={setGames}/>
-              </td>
-
-              <td style={styles.td}>{formatTime(game.total_play_time)}</td>
-              <td style={styles.td}>{game.launch_count}</td>
-              <td style={styles.td}>
-                {game.last_launch_time
-                  ? formatTimeCalender(game.last_launch_time)
-                  : '暂无'}
-              </td>
-              <td style={styles.td}>{gameSizeFormat(game.disk_size)}</td>
-              {/* <td style={styles.td}>{formatTimeCalender(game.created_at)}</td>
-              <td style={styles.td}>{formatTimeCalender(game.updated_at)}</td> */}
-              <td style={styles.td}>
-                <button onClick={() => handleRunGame(game)}>运行</button>
-                <button
-                  onClick={() => handleDeleteGame(game)}
-                  style={{ marginLeft: '10px' }}
-                >
-                  删除
-                </button>
-                <button
-                  onClick={() => handleAddBanner(game)}
-                  style={{ marginLeft: '10px' }}
-                >
-                  封面
-                </button>
-                <Link to={`/gallery/${game.id}`}>
-                  <button>图集</button>
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {`消息通知 :${message}`}
-      {elapsedTime ? `运行时间 :${formatTime(elapsedTime)}` : <></>}
+      <div className='w-full'>
+        <GameCards/>
+      </div>
+      
     </>
   );
 }
-const styles: { th: React.CSSProperties; td: React.CSSProperties } = {
-  th: {
-    border: '1px solid #ccc',
-    padding: '8px',
-    textAlign: 'left',
-    backgroundColor: '#f2f2f2',
-  },
-  td: { border: '1px solid #ccc', padding: '0px' },
-};
 export default App;

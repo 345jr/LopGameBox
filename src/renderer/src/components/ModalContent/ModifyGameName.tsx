@@ -4,6 +4,7 @@ import {motion} from 'motion/react'
 
 import { Game } from '@renderer/types/Game';
 import gameSizeFormat from '@renderer/util/gameSizeFormat';
+import useInfoStore from '@renderer/store/infoStore';
 
 export default function ModalContent({
   onClose,
@@ -16,6 +17,8 @@ export default function ModalContent({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [size,setSize] = useState<number>(0)
+
+  const setInfo = useInfoStore((state) => state.setInfo);
   //修改游戏名
   const handleConfirm = async () => {
     const newName = inputRef.current?.value;
@@ -26,6 +29,7 @@ export default function ModalContent({
       const gameList = await window.api.getAllGames();
       updata(gameList);
       onClose();
+      setInfo(`游戏名已修改为: ${newName}`);
     } else {
       alert('游戏名不能为空');
     }

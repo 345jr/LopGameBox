@@ -14,16 +14,17 @@ import Portal from './Portal';
 import { Link } from 'react-router-dom';
 import { motion,Variants } from 'motion/react';
 import useGameStore from '@renderer/store/GameStore';
-
+import useInfoStore from '@renderer/store/infoStore';
 
 const GameCards = () => {
   const [games, setGames] = useState<Game[]>([]);
   const BannersRef = useRef<Banners[]>(null);
   const [runningGame, setRunningGame] = useState<Game | null>(null);
-  const [elapsedTime, setElapsedTime] = useState<number>(0);
-  const [message, setMessage] = useState<string>('');
+  // const [elapsedTime, setElapsedTime] = useState<number>(0);
+  // const [message, setMessage] = useState<string>('');
   // 获取新添加游戏的数据
   const getGameList = useGameStore((state) => state.gameId);
+  const setInfo = useInfoStore((state) => state.setInfo);
   useEffect(() => {
     fetchGames()
   }, [getGameList]);
@@ -36,13 +37,13 @@ const GameCards = () => {
   }, []);
   // 缓存停止计时函数 --
   const handleTimerStopped = useCallback(() => {
-    setMessage(`《${runningGame?.game_name}》已关闭。`);
+    // setMessage(`《${runningGame?.game_name}》已关闭。`);
+    setInfo
     setRunningGame(null);
     fetchGames();
-  }, [runningGame, setMessage, setRunningGame, fetchGames]);
+  }, [runningGame, setRunningGame, fetchGames]);
   //加载主页数据 --
   useEffect(() => {
-    // console.log(`loading gameList success!`);
     fetchGames();
   }, [fetchGames]);
 
@@ -53,14 +54,15 @@ const GameCards = () => {
   //启动游戏 --
   const handleRunGame = async (game: Game) => {
     //注册监听器
-    window.api.onTimerUpdate(setElapsedTime);
+    window.api.onTimerUpdate(setInfo);
     window.api.onTimerStopped(handleTimerStopped);
     if (runningGame) {
-      setMessage('已有另一个游戏在运行中！');
+      // setMessage('已有另一个游戏在运行中！');
+      setInfo(`已经有另一个游戏在运行中`)
       console.log(runningGame);
       return;
     }
-    setMessage(`正在启动《${game.game_name}》...`);
+    // setMessage(`正在启动《${game.game_name}》...`);
     const result = await window.api.executeFile({
       id: game.id,
       path: game.launch_path,
@@ -68,22 +70,25 @@ const GameCards = () => {
 
     if (result.success) {
       setRunningGame(game);
-      setElapsedTime(0);
-      setMessage(`《${game.game_name}》正在运行...`);
+      // setElapsedTime(0);
+      // setMessage(`《${game.game_name}》正在运行...`);
+      setInfo(`启动!!! ${game.game_name}`);
     } else {
-      setMessage(`${result.message}`);
+      // setMessage(`${result.message}`);
       setRunningGame(null);
     }
   };
   //删除游戏 --
   const handleDeleteGame = async (game: Game) => {
     if (runningGame?.id === game.id) {
-      setMessage('不能删除正在运行的游戏！');
+      // setMessage('不能删除正在运行的游戏！');
+      setInfo(`不能删除正在运行的游戏！`);
       return;
     }
     if (confirm(`确定要删除游戏《${game.game_name}》吗？此操作不可撤销。`)) {
       await window.api.deleteGame(game.id);
-      setMessage(`游戏《${game.game_name}》已删除。`);
+      // setMessage(`游戏《${game.game_name}》已删除。`);
+      setInfo(`游戏${game.game_name}已删除。`);
       fetchGames(); // 刷新列表
     }
   };
@@ -111,10 +116,12 @@ const GameCards = () => {
         imagePath: path,
         relativePath: result.relativePath,
       });
-      setMessage(`✅ 游戏${game.game_name}已成功添加封面图！`);
+      // setMessage(`✅ 游戏${game.game_name}已成功添加封面图！`);
+      setInfo(`${game.game_name}已成功添加封面图！`);
       fetchGames();
     } catch (error: any) {
-      setMessage(`❌ 添加失败: ${error.message}`);
+      setInfo(`添加封面失败`);
+      // setMessage(`❌ 添加失败: ${error.message}`);
     }
   };
   //动画效果父 --

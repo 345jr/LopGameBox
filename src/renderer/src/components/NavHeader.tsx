@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { FaSearch } from 'react-icons/fa';
-import { VscTriangleDown } from 'react-icons/vsc';
+import { VscTriangleDown, VscComment } from 'react-icons/vsc';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
@@ -23,16 +23,42 @@ const NavHeader = () => {
     const defaultName = path.split('\\').pop()?.replace('.exe', '') || '新游戏';
     const defaultPath = `banner\\default.jpg`;
     try {
-      const gameInitData = await window.api.addGame({ gameName: defaultName, launchPath: path });
+      const gameInitData = await window.api.addGame({
+        gameName: defaultName,
+        launchPath: path,
+      });
       // 添加默认封面图
-      await window.api.addBanner({gameId: gameInitData.id, imagePath: 'null', relativePath: defaultPath});
+      await window.api.addBanner({
+        gameId: gameInitData.id,
+        imagePath: 'null',
+        relativePath: defaultPath,
+      });
       setInfo(`${defaultName} 已添加`);
-      setGameList(gameInitData.id); 
+      setGameList(gameInitData.id);
     } catch (error: any) {
-      console.log(`${error.message}`)
+      console.log(`${error.message}`);
     }
   };
-
+  //动画 --
+  const divVariants = {
+    initial: {},
+    hover: {},
+  };
+  const pVariants = {
+    initial: {
+      scaleX: 0,
+    },
+    hover: {
+      scaleX: 10,
+      transition: { duration: 0.3 },
+    },
+  };
+  const iconVariants = {
+    initial:{rotate:0},
+    hover:{
+      rotate:15
+    }
+  }
   return (
     <div className="items-centers flex justify-start border-b-1 border-black p-2">
       <img src={logo} alt="logo" className="mr-5 w-12 rounded-full" />
@@ -106,8 +132,26 @@ const NavHeader = () => {
         </motion.div>
 
         {/* 状态通知 */}
-        <div className='flex flex-row text-center items-center ml-5'>
-          <p>{info || '「目前没有信息」'}</p>
+        <motion.div
+          className="ml-5 flex flex-row items-center text-center"
+          onMouseEnter={() => setPosition({ x: 430, y: 20, rotate: -90 })}
+          variants={divVariants}
+          whileHover='hover'
+          initial='initial'
+          >
+          
+          <div
+            className="relative flex flex-row items-center text-center">
+            <motion.div variants={iconVariants}>
+              <VscComment className="mr-5 text-2xl" />
+            </motion.div>
+            <p>{info || '「目前没有信息」'}</p>
+            <motion.div variants={pVariants} className="absolute bottom-0 left-30 h-0.5 w-5 bg-black"></motion.div>
+          </div>
+        </motion.div>
+        {/* 游戏运行状态状态 */}
+        <div>
+          
         </div>
       </div>
 

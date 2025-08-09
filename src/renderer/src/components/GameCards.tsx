@@ -13,6 +13,8 @@ import gameSizeFormat from '@renderer/util/gameSizeFormat';
 import Portal from './Portal';
 import { Link } from 'react-router-dom';
 import { motion,Variants } from 'motion/react';
+import useGameStore from '@renderer/store/GameStore';
+
 
 const GameCards = () => {
   const [games, setGames] = useState<Game[]>([]);
@@ -20,7 +22,12 @@ const GameCards = () => {
   const [runningGame, setRunningGame] = useState<Game | null>(null);
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [message, setMessage] = useState<string>('');
-  // 获取主页数据 --
+  // 获取新添加游戏的数据
+  const getGameList = useGameStore((state) => state.gameId);
+  useEffect(() => {
+    fetchGames()
+  }, [getGameList]);
+  // 初始获取主页数据 --
   const fetchGames = useCallback(async () => {
     //获取游戏数据+获取游戏封面图
     const gameList = await window.api.getAllGames();
@@ -35,7 +42,7 @@ const GameCards = () => {
   }, [runningGame, setMessage, setRunningGame, fetchGames]);
   //加载主页数据 --
   useEffect(() => {
-    console.log(`loading gameList success!`);
+    // console.log(`loading gameList success!`);
     fetchGames();
   }, [fetchGames]);
 
@@ -125,6 +132,7 @@ const GameCards = () => {
     initial:{x:100,opacity:0},
     hover:{x:0,opacity:1}
   }
+  
   return (
     <>
       <div className="bg-[url(../assets/background.jpg)] bg-cover bg-center">
@@ -216,7 +224,7 @@ const GameCards = () => {
                 
               </motion.div>
               {/* 一个阻挡的块，防止触发隐藏的动画元素 */}
-              <div className='opacity-0 h-70 w-60 z-50 bg-amber-300 pointer-events-none'></div>
+              <div className='opacity-0 h-70 w-60 z-50 bg-amber-300 '></div>
             </div>
           </div>
         ))}

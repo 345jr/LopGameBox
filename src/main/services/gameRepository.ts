@@ -5,7 +5,7 @@ export class GameRepository {
   //添加游戏
   public addGame(gameName: string, launchPath: string, diskSize: number) {
     const stmt = this.db.prepare(`
-      INSERT INTO games (game_name, launch_path, disk_size,) VALUES (?, ?, ?)
+      INSERT INTO games (game_name, launch_path, disk_size) VALUES (?, ?, ?)
     `);
     const info = stmt.run(gameName, launchPath, diskSize);
     return { id: info.lastInsertRowid, gameName, launchPath, diskSize };

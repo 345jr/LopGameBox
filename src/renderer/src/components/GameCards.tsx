@@ -131,92 +131,93 @@ const GameCards = () => {
         {games.map((game) => (
           <div
             key={game.id}
-            className="flex flex-col items-center justify-center p-4"
+            className="flex flex-col items-center justify-center p-4 "
           >
-            
-            <motion.div
-              whileHover="hover"
-              initial="initial"              
-              variants={gameList}
-              className="group relative h-70 w-120"
-            >
-              {/* 封面图   */}
-              <img
-                src={
-                  'lop://' +
-                  BannersRef.current
-                    ?.find((i: Banners) => i.game_id === game.id)
-                    ?.relative_path?.replace(/\\/g, '/')
-                }
-                alt="banner图"
-                className="h-70 w-120 rounded-2xl border-2 border-white bg-cover bg-center"
-              />
-
-
-              {/* 圆形遮罩层 */}
-
+            <div className='flex flex-row'>
               <motion.div
-                variants={gameItems}
-                className="absolute top-0 right-0 h-70 w-64 rounded-l-[20px] rounded-r-2xl bg-stone-600/75 p-5 pointer-events-none"
-              />
-              <motion.div
-                variants={gameItems}
-                className="absolute top-0 right-0 h-70 w-62 rounded-l-[20px] rounded-r-2xl bg-stone-700/75 p-5 pointer-events-none"
-              />
-              <motion.div
-                variants={gameItems}
-                className="absolute top-0 right-0 h-70 w-60 rounded-l-[20px] rounded-r-2xl border-r-2 border-white bg-stone-800/75 p-5 pointer-events-none"
+                whileHover="hover"
+                initial="initial"              
+                variants={gameList}
+                className="group relative h-70 w-120 ml-60"
               >
-                <p className="p-0.5 text-white">游戏名:{game.game_name}</p>
-                <p className="p-0.5 text-white">
-                  游戏时间:{formatTime(game.total_play_time)}
-                </p>
-                <p className="p-0.5 whitespace-nowrap text-white">
-                  上次启动:
-                  {game.last_launch_time
-                    ? formatTimeCalender(game.last_launch_time)
-                    : '暂无'}
-                </p>
-                <p className="p-0.5 whitespace-nowrap text-white">
-                  添加时间:{formatTimeCalender(game.created_at)}
-                </p>
-                <p className="p-0.5 text-white">启动次数:{game.launch_count}</p>
-                <p className="mb-4 p-0.5 text-white">
-                  空间占用大小:{gameSizeFormat(game.disk_size)}
-                </p>
-                <div className="m-4 h-0.5 w-40 bg-white"></div>
-
-                {/* 操作区 */}
-                {/* 启动游戏 */}
-                <div className="grid grid-cols-6 gap-1">
-                  <button onClick={() => handleRunGame(game)}>
-                    <VscPlay className="cursor-pointer text-2xl text-white" />
-                  </button>
-                  {/* 打开游戏文件夹 */}
-                  <button
-                    onClick={() => handleOpenGameFolder(game.launch_path)}
-                  >
-                    <VscFolder className="cursor-pointer text-2xl text-white" />
-                  </button>
-                  {/* 修改游戏名 */}
-                  <Portal gameId={game.id} updata={setGames} />
-                  {/* 删除游戏记录 */}
-                  <button onClick={() => handleDeleteGame(game)}>
-                    <VscTrash className="cursor-pointer text-2xl text-white" />
-                  </button>
-                  {/* 封面图修改 */}
-                  <button onClick={() => handleAddBanner(game)}>
-                    <VscVm className="cursor-pointer text-2xl text-white" />
-                  </button>
-                  {/* 游戏图集 */}
-                  <button>
-                    <Link to={`/gallery/${game.id}`}>
-                      <VscFileMedia className="cursor-pointer text-2xl text-white" />
-                    </Link>
-                  </button>
-                </div>
+                {/* 封面图   */}
+                <img
+                  src={
+                    'lop://' +
+                    BannersRef.current
+                      ?.find((i: Banners) => i.game_id === game.id)
+                      ?.relative_path?.replace(/\\/g, '/')
+                  }
+                  alt="banner图"
+                  className="h-70 w-120 rounded-2xl border-2 border-white bg-cover bg-center"
+                />                            
+                {/* 圆形遮罩层 */}
+                <motion.div
+                  variants={gameItems}
+                  className="absolute top-0 right-0 h-70 w-64 rounded-l-[20px] rounded-r-2xl bg-stone-600/75 p-5 pointer-events-none"
+                />
+                <motion.div
+                  variants={gameItems}
+                  className="absolute top-0 right-0 h-70 w-62 rounded-l-[20px] rounded-r-2xl bg-stone-700/75 p-5 pointer-events-none"
+                />
+                <motion.div
+                  variants={gameItems}
+                  className="absolute top-0 right-0 h-70 w-60 rounded-l-[20px] rounded-r-2xl border-r-2 border-white bg-stone-800/75 p-5 "
+                >
+                  <p className="p-0.5 text-white">游戏名:{game.game_name}</p>
+                  <p className="p-0.5 text-white">
+                    游戏时间:{formatTime(game.total_play_time)}
+                  </p>
+                  <p className="p-0.5 whitespace-nowrap text-white">
+                    上次启动:
+                    {game.last_launch_time
+                      ? formatTimeCalender(game.last_launch_time)
+                      : '暂无'}
+                  </p>
+                  <p className="p-0.5 whitespace-nowrap text-white">
+                    添加时间:{formatTimeCalender(game.created_at)}
+                  </p>
+                  <p className="p-0.5 text-white">启动次数:{game.launch_count}</p>
+                  <p className="mb-4 p-0.5 text-white">
+                    空间占用大小:{gameSizeFormat(game.disk_size)}
+                  </p>
+                  <div className="m-4 h-0.5 w-40 bg-white"></div>
+              
+                  {/* 操作区 */}
+                  {/* 启动游戏 */}
+                  <div className="grid grid-cols-6 gap-1">
+                    <button onClick={() => handleRunGame(game)}>
+                      <VscPlay className="cursor-pointer text-2xl text-white" />
+                    </button>
+                    {/* 打开游戏文件夹 */}
+                    <button
+                      onClick={() => handleOpenGameFolder(game.launch_path)}
+                    >
+                      <VscFolder className="cursor-pointer text-2xl text-white" />
+                    </button>
+                    {/* 修改游戏名 */}
+                    <Portal gameId={game.id} updata={setGames} />
+                    {/* 删除游戏记录 */}
+                    <button onClick={() => handleDeleteGame(game)}>
+                      <VscTrash className="cursor-pointer text-2xl text-white" />
+                    </button>
+                    {/* 封面图修改 */}
+                    <button onClick={() => handleAddBanner(game)}>
+                      <VscVm className="cursor-pointer text-2xl text-white" />
+                    </button>
+                    {/* 游戏图集 */}
+                    <button>
+                      <Link to={`/gallery/${game.id}`}>
+                        <VscFileMedia className="cursor-pointer text-2xl text-white" />
+                      </Link>
+                    </button>
+                  </div>
+                </motion.div>
+                
               </motion.div>
-            </motion.div>
+              {/* 一个阻挡的块，防止触发隐藏的动画元素 */}
+              <div className='opacity-0 h-70 w-60 z-50 bg-amber-300 pointer-events-none'></div>
+            </div>
           </div>
         ))}
       </div>

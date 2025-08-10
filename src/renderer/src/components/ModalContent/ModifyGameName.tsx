@@ -36,8 +36,9 @@ export default function ModalContent({
   };
   //重新计算游戏大小
   const handleGetGameSize = async (gameId: number) =>{
-    const gameList = await window.api.getAllGames()
-    const game:Game = gameList.find(g => g.id === gameId);
+    // const gameList = await window.api.getAllGames()
+    // const game:Game = gameList.find(g => g.id === gameId);
+    const game: Game = await window.api.getGameById(gameId);
     //更新游戏大小
     const newSize = await window.api.updateGameSize(gameId,game.launch_path)
     setSize(newSize)

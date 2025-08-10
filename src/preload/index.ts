@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { electronAPI } from '@electron-toolkit/preload';
+import { get } from 'node:http';
 // Custom APIs for renderer
 const api = {
   openFile: (): Promise<string | null> => ipcRenderer.invoke('dialog:openFile'),
@@ -36,6 +37,7 @@ const api = {
 
   //数据库操作
   getAllGames: () => ipcRenderer.invoke('db:getAllGames'),
+  getGameById: (id: number) => ipcRenderer.invoke('db:getGameById', id),
   addGame: (game: { gameName: string; launchPath: string }) =>
     ipcRenderer.invoke('db:addGame', game),
   deleteGame: (id: number) => ipcRenderer.invoke('db:deleteGame', id),

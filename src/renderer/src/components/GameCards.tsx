@@ -20,11 +20,10 @@ const GameCards = () => {
   const [games, setGames] = useState<Game[]>([]);
   const BannersRef = useRef<Banners[]>(null);
   const [runningGame, setRunningGame] = useState<Game | null>(null);
-  // const [elapsedTime, setElapsedTime] = useState<number>(0);
-  // const [message, setMessage] = useState<string>('');
   // 获取新添加游戏的数据
   const getGameList = useGameStore((state) => state.gameId);
   const setInfo = useInfoStore((state) => state.setInfo);
+  const setGameTime = useGameStore((state) => state.setGameTime);
   useEffect(() => {
     fetchGames()
   }, [getGameList]);
@@ -37,8 +36,7 @@ const GameCards = () => {
   }, []);
   // 缓存停止计时函数 --
   const handleTimerStopped = useCallback(() => {
-    // setMessage(`《${runningGame?.game_name}》已关闭。`);
-    setInfo
+    setInfo(`游戏已关闭。`)
     setRunningGame(null);
     fetchGames();
   }, [runningGame, setRunningGame, fetchGames]);
@@ -54,15 +52,13 @@ const GameCards = () => {
   //启动游戏 --
   const handleRunGame = async (game: Game) => {
     //注册监听器
-    window.api.onTimerUpdate(setInfo);
+    window.api.onTimerUpdate(setGameTime);
     window.api.onTimerStopped(handleTimerStopped);
     if (runningGame) {
-      // setMessage('已有另一个游戏在运行中！');
       setInfo(`已经有另一个游戏在运行中`)
       console.log(runningGame);
       return;
     }
-    // setMessage(`正在启动《${game.game_name}》...`);
     const result = await window.api.executeFile({
       id: game.id,
       path: game.launch_path,
@@ -70,11 +66,8 @@ const GameCards = () => {
 
     if (result.success) {
       setRunningGame(game);
-      // setElapsedTime(0);
-      // setMessage(`《${game.game_name}》正在运行...`);
       setInfo(`启动!!! ${game.game_name}`);
     } else {
-      // setMessage(`${result.message}`);
       setRunningGame(null);
     }
   };
@@ -116,12 +109,10 @@ const GameCards = () => {
         imagePath: path,
         relativePath: result.relativePath,
       });
-      // setMessage(`✅ 游戏${game.game_name}已成功添加封面图！`);
-      setInfo(`${game.game_name}已成功添加封面图！`);
+      setInfo(`${game.game_name}添加新封面图!`);
       fetchGames();
     } catch (error: any) {
       setInfo(`添加封面失败`);
-      // setMessage(`❌ 添加失败: ${error.message}`);
     }
   };
   //动画效果父 --
@@ -132,7 +123,7 @@ const GameCards = () => {
         // 每个子元素动画依次延迟 0.1 秒
         staggerChildren: 0.1, 
       },
-    },
+    },  
   };
   //动画效果子 --
   const gameItems:Variants = {

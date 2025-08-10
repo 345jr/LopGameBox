@@ -89,14 +89,12 @@ app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron');
   //使用自定义协议
   protocol.handle('lop', (request) => {
-    // console.log(request.url);
     let filePath = request.url.slice('lop://'.length);
     filePath = decodeURIComponent(filePath);
-    console.log(filePath)
+    // console.log(filePath)
     const projectRoot = path.resolve(__dirname, '../../public');    
     const absPath = path.join(projectRoot, filePath);
     const cleanPath = absPath.replace(/[\\/]+$/, '');
-    // console.log(cleanPath)
     return net.fetch(
       url.pathToFileURL(path.join(cleanPath)).toString(),
     );
@@ -203,14 +201,17 @@ app.whenReady().then(() => {
       }
     },
   );
-  //查询游戏
+  //查询全部游戏
   ipcMain.handle('db:getAllGames', () => {
     return gameService.getAllGames();
+  });
+  //查询单个游戏
+  ipcMain.handle('db:getGameById', (_event, id: number) => {
+    return gameService.getGameById(id);
   });
   //添加游戏
   ipcMain.handle('db:addGame', async (_event, { gameName, launchPath }) => {
     const existingGame = gameService.getGameByPath(launchPath);
-
     try {
       if (existingGame) {
         throw new Error('这个游戏路径已存在！');

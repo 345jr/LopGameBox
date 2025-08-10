@@ -7,6 +7,7 @@ import { useState } from 'react';
 import logo from '../assets/lopgame.png';
 import useInfoStore from '@renderer/store/infoStore';
 import useGameStore from '@renderer/store/GameStore';
+import { formatTime } from '@renderer/util/timeFormat';
 
 const NavHeader = () => {
   const [position, setPosition] = useState({ x: 0, y: 0, rotate: 0 });
@@ -14,6 +15,7 @@ const NavHeader = () => {
   //状态管理 --
   const info = useInfoStore((state) => state.info);
   const setGameList = useGameStore((state) => state.setGameList);
+  const gameTime = useGameStore((state) => state.gameTime);
   //获取添加信息 --
   const setInfo = useInfoStore((state) => state.setInfo);
   //添加游戏 --
@@ -39,7 +41,7 @@ const NavHeader = () => {
       console.log(`${error.message}`);
     }
   };
-  //动画 --
+  // #region 动画 --
   const divVariants = {
     initial: {},
     hover: {},
@@ -54,16 +56,27 @@ const NavHeader = () => {
     },
   };
   const iconVariants = {
-    initial:{rotate:0},
-    hover:{
-      rotate:15
+    initial: { rotate: 0 },
+    hover: {
+      rotate: 15,
+    },
+  };
+  // #endregion
+  
+  //处理字符串
+  function truncateString(str: string | undefined, maxLength: number): string {
+    if (!str) return '「目前没有信息」';
+    if (str.length <= maxLength) {
+      return str;
     }
+    return str.slice(0, maxLength) + '...';
   }
+
   return (
-    <div className="items-centers flex justify-start border-b-1 border-black p-2">
+    <div className="items-centers flex justify-start border-b-1 border-black">
       <img src={logo} alt="logo" className="mr-5 w-12 rounded-full" />
 
-      <div className="relative flex flex-row">
+      <div className="relative flex w-full flex-row">
         {/* 动画指针 */}
         <motion.div
           className="absolute bottom-9 left-8 z-50"
@@ -136,26 +149,30 @@ const NavHeader = () => {
           className="ml-5 flex flex-row items-center text-center"
           onMouseEnter={() => setPosition({ x: 430, y: 20, rotate: -90 })}
           variants={divVariants}
-          whileHover='hover'
-          initial='initial'
-          >
-          
-          <div
-            className="relative flex flex-row items-center text-center">
+          whileHover="hover"
+          initial="initial"
+        >
+          <div className="relative flex flex-row items-center text-center">
             <motion.div variants={iconVariants}>
               <VscComment className="mr-5 text-2xl" />
             </motion.div>
-            <p>{info || '「目前没有信息」'}</p>
-            <motion.div variants={pVariants} className="absolute bottom-0 left-30 h-0.5 w-5 bg-black"></motion.div>
+            <p className="">{truncateString(info?.toString(), 14)}</p>
+            <motion.div
+              variants={pVariants}
+              className="absolute bottom-0 left-30 h-0.5 w-5 bg-black"
+            ></motion.div>
           </div>
         </motion.div>
         {/* 游戏运行状态状态 */}
-        <div>
-          
+        <div className="absolute top-0 right-0 flex flex-col items-center">
+          <div className="relative p-2">
+            <p className="text-xs">{formatTime(gameTime) && '游戏运行中'}</p>
+            <p>{formatTime(gameTime) || '...'}</p>
+            <span className="absolute top-0 right-0 inline-flex h-3 w-3 animate-ping rounded-full bg-green-400 opacity-75"></span>
+            <span className="absolute top-0.5 right-0.5 inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+          </div>
         </div>
       </div>
-
-      {/* <Link to={'/playground'}>练习</Link> */}
     </div>
   );
 };

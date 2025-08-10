@@ -52,4 +52,9 @@ export class GameRepository {
     stmt.run(disk_size,id)
     console.log('get disk_size success');    
   }
+  //通过ID查询游戏
+  public getGameById(id:number) {
+    const stmt = this.db.prepare('SELECT * FROM games WHERE id = ?');
+    return stmt.get(id);
+  }
 }

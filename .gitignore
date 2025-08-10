@@ -4,8 +4,8 @@ out
 .DS_Store
 .eslintcache
 *.log*
-data
 public/*
 src/main/misc/*
 package-lock.json
-*.db
+db/*
+备份/*

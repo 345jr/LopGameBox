@@ -11,6 +11,7 @@ declare global {
       offTimerStopped:(callback: (result: { code: number; finalElapsedTime: number }) => void)=>void
       // 数据库
       getAllGames: () => Promise<Game[]>;
+      getGameById:(id:number) => Promise<Game>;
       addGame: (game: { gameName: string; launchPath: string }) => Promise<Game>;
       deleteGame: (id: number) => Promise<{ changes: number }>;
       getBanners:()=> Promise<Banners[]>;

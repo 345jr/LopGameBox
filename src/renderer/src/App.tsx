@@ -7,8 +7,7 @@ function App(): React.JSX.Element {
       <NavHeader />
       <div className='w-full'>
         <GameCards/>
-      </div>
-      
+      </div>      
     </>
   );
 }

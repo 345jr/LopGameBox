@@ -13,6 +13,10 @@ export class GameService {
   public getAllGames() {
     return this.gameRepo.getAllGames();
   }
+  //获取单个游戏
+  public getGameById(id: number) {
+    return this.gameRepo.getGameById(id);
+  }
   //获取游戏路径
   public getGameByPath(path: string) {
     return this.gameRepo.getGameByPath(path);

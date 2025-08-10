@@ -12,10 +12,14 @@ import { formatTime } from '@renderer/util/timeFormat';
 const NavHeader = () => {
   const [position, setPosition] = useState({ x: 0, y: 0, rotate: 0 });
   const [inputRef, setInputRef] = useState<string>('');
+  const [grab, setGrab] = useState<boolean>(false);
   //状态管理 --
   const info = useInfoStore((state) => state.info);
   const setGameList = useGameStore((state) => state.setGameList);
   const gameTime = useGameStore((state) => state.gameTime);
+  const gameState = useGameStore((state) => state.gameState);
+  const onInfo = useInfoStore((state) => state.onInfo);
+  const offInfo = useInfoStore((state) => state.offInfo);
   //获取添加信息 --
   const setInfo = useInfoStore((state) => state.setInfo);
   //添加游戏 --
@@ -62,16 +66,25 @@ const NavHeader = () => {
     },
   };
   // #endregion
-  
+
   //处理字符串
   function truncateString(str: string | undefined, maxLength: number): string {
-    if (!str) return '「目前没有信息」';
+    if (!str) return '「暂无信息」';
     if (str.length <= maxLength) {
       return str;
     }
     return str.slice(0, maxLength) + '...';
   }
-
+  // 处理鼠标按下事件
+  const handleMouseDown = () => {
+    setGrab(true);
+    onInfo();
+  };
+  // 处理鼠标抬起事件
+  const handleMouseUp = () => {
+    setGrab(false);
+    offInfo();
+  };
   return (
     <div className="items-centers flex justify-start border-b-1 border-black">
       <img src={logo} alt="logo" className="mr-5 w-12 rounded-full" />
@@ -146,8 +159,10 @@ const NavHeader = () => {
 
         {/* 状态通知 */}
         <motion.div
-          className="ml-5 flex flex-row items-center text-center"
+          className={`ml-5 flex flex-row items-center text-center ${grab ? 'cursor-grabbing' : 'cursor-grab'}`}
           onMouseEnter={() => setPosition({ x: 430, y: 20, rotate: -90 })}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
           variants={divVariants}
           whileHover="hover"
           initial="initial"
@@ -164,12 +179,30 @@ const NavHeader = () => {
           </div>
         </motion.div>
         {/* 游戏运行状态状态 */}
-        <div className="absolute top-0 right-0 flex flex-col items-center">
+        <div className="absolute top-0 right-0 flex flex-col items-center border-l-2 border-dashed border-l-black">
           <div className="relative p-2">
-            <p className="text-xs">{formatTime(gameTime) && '游戏运行中'}</p>
-            <p>{formatTime(gameTime) || '...'}</p>
-            <span className="absolute top-0 right-0 inline-flex h-3 w-3 animate-ping rounded-full bg-green-400 opacity-75"></span>
-            <span className="absolute top-0.5 right-0.5 inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+            {gameState === 'run' ? (
+              <>
+                <p className="text-xs">
+                  {formatTime(gameTime) && '游戏运行中'}
+                </p>
+                <p>{formatTime(gameTime) || '...'}</p>
+                <span className="absolute top-1.5 right-1.5 inline-flex h-3 w-3 animate-ping rounded-full bg-green-400 opacity-75"></span>
+                <span className="absolute top-2 right-2 inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+              </>
+            ) : gameState === 'stop' ? (
+              <>
+                <p className="text-xs">{formatTime(gameTime) && '游戏结束'}</p>
+                <p>
+                  {formatTime(gameTime) || '...'}
+                  <span className="absolute top-2 right-2 inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-xs">暂无游戏运行</p>
+              </>
+            )}
           </div>
         </div>
       </div>

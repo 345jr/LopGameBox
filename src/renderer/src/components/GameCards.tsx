@@ -19,11 +19,12 @@ import useInfoStore from '@renderer/store/infoStore';
 const GameCards = () => {
   const [games, setGames] = useState<Game[]>([]);
   const BannersRef = useRef<Banners[]>(null);
-  const [runningGame, setRunningGame] = useState<Game | null>(null);
   // 获取新添加游戏的数据
   const getGameList = useGameStore((state) => state.gameId);
   const setInfo = useInfoStore((state) => state.setInfo);
   const setGameTime = useGameStore((state) => state.setGameTime);
+  const GameState = useGameStore((state)=>state.gameState)
+  const setGameState = useGameStore((state) => state.setGameState);
   useEffect(() => {
     fetchGames()
   }, [getGameList]);
@@ -37,9 +38,9 @@ const GameCards = () => {
   // 缓存停止计时函数 --
   const handleTimerStopped = useCallback(() => {
     setInfo(`游戏已关闭。`)
-    setRunningGame(null);
+    setGameState("stop");
     fetchGames();
-  }, [runningGame, setRunningGame, fetchGames]);
+  }, [fetchGames]);
   //加载主页数据 --
   useEffect(() => {
     fetchGames();
@@ -54,9 +55,8 @@ const GameCards = () => {
     //注册监听器
     window.api.onTimerUpdate(setGameTime);
     window.api.onTimerStopped(handleTimerStopped);
-    if (runningGame) {
-      setInfo(`已经有另一个游戏在运行中`)
-      console.log(runningGame);
+    if (GameState === "run") {
+      setInfo(`已经有另一个游戏在运行中`);
       return;
     }
     const result = await window.api.executeFile({
@@ -65,24 +65,22 @@ const GameCards = () => {
     });
 
     if (result.success) {
-      setRunningGame(game);
+      setGameState("run");
       setInfo(`启动!!! ${game.game_name}`);
     } else {
-      setRunningGame(null);
+      setGameState('null')
     }
   };
   //删除游戏 --
   const handleDeleteGame = async (game: Game) => {
-    if (runningGame?.id === game.id) {
-      // setMessage('不能删除正在运行的游戏！');
+      if (GameState === "run") {
       setInfo(`不能删除正在运行的游戏！`);
       return;
     }
     if (confirm(`确定要删除游戏《${game.game_name}》吗？此操作不可撤销。`)) {
       await window.api.deleteGame(game.id);
-      // setMessage(`游戏《${game.game_name}》已删除。`);
       setInfo(`游戏${game.game_name}已删除。`);
-      fetchGames(); // 刷新列表
+      fetchGames(); 
     }
   };
   //添加封面 --
@@ -222,7 +220,7 @@ const GameCards = () => {
                 
               </motion.div>
               {/* 一个阻挡的块，防止触发隐藏的动画元素 */}
-              <div className='opacity-0 h-70 w-60 z-50 bg-amber-300 '></div>
+              <div className='opacity-0 h-70 w-30 z-50 bg-amber-300 '></div>
             </div>
           </div>
         ))}

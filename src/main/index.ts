@@ -331,6 +331,16 @@ app.whenReady().then(() => {
       console.log(`打开文件夹发生错误:${error.message}`)
     }
   })
+  //模糊搜索
+  ipcMain.handle('db:searchGames', async (_event, keyword) => {
+    try {
+      return gameService.searchGames(keyword);
+    } catch (error: any) {
+      console.log(`搜索发生错误:${error.message}`);
+      return [];
+    }
+  });
+
   createWindow();
 
   app.on('activate', function () {

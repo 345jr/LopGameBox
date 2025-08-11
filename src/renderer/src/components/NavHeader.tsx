@@ -20,6 +20,7 @@ const NavHeader = () => {
   const gameState = useGameStore((state) => state.gameState);
   const onInfo = useInfoStore((state) => state.onInfo);
   const offInfo = useInfoStore((state) => state.offInfo);
+  const searchResults = useGameStore((state)=>state.setSearchResults)
   //获取添加信息 --
   const setInfo = useInfoStore((state) => state.setInfo);
   //添加游戏 --
@@ -85,6 +86,11 @@ const NavHeader = () => {
     setGrab(false);
     offInfo();
   };
+  // 处理模糊查询
+  const handleSearch = async (keyword:string)=>{
+    const gameList = await window.api.searchGames(keyword)
+    searchResults(gameList)
+  }
   return (
     <div className="items-centers flex justify-start border-b-1 border-black">
       <img src={logo} alt="logo" className="mr-5 w-12 rounded-full" />
@@ -100,7 +106,7 @@ const NavHeader = () => {
         {/* 添加游戏 */}
         <motion.button
           onClick={handleAddGame}
-          className="flex cursor-pointer flex-row items-center justify-center px-2 text-stone-900 hover:text-stone-600"
+          className="flex-center cursor-pointer flex-row px-2 text-stone-900 hover:text-stone-600"
           whileHover={{ scale: 1.3 }}
           onMouseMove={() => {
             setPosition({ x: 0, y: 0, rotate: 0 });
@@ -113,8 +119,8 @@ const NavHeader = () => {
 
         <motion.div className="mt-3" whileHover={{ scale: 1.3 }}>
           <Link
-            to={'/updata'}
-            className="flex cursor-pointer flex-row items-center justify-center px-2 text-stone-900 hover:text-stone-600"
+            to={'/dashboard'}
+            className="flex-center cursor-pointer flex-row px-2 text-stone-900 hover:text-stone-600"
             onMouseMove={() => {
               setPosition({ x: 80, y: 0, rotate: 0 });
             }}
@@ -127,7 +133,7 @@ const NavHeader = () => {
         <motion.div className="mt-3" whileHover={{ scale: 1.3 }}>
           <Link
             to={'/update'}
-            className="flex cursor-pointer flex-row items-center justify-center px-2 text-stone-900 hover:text-stone-600"
+            className="flex-center cursor-pointer flex-row px-2 text-stone-900 hover:text-stone-600"
             onMouseMove={() => {
               setPosition({ x: 160, y: 0, rotate: 0 });
             }}
@@ -143,7 +149,7 @@ const NavHeader = () => {
           }}
         >
           <div
-            className={`mt-2 ml-5 flex h-8 w-40 flex-col items-center justify-center rounded-full border border-gray-300 bg-white shadow-sm`}
+            className={`flex-center mt-2 ml-5 h-8 w-40 flex-col rounded-full border border-gray-300 bg-white shadow-sm`}
           >
             <input
               type="text"
@@ -152,14 +158,14 @@ const NavHeader = () => {
               onChange={(e) => setInputRef(e.target.value)}
             />
           </div>
-          <button className="absolute top-3.5 right-1.5 cursor-pointer text-stone-900 hover:text-stone-600">
+          <button onClick={()=>handleSearch(inputRef)} className="absolute top-3.5 right-1.5 cursor-pointer text-stone-900 hover:text-stone-600">
             <FaSearch className="text-xl" />
           </button>
         </motion.div>
 
         {/* 状态通知 */}
         <motion.div
-          className={`ml-5 flex flex-row items-center text-center ${grab ? 'cursor-grabbing' : 'cursor-grab'}`}
+          className={`flex-row-v ml-5 text-center ${grab ? 'cursor-grabbing' : 'cursor-grab'}`}
           onMouseEnter={() => setPosition({ x: 430, y: 20, rotate: -90 })}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
@@ -167,7 +173,7 @@ const NavHeader = () => {
           whileHover="hover"
           initial="initial"
         >
-          <div className="relative flex flex-row items-center text-center">
+          <div className="flex-row-v relative text-center">
             <motion.div variants={iconVariants}>
               <VscComment className="mr-5 text-2xl" />
             </motion.div>
@@ -179,7 +185,7 @@ const NavHeader = () => {
           </div>
         </motion.div>
         {/* 游戏运行状态状态 */}
-        <div className="absolute top-0 right-0 flex flex-col items-center border-l-2 border-dashed border-l-black">
+        <div className="flex-col-v absolute top-0 right-0 h-full border-l-2 border-dashed border-l-black">
           <div className="relative p-2">
             {gameState === 'run' ? (
               <>

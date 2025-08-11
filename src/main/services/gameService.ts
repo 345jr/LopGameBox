@@ -58,4 +58,8 @@ export class GameService {
   public updateGameSize(id:number,disk_size:number){
     return this.gameRepo.updateGameSize(id,disk_size)
   }
+  //模糊查询搜索
+  public searchGames(keyword: string) {
+    return this.gameRepo.searchGames(keyword);
+  }
 }

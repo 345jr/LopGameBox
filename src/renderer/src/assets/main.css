@@ -13,15 +13,31 @@
   src: url('../fonts/LXGWWenKai-Medium.ttf') format('truetype');
 }
 @layer components {
+  /* 通用 */
   /* 过渡动画效果 */
   .Tr_ani {
     @apply pointer-events-none scale-75 opacity-0 transition duration-600 ease-out group-hover:pointer-events-auto group-hover:scale-100 group-hover:opacity-100;
   }
-  /* .GameCard_ani{
-    @apply opacity-0 group-hover:opacity-100 transition-opacity duration-350 ease-in-out
-  } */
-  .GameCard_ani{
-    @apply opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-full group-hover:translate-x-0 transition-transform duration-350 ease-in-out
+  /* 内容居中 */
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+  /* 横向垂直居中 */
+  .flex-row-v
+  {
+    @apply flex flex-row items-center
+  }
+  /* 竖向垂直居中 */
+  .flex-col-v
+  {
+    @apply flex flex-col items-center
+  }
+}
+
+@layer components {
+  /* 图标按钮 */
+  .iconBtn{
+    @apply cursor-pointer text-2xl text-white
   }
 }
 

@@ -21,6 +21,7 @@ declare global {
       delectSnapshot:(id:number)=> Promise<{changes:number}>
       modifyGameName:(id:number,newName:string)=>Promise<void>
       updateGameSize:(id:number,launch_path:string)=>Promise<number>
+      searchGames:(keyword:string)=>Promise<Game[]>
       //操作本地
       copyImages:(move:{origin:string,target:string,gameName:string,oldFilePath:string}) => Promise<{relativePath:string}>
       delectImages:(relative_path:string)=> Promise<string>

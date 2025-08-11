@@ -57,4 +57,11 @@ export class GameRepository {
     const stmt = this.db.prepare('SELECT * FROM games WHERE id = ?');
     return stmt.get(id);
   }
+  //模糊搜索游戏
+  public searchGames(keyword: string) {
+    const stmt = this.db.prepare(`
+      SELECT * FROM games WHERE game_name LIKE ? ORDER BY last_launch_time DESC
+    `);
+    return stmt.all(`%${keyword}%`);
+  }
 }

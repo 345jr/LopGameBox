@@ -7,7 +7,7 @@ const InfoBox = () => {
   return (
     <>
       {display && (
-        <motion.div className='flex flex-col items-center'
+        <motion.div className='flex-col-v'
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >

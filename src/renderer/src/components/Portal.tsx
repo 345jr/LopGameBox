@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import ModifyGameName from './ModalContent/ModifyGameName'
+import ModalContent from './ModalContent/ModalContent'
 import { VscGear } from "react-icons/vsc";
+import { motion } from 'motion/react';
 
 export default function Portal({gameId, updata}: {gameId: number; updata: React.Dispatch<React.SetStateAction<any>>}) {
   const [showModal, setShowModal] = useState(false);
   return (
     <>
-      <button onClick={() => setShowModal(true)}>
-        <VscGear  className='text-white text-2xl'/> 
-      </button>
+      <motion.button onClick={() => setShowModal(true)} className='iconBtn'
+        initial={{y:0}}
+        whileHover={{y:-5}}>
+        <VscGear/> 
+      </motion.button>
       {showModal && createPortal(
-        <ModifyGameName onClose={() => setShowModal(false)} gameId={gameId} updata={updata}/>,
+        <ModalContent onClose={() => setShowModal(false)} gameId={gameId} updata={updata}/>,
         document.body
       )}
     </>

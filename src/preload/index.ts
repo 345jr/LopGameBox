@@ -1,6 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import { electronAPI } from '@electron-toolkit/preload';
-import { get } from 'node:http';
 // Custom APIs for renderer
 const api = {
   openFile: (): Promise<string | null> => ipcRenderer.invoke('dialog:openFile'),
@@ -57,7 +56,7 @@ const api = {
   delectSnapshot: (id: number) => ipcRenderer.invoke('db:delectSnapshot', id),
   modifyGameName: (id: number, newName: string) =>ipcRenderer.invoke('db:modifyGameName', id, newName),
   updateGameSize: (id: number, launch_path:string) => ipcRenderer.invoke('db:updateGameSize', id, launch_path),
-  
+  searchGames: (keyword: string) => ipcRenderer.invoke('db:searchGames', keyword),
   //文件操作
   copyImages: (move: {
     origin: string;

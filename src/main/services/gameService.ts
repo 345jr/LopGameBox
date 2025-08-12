@@ -62,4 +62,16 @@ export class GameService {
   public searchGames(keyword: string) {
     return this.gameRepo.searchGames(keyword);
   }
+  //统计游戏数量
+  public countGames() {
+    return this.gameRepo.countGames();
+  }
+  //统计游戏时间
+  public countGameTime() {
+    return this.gameRepo.countGameTime();
+  }
+  //统计启动次数
+  public countLaunchTimes() {
+    return this.gameRepo.countLaunchTimes();
+  }
 }

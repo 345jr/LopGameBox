@@ -340,6 +340,18 @@ app.whenReady().then(() => {
       return [];
     }
   });
+  //统计游戏数量
+  ipcMain.handle('db:countGames', () => {
+    return gameService.countGames();
+  });
+  //统计游戏时间
+  ipcMain.handle('db:countGameTime', () => {
+    return gameService.countGameTime();
+  });
+  //统计游戏启动次数
+  ipcMain.handle('db:countLaunchTimes', () => {
+    return gameService.countLaunchTimes();
+  });
 
   createWindow();
 

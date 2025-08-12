@@ -57,6 +57,9 @@ const api = {
   modifyGameName: (id: number, newName: string) =>ipcRenderer.invoke('db:modifyGameName', id, newName),
   updateGameSize: (id: number, launch_path:string) => ipcRenderer.invoke('db:updateGameSize', id, launch_path),
   searchGames: (keyword: string) => ipcRenderer.invoke('db:searchGames', keyword),
+  countGames: () => ipcRenderer.invoke('db:countGames'),
+  countGameTime: () => ipcRenderer.invoke('db:countGameTime'),
+  countLaunchTimes: () => ipcRenderer.invoke('db:countLaunchTimes'),
   //文件操作
   copyImages: (move: {
     origin: string;

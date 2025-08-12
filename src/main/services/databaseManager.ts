@@ -27,7 +27,7 @@ export class DatabaseManager {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         game_name TEXT NOT NULL,
         launch_path TEXT NOT NULL UNIQUE,
-        total_play_time INTEGER DEFAULT 0,
+        total_play_time INTEGER DEFAULT 0, --秒
         last_launch_time INTEGER,
         launch_count INTEGER DEFAULT 0,
         created_at INTEGER DEFAULT (strftime('%s', 'now')),
@@ -44,6 +44,18 @@ export class DatabaseManager {
         relative_path TEXT NOT NULL ,
         FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
       );
+      -- 游戏记录表
+      CREATE TABLE IF NOT EXISTS game_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,  -- 日志ID
+      game_id INTEGER NOT NULL,              -- 对应 games.id
+      play_time INTEGER NOT NULL,            -- 本次游玩时长（秒）
+      launched_at INTEGER NOT NULL,          -- 启动时间
+      ended_at INTEGER,                      -- 结束时间    
+      FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
+      );
+      -- 建索引，加快按时间查询的速度
+      CREATE INDEX idx_game_logs_launched_at ON game_logs (launched_at);
+      CREATE INDEX idx_game_logs_game_id ON game_logs (game_id);
     `);
   }
   //关闭数据库实例

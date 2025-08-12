@@ -41,19 +41,19 @@ export class GameRepository {
     return { changes: info.changes };
   }
   //修改游戏名
-  public modifyGameName(id:number,newName:string) {
-    const stmt = this.db.prepare(`UPDATE games SET game_name = ? WHERE id = ?`)
-    stmt.run(newName,id)
-    console.log(`modify success!`)
+  public modifyGameName(id: number, newName: string) {
+    const stmt = this.db.prepare(`UPDATE games SET game_name = ? WHERE id = ?`);
+    stmt.run(newName, id);
+    console.log(`modify success!`);
   }
   //重新计算游戏大小
-  public updateGameSize(id:number,disk_size:number) {
-    const stmt = this.db.prepare(`UPDATE games SET disk_size = ? WHERE id = ?`)
-    stmt.run(disk_size,id)
-    console.log('get disk_size success');    
+  public updateGameSize(id: number, disk_size: number) {
+    const stmt = this.db.prepare(`UPDATE games SET disk_size = ? WHERE id = ?`);
+    stmt.run(disk_size, id);
+    console.log('get disk_size success');
   }
   //通过ID查询游戏
-  public getGameById(id:number) {
+  public getGameById(id: number) {
     const stmt = this.db.prepare('SELECT * FROM games WHERE id = ?');
     return stmt.get(id);
   }
@@ -63,5 +63,24 @@ export class GameRepository {
       SELECT * FROM games WHERE game_name LIKE ? ORDER BY last_launch_time DESC
     `);
     return stmt.all(`%${keyword}%`);
+  }
+  //统计游戏数量
+  public countGames() {
+    const stmt = this.db.prepare('SELECT COUNT(*) as count FROM games');
+    return stmt.get();
+  }
+  //统计游戏时间
+  public countGameTime() {
+    const stmt = this.db.prepare(
+      'SELECT SUM(total_play_time) as timeCount FROM games',
+    );
+    return stmt.get();
+  }
+  //统计启动次数
+  public countLaunchTimes() {
+    const stmt = this.db.prepare(
+      'SELECT SUM(launch_count) as launchCount FROM games',
+    );
+    return stmt.get();
   }
 }

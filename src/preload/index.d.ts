@@ -22,6 +22,9 @@ declare global {
       modifyGameName:(id:number,newName:string)=>Promise<void>
       updateGameSize:(id:number,launch_path:string)=>Promise<number>
       searchGames:(keyword:string)=>Promise<Game[]>
+      countGames:() => Promise<{ count: number }>;
+      countGameTime:() => Promise<{ timeCount: number }>;
+      countLaunchTimes:() => Promise<{ launchCount: number }>;
       //操作本地
       copyImages:(move:{origin:string,target:string,gameName:string,oldFilePath:string}) => Promise<{relativePath:string}>
       delectImages:(relative_path:string)=> Promise<string>

@@ -137,7 +137,7 @@ const GameCards = () => {
 
   return (
     <>
-      <div className="flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed bg-center">
+      <div className="flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed ">
         {games.map((game) => (
           <div key={game.id} className="flex-center flex-col p-4">
             <div className="flex flex-row">
@@ -148,7 +148,7 @@ const GameCards = () => {
                 className="group relative ml-60 h-70 w-120"
               >
                 {/* 封面图   */}
-                <img
+                <motion.img
                   src={
                     'lop://' +
                     BannersRef.current
@@ -157,6 +157,8 @@ const GameCards = () => {
                   }
                   alt="banner图"
                   className="h-70 w-120 rounded-2xl border-2 border-white bg-cover bg-center"
+                  initial={{opacity:0,x:100}}
+                  animate={{opacity:1,x:0,transition:{duration:0.8}}}
                 />
                 {/* 圆形遮罩层 */}
                 <motion.div

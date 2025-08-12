@@ -10,7 +10,6 @@ const Gallery = () => {
   const fetchSnapshotList = async () => {
     if (gameId) {
       const snapshotList = await window.api.getGameSnapshot(parseInt(gameId));
-      // console.log(`测试:${snapshotList.forEach((i) => console.log(i))}`);
       setSnapshotList(snapshotList);
     }
   };
@@ -44,13 +43,13 @@ const Gallery = () => {
     }
   };
   //删除图
-  const delectSnapshot = async(id:number,relative_path:string)=>{
+  const delectSnapshot = async (id: number, relative_path: string) => {
     //删除数据库记录
-    await window.api.delectSnapshot(id)
+    await window.api.delectSnapshot(id);
     //删除对应文件
-    await window.api.delectImages(relative_path)
-    fetchSnapshotList()
-  }
+    await window.api.delectImages(relative_path);
+    fetchSnapshotList();
+  };
   return (
     <>
       <h1>游戏图集页面</h1>
@@ -64,14 +63,17 @@ const Gallery = () => {
                 <div className="text-center">
                   <p>图片{index + 1}</p>
                 </div>
-                <div className="relative flex justify-end group">
-                  <button onClick={()=>delectSnapshot(i.id,i.relative_path)} className="Tr_ani absolute top-2 right-2">
-                    <FaRegCircleXmark className="text-red-600 text-2xl " />
+                <div className="group relative flex justify-end">
+                  <button
+                    onClick={() => delectSnapshot(i.id, i.relative_path)}
+                    className="Tr_ani absolute top-2 right-2"
+                  >
+                    <FaRegCircleXmark className="text-2xl text-red-600" />
                   </button>
                   <img
                     src={`lop://` + i.relative_path.replace(/\\/g, '/')}
                     alt="图集"
-                    className="w-40 "
+                    className="w-40"
                   />
                 </div>
               </div>
@@ -84,9 +86,9 @@ const Gallery = () => {
         )}
       </div>
 
-      <div className='text-center p-5 '>
+      <div className="mt-20 text-xl">
         <Link to={'/'}>
-          <button className='bg-blue-400 p-2 rounded-xl'>返回主页</button>
+          <button className="cursor-pointer">返回主页</button>
         </Link>
       </div>
     </>

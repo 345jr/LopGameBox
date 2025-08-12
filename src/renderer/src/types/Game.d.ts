@@ -1,3 +1,4 @@
+//游戏基础数据
 export interface Game {
   id: number;
   game_name: string;
@@ -9,11 +10,13 @@ export interface Game {
   created_at: number;
   updated_at: number;
 }
+//复制图片数据
 export interface GameImage {
   gameId: number;
   imagePath: string;
   type: string;
 }
+//游戏封面图数据
 export interface Banners {
   id: number;
   game_id: number;
@@ -22,7 +25,7 @@ export interface Banners {
   created_at: number;
   relative_path:string;
 }
-
+//游戏快照图片数据 
 export interface Snapshot {
   id: number;
   game_id: number;
@@ -30,4 +33,10 @@ export interface Snapshot {
   image_type: string;
   created_at: number;
   relative_path:string;
+}
+//游戏统计数据
+export interface GameStatistics {
+  gameCount: number;
+  gamePlayTime: number;
+  launchCount: number;
 }

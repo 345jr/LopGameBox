@@ -60,6 +60,7 @@ const api = {
   countGames: () => ipcRenderer.invoke('db:countGames'),
   countGameTime: () => ipcRenderer.invoke('db:countGameTime'),
   countLaunchTimes: () => ipcRenderer.invoke('db:countLaunchTimes'),
+  countDayWeekMonth: () => ipcRenderer.invoke('db:getGameLogDayWeekMonth'),
   //文件操作
   copyImages: (move: {
     origin: string;

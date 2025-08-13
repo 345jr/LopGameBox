@@ -17,7 +17,8 @@ import * as fs from 'fs/promises';
 
 import { GameService } from './services/gameService';
 import { GameRepository } from './services/gameRepository';
-import { GalleryRepository } from './services/galleryRepository';
+import { GalleryRepository } from './services/galleryRepository'
+import { GameLogsRepository } from './services/gameLogsRepository';
 import { getSize } from './util/diskSize';
 import { getDelectPath } from './util/path';
 
@@ -30,6 +31,7 @@ let startTime: number | null = null;
 const gameService = new GameService(
   new GameRepository(),
   new GalleryRepository(),
+  new GameLogsRepository(),
 );
 function createWindow(): void {
   // Create the browser window.
@@ -128,10 +130,12 @@ app.whenReady().then(() => {
       try {
         // 使用 spawn 启动进程
         childProcess = spawn(game.path, [], { stdio: 'ignore' });
+        //获取启动时的时间戳
         startTime = Date.now();
 
         // 返回一个 Promise，确保错误和成功都能被正确处理
         return new Promise((resolve) => {
+
           // 监听进程的 'error' 事件
           childProcess?.on('error', (err) => {
             console.error(`启动子进程失败: ${err.message}`);
@@ -140,12 +144,11 @@ app.whenReady().then(() => {
               finalElapsedTime: 0,
               error: err.message,
             });
-
+            gameService.logGame(game.id, startTime || 0, Date.now(),'error');
             // 清理状态
             childProcess = null;
             timerInterval = null;
             startTime = null;
-
             // 解析为失败状态
             resolve({
               success: false,
@@ -166,7 +169,6 @@ app.whenReady().then(() => {
                 );
               }
             }, 1000);
-
             // 解析为成功状态
             resolve({ success: true });
           });
@@ -184,12 +186,13 @@ app.whenReady().then(() => {
               finalElapsedSeconds,
             });
             gameService.updateGameOnClose(game.id, finalElapsedSeconds);
-
+            gameService.logGame(game.id, startTime || 0, Date.now(),'success');
             // 清理状态
             childProcess = null;
             timerInterval = null;
             startTime = null;
           });
+
         });
       } catch (err: any) {
         console.error(`发生异常: ${err.message}`);
@@ -351,6 +354,10 @@ app.whenReady().then(() => {
   //统计游戏启动次数
   ipcMain.handle('db:countLaunchTimes', () => {
     return gameService.countLaunchTimes();
+  });
+  //查询今日 ，本周 ，本月游戏情况
+  ipcMain.handle('db:getGameLogDayWeekMonth', () => {
+    return gameService.getGameLogDayWeekMonth();
   });
 
   createWindow();

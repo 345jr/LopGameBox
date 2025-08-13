@@ -39,4 +39,7 @@ export interface GameStatistics {
   gameCount: number;
   gamePlayTime: number;
   launchCount: number;
+  todayHours: number;
+  weekHours: number;
+  monthHours: number;
 }

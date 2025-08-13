@@ -8,6 +8,9 @@ const Dashboard = () => {
     gameCount: 0,
     gamePlayTime: 0,
     launchCount: 0,
+    todayHours: 0,
+    weekHours: 0,
+    monthHours: 0,
   });
   //获取统计数据方法
   const getData = async () => {
@@ -17,14 +20,22 @@ const Dashboard = () => {
       window.api.countGameTime(),
       window.api.countLaunchTimes(),
     ]);
+    //获取本日 ，本周 ，本月的记录
+    const { todayHours, weekHours, monthHours } =
+      await window.api.countDayWeekMonth();
+    // console.log(result)
     const StatisticsObject: GameStatistics = {
       gameCount: count,
       gamePlayTime: timeCount,
       launchCount: launchCount,
+      todayHours: todayHours,
+      weekHours: weekHours,
+      monthHours: monthHours,
     };
     setGameStatistics(StatisticsObject);
   };
- //获取统计数据
+
+  //获取统计数据
   useEffect(() => {
     getData();
   }, []);
@@ -36,6 +47,9 @@ const Dashboard = () => {
         <p>游戏总数:{gameStatistics.gameCount}</p>
         <p>总游戏时间:{formatTimeToHours(gameStatistics.gamePlayTime)} 小时</p>
         <p>游戏启动次数:{gameStatistics.launchCount}</p>
+        <p>今日时长:{gameStatistics.todayHours.toFixed(2)}</p>
+        <p>本周时长:{gameStatistics.weekHours.toFixed(2)}</p>
+        <p>本月时长:{gameStatistics.monthHours.toFixed(2)}</p>
         <Link to={'/'}>
           <button className="cursor-pointer">返回主页</button>
         </Link>

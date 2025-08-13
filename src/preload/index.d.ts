@@ -25,6 +25,8 @@ declare global {
       countGames:() => Promise<{ count: number }>;
       countGameTime:() => Promise<{ timeCount: number }>;
       countLaunchTimes:() => Promise<{ launchCount: number }>;
+      countDayWeekMonth:() => Promise<{ todayHours: number; weekHours: number; monthHours: number }>;
+
       //操作本地
       copyImages:(move:{origin:string,target:string,gameName:string,oldFilePath:string}) => Promise<{relativePath:string}>
       delectImages:(relative_path:string)=> Promise<string>

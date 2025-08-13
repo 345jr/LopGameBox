@@ -50,12 +50,13 @@ export class DatabaseManager {
       game_id INTEGER NOT NULL,              -- 对应 games.id
       play_time INTEGER NOT NULL,            -- 本次游玩时长（秒）
       launched_at INTEGER NOT NULL,          -- 启动时间
-      ended_at INTEGER,                      -- 结束时间    
+      ended_at INTEGER,                      -- 结束时间
+      launch_state TEXT NOT NULL,           -- 启动状态
       FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
       );
       -- 建索引，加快按时间查询的速度
-      CREATE INDEX idx_game_logs_launched_at ON game_logs (launched_at);
-      CREATE INDEX idx_game_logs_game_id ON game_logs (game_id);
+      CREATE INDEX IF NOT EXISTS idx_game_logs_launched_at ON game_logs (launched_at);
+      CREATE INDEX IF NOT EXISTS idx_game_logs_game_id ON game_logs (game_id);
     `);
   }
   //关闭数据库实例

@@ -1,9 +1,11 @@
 import { GameRepository } from './gameRepository';
 import { GalleryRepository } from './galleryRepository';
+import { GameLogsRepository } from './gameLogsRepository';
 export class GameService {
   constructor(
     private gameRepo: GameRepository,
-    private galleryRepo: GalleryRepository
+    private galleryRepo: GalleryRepository,
+    private gameLogsRepo: GameLogsRepository
   ) {}
   //添加游戏
   public addGame(gameName: string, launchPath: string, diskSize: number) {
@@ -73,5 +75,13 @@ export class GameService {
   //统计启动次数
   public countLaunchTimes() {
     return this.gameRepo.countLaunchTimes();
+  }
+  //记录游戏记录
+  public logGame(gameId: number, launchedAt: number, endedAt: number, launchState: string) {
+    this.gameLogsRepo.insertGameLog(gameId, launchedAt, endedAt, launchState);
+  }
+  //查询今日 ，本周 ，本月的游戏记录
+  public getGameLogDayWeekMonth() {
+    return this.gameLogsRepo.getGameLogDayWeekMonth();
   }
 }

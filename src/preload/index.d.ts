@@ -4,7 +4,7 @@ declare global {
     electron: ElectronAPI
     api: {
       openFile: () => Promise<string>;
-      executeFile:(game: { id: number; path: string })=> Promise<{ success: boolean; message?: string }>
+      executeFile:(game: { id: number; path: string, gameMode: string })=> Promise<{ success: boolean; message?: string }>
       onTimerUpdate: (callback: (elapsedTime: number) => void) => void
       onTimerStopped: (callback: (result: { code: number; finalElapsedTime: number }) => void) => void
       offTimerUpdate:(callback: (elapsedTime: number) => void)=>void
@@ -26,11 +26,12 @@ declare global {
       countGameTime:() => Promise<{ timeCount: number }>;
       countLaunchTimes:() => Promise<{ launchCount: number }>;
       countDayWeekMonth:() => Promise<{ todayHours: number; weekHours: number; monthHours: number }>;
-
       //操作本地
       copyImages:(move:{origin:string,target:string,gameName:string,oldFilePath:string}) => Promise<{relativePath:string}>
       delectImages:(relative_path:string)=> Promise<string>
       openFolder:(folderPath:string)=>Promise<void>
+      //消息通知
+      sendNotification:(title:string,body:string)=>Promise<void>
     }
   }
 }

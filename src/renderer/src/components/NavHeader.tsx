@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom';
 import { FaSearch } from 'react-icons/fa';
 import { VscTriangleDown, VscComment } from 'react-icons/vsc';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { useState } from 'react';
 
 import logo from '../assets/lopgame.png';
 import useInfoStore from '@renderer/store/infoStore';
 import useGameStore from '@renderer/store/GameStore';
 import { formatTime } from '@renderer/util/timeFormat';
+
 
 const NavHeader = () => {
   const [position, setPosition] = useState({ x: 0, y: 0, rotate: 0 });
@@ -21,6 +22,9 @@ const NavHeader = () => {
   const onInfo = useInfoStore((state) => state.onInfo);
   const offInfo = useInfoStore((state) => state.offInfo);
   const searchResults = useGameStore((state)=>state.setSearchResults)
+  const [active, setActive] = useState(false);
+  const setGameModeSelector = useGameStore((state)=>state.setGameModeSelector)
+
   //获取添加信息 --
   const setInfo = useInfoStore((state) => state.setInfo);
   //添加游戏 --
@@ -91,9 +95,27 @@ const NavHeader = () => {
     const gameList = await window.api.searchGames(keyword)
     searchResults(gameList)
   }
+  //模式选择器动画
+  const logoAnimate: Variants = {
+    initial:{scale:1 ,rotate:0},
+    active:{scale:1.2 ,rotate:180,transition:{ease:["easeOut"]}}
+  }
+ 
+  
   return (
-    <div className="items-centers flex justify-start border-b-1 border-black">
-      <img src={logo} alt="logo" className="mr-5 w-12 rounded-full" />
+    <div className="items-centers flex justify-start border-b-1 border-black ">
+      <motion.img src={logo} alt="logo" className="mr-5 w-12 rounded-2xl cursor-pointer z-10"
+      variants={logoAnimate} 
+      initial='initial'
+      animate={active ? "active" : "disabled"}
+      onClick={()=>{
+        setActive(!active)
+        setGameModeSelector()
+      }}
+      onMouseEnter={()=>{
+        setPosition({x:-50,y:20,rotate:90})
+      }}
+      />
 
       <div className="relative flex w-full flex-row">
         {/* 动画指针 */}
@@ -215,5 +237,6 @@ const NavHeader = () => {
     </div>
   );
 };
+
 
 export default NavHeader;

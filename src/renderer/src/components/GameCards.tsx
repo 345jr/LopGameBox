@@ -15,6 +15,7 @@ import { Link } from 'react-router-dom';
 import { motion, Variants } from 'motion/react';
 import useGameStore from '@renderer/store/GameStore';
 import useInfoStore from '@renderer/store/infoStore';
+import Selector from './GameModeSelector/Selector';
 
 const GameCards = () => {
   const [games, setGames] = useState<Game[]>([]);
@@ -26,6 +27,7 @@ const GameCards = () => {
   const GameState = useGameStore((state) => state.gameState);
   const setGameState = useGameStore((state) => state.setGameState);
   const searchResults = useGameStore((state) => state.searchResults);
+  const gameMode = useGameStore((state) => state.gameMode);
 
   useEffect(() => {
     fetchGames();
@@ -65,9 +67,11 @@ const GameCards = () => {
       setInfo(`已经有另一个游戏在运行中`);
       return;
     }
+    
     const result = await window.api.executeFile({
       id: game.id,
       path: game.launch_path,
+      gameMode: gameMode,
     });
 
     if (result.success) {
@@ -137,7 +141,11 @@ const GameCards = () => {
 
   return (
     <>
-      <div className="flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed ">
+      <div className="flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed  relative">
+      {/* 游戏模式选择器 */}
+      <div className='absolute top-0 left-0 w-13 rounded-b-full'>        
+          <Selector />           
+      </div>
         {games.map((game) => (
           <div key={game.id} className="flex-center flex-col p-4">
             <div className="flex flex-row">

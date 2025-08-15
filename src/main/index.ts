@@ -6,6 +6,7 @@ import {
   dialog,
   protocol,
   net,
+  Notification,
 } from 'electron';
 import path, { join } from 'path';
 import url from 'node:url';
@@ -17,7 +18,7 @@ import * as fs from 'fs/promises';
 
 import { GameService } from './services/gameService';
 import { GameRepository } from './services/gameRepository';
-import { GalleryRepository } from './services/galleryRepository'
+import { GalleryRepository } from './services/galleryRepository';
 import { GameLogsRepository } from './services/gameLogsRepository';
 import { getSize } from './util/diskSize';
 import { getDelectPath } from './util/path';
@@ -26,6 +27,7 @@ import { getDelectPath } from './util/path';
 let mainWindow: BrowserWindow | null = null;
 let childProcess: ChildProcess | null = null;
 let timerInterval: NodeJS.Timeout | null = null;
+let gracePeriodTimeout:NodeJS.Timeout | null = null;
 let startTime: number | null = null;
 //创建 数据库操控实例
 const gameService = new GameService(
@@ -67,8 +69,6 @@ function createWindow(): void {
   }
 }
 
-
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -94,12 +94,10 @@ app.whenReady().then(() => {
     let filePath = request.url.slice('lop://'.length);
     filePath = decodeURIComponent(filePath);
     // console.log(filePath)
-    const projectRoot = path.resolve(__dirname, '../../public');    
+    const projectRoot = path.resolve(__dirname, '../../public');
     const absPath = path.join(projectRoot, filePath);
     const cleanPath = absPath.replace(/[\\/]+$/, '');
-    return net.fetch(
-      url.pathToFileURL(path.join(cleanPath)).toString(),
-    );
+    return net.fetch(url.pathToFileURL(path.join(cleanPath)).toString());
   });
 
   // Default open or close DevTools by F12 in development
@@ -123,7 +121,7 @@ app.whenReady().then(() => {
   //运行程序
   ipcMain.handle(
     'shell:executeFile',
-    async (_event, game: { id: number; path: string }) => {
+    async (_event, game: { id: number; path: string; gameMode: string }) => {
       if (childProcess) {
         return { success: false, message: '已有另一个应用在运行中。' };
       }
@@ -132,10 +130,9 @@ app.whenReady().then(() => {
         childProcess = spawn(game.path, [], { stdio: 'ignore' });
         //获取启动时的时间戳
         startTime = Date.now();
-
-        // 返回一个 Promise，确保错误和成功都能被正确处理
+        //宽限时间开关
+        let gracePeriod = false;
         return new Promise((resolve) => {
-
           // 监听进程的 'error' 事件
           childProcess?.on('error', (err) => {
             console.error(`启动子进程失败: ${err.message}`);
@@ -144,7 +141,14 @@ app.whenReady().then(() => {
               finalElapsedTime: 0,
               error: err.message,
             });
-            gameService.logGame(game.id, startTime || 0, Date.now(),'error');
+            // 记录错误游戏日志
+            gameService.logGame(
+              game.id,
+              startTime || 0,
+              Date.now(),
+              'error',
+              game.gameMode,
+            );
             // 清理状态
             childProcess = null;
             timerInterval = null;
@@ -156,17 +160,95 @@ app.whenReady().then(() => {
             });
           });
 
-          // 监听进程的 'spawn' 事件，确保进程成功启动
+          // 监听进程的 'spawn' 事件，启动成功
           childProcess?.on('spawn', () => {
+            //不同模式下的提醒
+            let normalNotified = false;
+            let fastNotified = false;
+            let lastAfkNotifySec = 0;
+            let testNotified = false;
+            //只记录一次和设置一个定时器
+            let isLoged = false;
             // 启动成功，设置定时器
             timerInterval = setInterval(() => {
-              if (startTime) {
+              //开始且不在宽限时间
+              if (startTime && !gracePeriod) {
                 const elapsedTime = Date.now() - startTime;
                 const elapsedTimeSeconds = Math.round(elapsedTime / 1000);
                 mainWindow?.webContents.send(
                   'timer:update',
                   elapsedTimeSeconds,
                 );
+
+                try {
+                  switch (game.gameMode) {
+                    case 'Normal':
+                      if (!normalNotified && elapsedTimeSeconds >= 60 * 40) {
+                        new Notification({
+                          title: '普通模式提醒',
+                          body: '您已经玩了超过 40 分钟！',
+                        }).show();
+                        normalNotified = true;
+                        gracePeriod = true;
+                      }
+                      break;
+                    case 'Fast':
+                      if (!fastNotified && elapsedTimeSeconds >= 20 * 40) {
+                        new Notification({
+                          title: '快速模式提醒',
+                          body: '您已经玩了超过 20 分钟！',
+                        }).show();
+                        fastNotified = true;
+                        gracePeriod = true;
+                      }
+                      break;
+                    case 'Afk':
+                      if (elapsedTimeSeconds - lastAfkNotifySec >= 60 * 60) {
+                        new Notification({
+                          title: '挂机模式提醒',
+                          body: '您已经挂机1小时',
+                        }).show();
+                        lastAfkNotifySec = elapsedTimeSeconds;
+                      }
+                      break;
+                    case 'Infinity':
+                      break;
+                    case 'Test':
+                      if (!testNotified && elapsedTimeSeconds > 60) {
+                        new Notification({
+                          title: '测试模式提醒',
+                          body: '您已经玩了超过 1 分钟！',
+                        }).show();
+                        testNotified = true;
+                        gracePeriod = true;
+                      }
+                      break;
+                    default:
+                      break;
+                  }
+                } catch (error) {
+                  console.error(`提醒发生错误: ${error}`);
+                }
+              } else if (gracePeriod) {
+                if (!isLoged) {
+                  gameService.logGame(
+                    game.id,
+                    startTime || 0,
+                    Date.now(),
+                    'success',
+                    game.gameMode,
+                  );
+                  isLoged = true;
+                  // 设置一个定时器
+                  gracePeriodTimeout = setTimeout(
+                    () => {
+                      //脱离宽限期并修改游戏模式为沉浸模式
+                      gracePeriod = false;
+                      game.gameMode = 'Infinity';
+                    },
+                    1000 * 60 * 5,
+                  );                  
+                }
               }
             }, 1000);
             // 解析为成功状态
@@ -178,6 +260,7 @@ app.whenReady().then(() => {
             console.log(`子进程已退出，退出码：${code}`);
             if (timerInterval) {
               clearInterval(timerInterval);
+              if (gracePeriodTimeout) clearTimeout(gracePeriodTimeout);
             }
             const finalElapsedTime = startTime ? Date.now() - startTime : 0;
             const finalElapsedSeconds = Math.round(finalElapsedTime / 1000);
@@ -186,13 +269,19 @@ app.whenReady().then(() => {
               finalElapsedSeconds,
             });
             gameService.updateGameOnClose(game.id, finalElapsedSeconds);
-            gameService.logGame(game.id, startTime || 0, Date.now(),'success');
+            // 记录成功游戏日志
+            gameService.logGame(
+              game.id,
+              startTime || 0,
+              Date.now(),
+              'success',
+              game.gameMode,
+            );
             // 清理状态
             childProcess = null;
             timerInterval = null;
             startTime = null;
           });
-
         });
       } catch (err: any) {
         console.error(`发生异常: ${err.message}`);
@@ -230,16 +319,16 @@ app.whenReady().then(() => {
     }
   });
   //获取游戏大小
-  ipcMain.handle('db:updateGameSize',async(_event,id,launch_path)=>{
+  ipcMain.handle('db:updateGameSize', async (_event, id, launch_path) => {
     try {
-      const disk_size = await getSize(launch_path)
-      gameService.updateGameSize(id,disk_size)
-      return disk_size
-    } catch (error:any) {
-      console.log(`获取游戏大小发生错误:${error.message}`)
-      return 0
+      const disk_size = await getSize(launch_path);
+      gameService.updateGameSize(id, disk_size);
+      return disk_size;
+    } catch (error: any) {
+      console.log(`获取游戏大小发生错误:${error.message}`);
+      return 0;
     }
-  })
+  });
   //删除游戏
   ipcMain.handle('db:deleteGame', (_event, id: number) => {
     return gameService.deleteGame(id);
@@ -247,20 +336,20 @@ app.whenReady().then(() => {
   //复制游戏图片到资源目录
   ipcMain.handle(
     'op:copyImages',
-    async (_event, { origin, target, gameName ,oldFilePath }) => {
+    async (_event, { origin, target, gameName, oldFilePath }) => {
       try {
         const time = new Date().toDateString();
-        //构建游戏名       
-        const gameNameExtension = `${gameName}-${time}.jpg`.replace(/\s/g,'');
+        //构建游戏名
+        const gameNameExtension = `${gameName}-${time}.jpg`.replace(/\s/g, '');
         const imageName = path.join(
           app.isPackaged
-            ? path.join(path.dirname(app.getPath('exe')), target)  // 生产环境
-            : path.join(process.cwd(), 'public', target),          // 开发环境
-          gameNameExtension
+            ? path.join(path.dirname(app.getPath('exe')), target) // 生产环境
+            : path.join(process.cwd(), 'public', target), // 开发环境
+          gameNameExtension,
         );
-        const filePath = getDelectPath(oldFilePath) as string
+        const filePath = getDelectPath(oldFilePath) as string;
         //如果有旧的封面图 ，先删除旧的封面图
-        if (filePath !== 'skip') await fs.unlink(filePath)                     
+        if (filePath !== 'skip') await fs.unlink(filePath);
         //复制文件到相对路径文件夹
         await fs.copyFile(origin, imageName);
         console.log(`File Copy Success`);
@@ -288,52 +377,55 @@ app.whenReady().then(() => {
     return gameService.getBanners();
   });
   // 查询Snapshot
-  ipcMain.handle('db:getSnapshot',async(_event , gameId) =>{
-    return gameService.getGameSnapshot(gameId)
-  })
+  ipcMain.handle('db:getSnapshot', async (_event, gameId) => {
+    return gameService.getGameSnapshot(gameId);
+  });
   // 添加Snapshot
-  ipcMain.handle('db:addSnapshot',async(_event , {gameId, imagePath, relativePath})=>{
-    try {
-      return gameService.setGameSnapshot(gameId, imagePath, relativePath)
-    } catch (error:any) {
-      console.log(`发生异常: ${error.message}`)
-      return null
-    }
-  })
+  ipcMain.handle(
+    'db:addSnapshot',
+    async (_event, { gameId, imagePath, relativePath }) => {
+      try {
+        return gameService.setGameSnapshot(gameId, imagePath, relativePath);
+      } catch (error: any) {
+        console.log(`发生异常: ${error.message}`);
+        return null;
+      }
+    },
+  );
   //删除Snapshot
-  ipcMain.handle('db:delectSnapshot',async(_event,id)=>{
+  ipcMain.handle('db:delectSnapshot', async (_event, id) => {
     try {
-      return gameService.delectSnapshot(id)
-    } catch(error:any) {
-      console.log(`删除记录发生错误:${error.message}`)
+      return gameService.delectSnapshot(id);
+    } catch (error: any) {
+      console.log(`删除记录发生错误:${error.message}`);
     }
-  })
+  });
   //删除图片文件
-  ipcMain.handle('op:delectImages',async(_event,relative_path)=>{
+  ipcMain.handle('op:delectImages', async (_event, relative_path) => {
     try {
-      const path = getDelectPath(relative_path)
-      await fs.unlink(path)
-      console.log(`删除成功`)
-    } catch (error:any) {
-      console.log(`删除文件发生错误:${error.message}`)
+      const path = getDelectPath(relative_path);
+      await fs.unlink(path);
+      console.log(`删除成功`);
+    } catch (error: any) {
+      console.log(`删除文件发生错误:${error.message}`);
     }
-  })
+  });
   //修改游戏名
-  ipcMain.handle('db:modifyGameName',async(_event,id,newName)=>{
-    try{
-      gameService.modifyGameName(id,newName)
-    } catch (error){
-      console.log(`修改游戏名发生错误${error}`)
-    }
-  })
-  //打开文件夹
-  ipcMain.handle('op:openFolder',(_event,folderPath)=>{
+  ipcMain.handle('db:modifyGameName', async (_event, id, newName) => {
     try {
-      shell.showItemInFolder(folderPath)
-    } catch (error:any) {
-      console.log(`打开文件夹发生错误:${error.message}`)
+      gameService.modifyGameName(id, newName);
+    } catch (error) {
+      console.log(`修改游戏名发生错误${error}`);
     }
-  })
+  });
+  //打开文件夹
+  ipcMain.handle('op:openFolder', (_event, folderPath) => {
+    try {
+      shell.showItemInFolder(folderPath);
+    } catch (error: any) {
+      console.log(`打开文件夹发生错误:${error.message}`);
+    }
+  });
   //模糊搜索
   ipcMain.handle('db:searchGames', async (_event, keyword) => {
     try {
@@ -359,6 +451,13 @@ app.whenReady().then(() => {
   ipcMain.handle('db:getGameLogDayWeekMonth', () => {
     return gameService.getGameLogDayWeekMonth();
   });
+  //消息通知模拟
+  ipcMain.handle(
+    'op:sendNotification',
+    (_event, title: string, body: string) => {
+      new Notification({ title: title, body: body }).show();
+    },
+  );
 
   createWindow();
 

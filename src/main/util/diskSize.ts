@@ -1,10 +1,10 @@
 import * as fs from 'fs/promises';
 import path from 'path';
 //获取游戏文件夹大小
-export async function getSize(filePath:string) {
+export async function getSize(filePath: string) {
   const dirPath = path.dirname(filePath);
 
-  async function getDirectorySizeAsync(dir:string, visitedInodes = new Set()) {
+  async function getDirectorySizeAsync(dir: string, visitedInodes = new Set()) {
     let totalSize = 0;
     try {
       const entries = await fs.readdir(dir, { withFileTypes: true });
@@ -26,7 +26,7 @@ export async function getSize(filePath:string) {
           totalSize += await getDirectorySizeAsync(fullPath, visitedInodes);
         }
       }
-    } catch (err:unknown) {
+    } catch (err: unknown) {
       // 忽略权限错误
       if ((err as { code?: string }).code === 'EACCES') return 0;
       throw err;
@@ -36,5 +36,3 @@ export async function getSize(filePath:string) {
 
   return getDirectorySizeAsync(dirPath);
 }
-
-

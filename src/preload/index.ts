@@ -6,6 +6,7 @@ const api = {
   executeFile: (game: {
     id: number;
     path: string;
+    gameMode: string;
   }): Promise<{ success: boolean; message?: string }> =>
     ipcRenderer.invoke('shell:executeFile', game),
   //监听计时器更新
@@ -54,9 +55,12 @@ const api = {
     relativePath: string;
   }) => ipcRenderer.invoke('db:addSnapshot', gameImage),
   delectSnapshot: (id: number) => ipcRenderer.invoke('db:delectSnapshot', id),
-  modifyGameName: (id: number, newName: string) =>ipcRenderer.invoke('db:modifyGameName', id, newName),
-  updateGameSize: (id: number, launch_path:string) => ipcRenderer.invoke('db:updateGameSize', id, launch_path),
-  searchGames: (keyword: string) => ipcRenderer.invoke('db:searchGames', keyword),
+  modifyGameName: (id: number, newName: string) =>
+    ipcRenderer.invoke('db:modifyGameName', id, newName),
+  updateGameSize: (id: number, launch_path: string) =>
+    ipcRenderer.invoke('db:updateGameSize', id, launch_path),
+  searchGames: (keyword: string) =>
+    ipcRenderer.invoke('db:searchGames', keyword),
   countGames: () => ipcRenderer.invoke('db:countGames'),
   countGameTime: () => ipcRenderer.invoke('db:countGameTime'),
   countLaunchTimes: () => ipcRenderer.invoke('db:countLaunchTimes'),
@@ -70,7 +74,11 @@ const api = {
   }) => ipcRenderer.invoke('op:copyImages', move),
   delectImages: (relative_path: string) =>
     ipcRenderer.invoke('op:delectImages', relative_path),
-  openFolder: (folderPath: string) => ipcRenderer.invoke('op:openFolder', folderPath)
+  openFolder: (folderPath: string) =>
+    ipcRenderer.invoke('op:openFolder', folderPath),
+  //消息通知
+  sendNotification: (title: string, body: string) =>
+    ipcRenderer.invoke('op:sendNotification', title, body),
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

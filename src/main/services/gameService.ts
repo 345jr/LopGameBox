@@ -77,8 +77,8 @@ export class GameService {
     return this.gameRepo.countLaunchTimes();
   }
   //记录游戏记录
-  public logGame(gameId: number, launchedAt: number, endedAt: number, launchState: string) {
-    this.gameLogsRepo.insertGameLog(gameId, launchedAt, endedAt, launchState);
+  public logGame(gameId: number, launchedAt: number, endedAt: number, launchState: string, gameMode: string = '') {
+    this.gameLogsRepo.insertGameLog(gameId, launchedAt, endedAt, launchState, gameMode);
   }
   //查询今日 ，本周 ，本月的游戏记录
   public getGameLogDayWeekMonth() {

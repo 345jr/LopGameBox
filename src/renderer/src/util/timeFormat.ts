@@ -19,6 +19,6 @@ export function formatTimeToHours(seconds: number | undefined): string {
   if (seconds === undefined) {
     return '0';
   }
-  const hours = (seconds / 3600).toFixed(1);
+  const hours = (seconds / 3600).toFixed(2);
   return `${hours}`;
 }

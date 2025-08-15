@@ -45,7 +45,7 @@ const Dashboard = () => {
       <div>统计面板页面</div>
       <div className="mt-5 text-xl">
         <p>游戏总数:{gameStatistics.gameCount}</p>
-        <p>总游戏时间:{formatTimeToHours(gameStatistics.gamePlayTime)} 小时</p>
+        <p>总游戏时间:{formatTimeToHours(gameStatistics.gamePlayTime)}</p>
         <p>游戏启动次数:{gameStatistics.launchCount}</p>
         <p>今日时长:{gameStatistics.todayHours.toFixed(2)}</p>
         <p>本周时长:{gameStatistics.weekHours.toFixed(2)}</p>

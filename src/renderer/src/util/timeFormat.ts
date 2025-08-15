@@ -22,3 +22,11 @@ export function formatTimeToHours(seconds: number | undefined): string {
   const hours = (seconds / 3600).toFixed(2);
   return `${hours}`;
 }
+//秒->分钟
+export function formatTimeToMinutes(seconds: number | undefined): string {
+  if (seconds === undefined) {
+    return '0';
+  }
+  const minutes = Math.floor(seconds / 60);
+  return `${minutes}`;
+}

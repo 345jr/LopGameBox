@@ -6,12 +6,14 @@ import {
   FaHourglassEnd,
   FaGlasses,
   FaClock,
+  FaPersonWalkingArrowRight,
 } from 'react-icons/fa6';
 
 const Selector = () => {
   const gameModeSelector = useGameStore((state) => state.gameModeSelector);
   const gameMode = useGameStore((state) => state.gameMode);
   const setGameMode = useGameStore((state) => state.setGameMode);
+  const gameState = useGameStore((state) => state.gameState);
   //动画
   const selector: Variants = {
     initial: { opacity: 0, y: -100 },
@@ -21,6 +23,10 @@ const Selector = () => {
   const selectMode = (mode: string) => {
     console.log(`要切换的模式是${mode}`);
     setGameMode(mode);
+  };
+  //进入休息状态
+  const enterRestMode = () => {
+    window.api.setResting(true);
   };
   useEffect(() => {
     console.log(`当前的模式是${gameMode}`);
@@ -51,14 +57,19 @@ const Selector = () => {
             <FaClock className="text-3xl text-cyan-700" />
           </button>
         </div>
-        <div className="flex-1 rounded-b-2xl bg-stone-500 px-2.5 py-7">
-          <button
-            onClick={() => selectMode('Test')}
-            className="cursor-pointer"
-          >
+
+        <div className={`flex-1${gameState === 'run' ? '': ' rounded-b-2xl'} bg-stone-500 px-2.5 py-7`}>
+          <button onClick={() => selectMode('Test')} className="cursor-pointer">
             <FaGlasses className="text-3xl text-black" />
           </button>
         </div>
+        {gameState === 'run' && (
+          <div className="flex-1 rounded-b-2xl bg-green-500 px-2.5 py-7">
+            <button onClick={() => enterRestMode()} className="cursor-pointer">
+              <FaPersonWalkingArrowRight className="text-3xl text-black" />
+            </button>
+          </div>
+        )}
       </motion.div>
     </>
   );

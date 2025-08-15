@@ -79,6 +79,20 @@ const api = {
   //消息通知
   sendNotification: (title: string, body: string) =>
     ipcRenderer.invoke('op:sendNotification', title, body),
+  //切换游戏模式
+  setGameMode: (mode: string) => ipcRenderer.invoke('op:setGameMode', mode),
+  //打开休息模态框监听器
+  onOpenRestTimeModal: (callback: () => void) => {
+    ipcRenderer.on('open-rest-time-modal', callback);
+  },
+  //移除监听器
+  offOpenRestTimeModal: () => {
+    ipcRenderer.removeAllListeners('open-rest-time-modal');
+  },
+  //设置休息状态
+  setResting: (resting: boolean) => {
+    ipcRenderer.invoke('op:setResting', resting);
+  },
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

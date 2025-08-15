@@ -29,6 +29,10 @@ let childProcess: ChildProcess | null = null;
 let timerInterval: NodeJS.Timeout | null = null;
 let gracePeriodTimeout:NodeJS.Timeout | null = null;
 let startTime: number | null = null;
+let gameMode: string | undefined = undefined;
+let gracePeriod: boolean = false;
+let isResting: boolean = false;
+let elapsedTimeSeconds: number = 0;
 //创建 数据库操控实例
 const gameService = new GameService(
   new GameRepository(),
@@ -128,10 +132,10 @@ app.whenReady().then(() => {
       try {
         // 使用 spawn 启动进程
         childProcess = spawn(game.path, [], { stdio: 'ignore' });
+        // 设置当前的游戏模式
+        gameMode = game.gameMode;
         //获取启动时的时间戳
-        startTime = Date.now();
-        //宽限时间开关
-        let gracePeriod = false;
+        startTime = Date.now();        
         return new Promise((resolve) => {
           // 监听进程的 'error' 事件
           childProcess?.on('error', (err) => {
@@ -147,7 +151,7 @@ app.whenReady().then(() => {
               startTime || 0,
               Date.now(),
               'error',
-              game.gameMode,
+              gameMode,
             );
             // 清理状态
             childProcess = null;
@@ -171,17 +175,17 @@ app.whenReady().then(() => {
             let isLoged = false;
             // 启动成功，设置定时器
             timerInterval = setInterval(() => {
-              //开始且不在宽限时间
-              if (startTime && !gracePeriod) {
+              //开始且不在宽限时间且不在休息期
+              if (startTime && !gracePeriod && !isResting) {
                 const elapsedTime = Date.now() - startTime;
-                const elapsedTimeSeconds = Math.round(elapsedTime / 1000);
+                elapsedTimeSeconds = Math.round(elapsedTime / 1000);
                 mainWindow?.webContents.send(
                   'timer:update',
                   elapsedTimeSeconds,
                 );
 
                 try {
-                  switch (game.gameMode) {
+                  switch (gameMode) {
                     case 'Normal':
                       if (!normalNotified && elapsedTimeSeconds >= 60 * 40) {
                         new Notification({
@@ -190,16 +194,18 @@ app.whenReady().then(() => {
                         }).show();
                         normalNotified = true;
                         gracePeriod = true;
+                        mainWindow?.webContents.send('open-rest-time-modal');
                       }
                       break;
                     case 'Fast':
-                      if (!fastNotified && elapsedTimeSeconds >= 20 * 40) {
+                      if (!fastNotified && elapsedTimeSeconds >= 60 * 20) {
                         new Notification({
                           title: '快速模式提醒',
                           body: '您已经玩了超过 20 分钟！',
                         }).show();
                         fastNotified = true;
                         gracePeriod = true;
+                        mainWindow?.webContents.send('open-rest-time-modal');
                       }
                       break;
                     case 'Afk':
@@ -221,6 +227,7 @@ app.whenReady().then(() => {
                         }).show();
                         testNotified = true;
                         gracePeriod = true;
+                        mainWindow?.webContents.send('open-rest-time-modal');
                       }
                       break;
                     default:
@@ -229,6 +236,7 @@ app.whenReady().then(() => {
                 } catch (error) {
                   console.error(`提醒发生错误: ${error}`);
                 }
+                //宽限期
               } else if (gracePeriod) {
                 if (!isLoged) {
                   gameService.logGame(
@@ -236,7 +244,7 @@ app.whenReady().then(() => {
                     startTime || 0,
                     Date.now(),
                     'success',
-                    game.gameMode,
+                    gameMode,
                   );
                   isLoged = true;
                   // 设置一个定时器
@@ -244,11 +252,32 @@ app.whenReady().then(() => {
                     () => {
                       //脱离宽限期并修改游戏模式为沉浸模式
                       gracePeriod = false;
-                      game.gameMode = 'Infinity';
+                      gameMode = 'Infinity';
                     },
                     1000 * 60 * 5,
                   );                  
                 }
+                // 休息期
+              } else if(isResting){
+                if (gracePeriodTimeout) {
+                  clearTimeout(gracePeriodTimeout);
+                  gracePeriodTimeout = null;
+                }
+                //记录一次休息前的游戏记录(主动休息情况)
+                //被动触发休息时
+                if (!isLoged) {
+                  gameService.logGame(
+                    game.id,
+                    startTime || 0,
+                    Date.now(),
+                    'success',
+                    gameMode,
+                  );
+                  isLoged = true;
+                }
+                //重置时间
+                elapsedTimeSeconds = 0;
+                startTime = Date.now();
               }
             }, 1000);
             // 解析为成功状态
@@ -293,6 +322,19 @@ app.whenReady().then(() => {
       }
     },
   );
+  //修改游戏模式
+  ipcMain.handle('op:setGameMode', (_event, mode: string) => {
+    //模式对应时间的映射
+    //对比目前玩的时间是否大于映射的时间
+    //若大于将其清零
+    gameMode = mode;
+  });
+  //设置休息状态
+  ipcMain.handle('op:setResting', (_event, resting: boolean) => {
+    isResting = resting;
+    gracePeriod = false;
+  });
+
   //查询全部游戏
   ipcMain.handle('db:getAllGames', () => {
     return gameService.getAllGames();

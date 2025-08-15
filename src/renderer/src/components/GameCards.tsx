@@ -16,10 +16,13 @@ import { motion, Variants } from 'motion/react';
 import useGameStore from '@renderer/store/GameStore';
 import useInfoStore from '@renderer/store/infoStore';
 import Selector from './GameModeSelector/Selector';
+import { RestTimeContent } from './ModalContent/RestTimeContent';
+import { createPortal } from 'react-dom';
 
 const GameCards = () => {
   const [games, setGames] = useState<Game[]>([]);
   const BannersRef = useRef<Banners[]>(null);
+  const [showRestTimeModal, setShowRestTimeModal] = useState(false);
   // 获取新添加游戏的数据
   const getGameList = useGameStore((state) => state.gameId);
   const setInfo = useInfoStore((state) => state.setInfo);
@@ -49,6 +52,14 @@ const GameCards = () => {
   //加载主页数据 --
   useEffect(() => {
     fetchGames();
+    //放置打开休息界面监听器
+    window.api.onOpenRestTimeModal(() => {
+      setShowRestTimeModal(true);
+    });
+    //退出主页时移除监听器
+    return () => {
+      window.api.offOpenRestTimeModal();
+    };
   }, [fetchGames]);
   //重载模糊查询数据 --
   useEffect(() => {
@@ -144,8 +155,17 @@ const GameCards = () => {
       <div className="flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed  relative">
       {/* 游戏模式选择器 */}
       <div className='absolute top-0 left-0 w-13 rounded-b-full'>        
-          <Selector />           
+          <Selector />
+      {/* 休息提示区域 */}           
       </div>
+      {
+        showRestTimeModal && createPortal(
+          <RestTimeContent onClose={() => setShowRestTimeModal(false)} />,
+          document.body
+        )
+      }
+     {/*  暂用 */}
+      <button onClick={() => setShowRestTimeModal(true)} className='text-white'>休息时间调试</button>
         {games.map((game) => (
           <div key={game.id} className="flex-center flex-col p-4">
             <div className="flex flex-row">

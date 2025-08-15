@@ -32,6 +32,13 @@ declare global {
       openFolder:(folderPath:string)=>Promise<void>
       //消息通知
       sendNotification:(title:string,body:string)=>Promise<void>
+      //切换游戏模式
+      setGameMode: (mode: string) => Promise<void>
+      //打开休息模态框
+      onOpenRestTimeModal: (callback: () => void) => Promise<void>
+      offOpenRestTimeModal: () => Promise<void>
+      //设置休息状态
+      setResting: (resting: boolean) => Promise<void>
     }
   }
 }

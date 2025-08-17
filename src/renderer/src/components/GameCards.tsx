@@ -20,17 +20,28 @@ import { RestTimeContent } from './ModalContent/RestTimeContent';
 import { createPortal } from 'react-dom';
 
 const GameCards = () => {
+  // #region 状态管理
+  // 存储游戏列表数据
   const [games, setGames] = useState<Game[]>([]);
+  // 存储游戏封面图的引用
   const BannersRef = useRef<Banners[]>(null);
+  // 控制是否显示休息时间弹窗
   const [showRestTimeModal, setShowRestTimeModal] = useState(false);
-  // 获取新添加游戏的数据
+  // 获取当前游戏的全局状态ID
   const getGameList = useGameStore((state) => state.gameId);
+  // 设置全局提示信息
   const setInfo = useInfoStore((state) => state.setInfo);
+  // 更新游戏的计时信息
   const setGameTime = useGameStore((state) => state.setGameTime);
+  // 获取当前游戏的运行状态
   const GameState = useGameStore((state) => state.gameState);
+  // 设置当前游戏的运行状态
   const setGameState = useGameStore((state) => state.setGameState);
+  // 存储搜索结果
   const searchResults = useGameStore((state) => state.searchResults);
+  // 获取当前选择的游戏模式
   const gameMode = useGameStore((state) => state.gameMode);
+  // #endregion
 
   useEffect(() => {
     fetchGames();
@@ -43,7 +54,7 @@ const GameCards = () => {
     BannersRef.current = await window.api.getBanners();
     setGames(gameList);
   }, []);
-  // 缓存停止计时函数 --
+  // 缓存停止计时函数
   const handleTimerStopped = useCallback(() => {
     setInfo(`游戏已关闭。`);
     setGameState('stop');
@@ -78,7 +89,7 @@ const GameCards = () => {
       setInfo(`已经有另一个游戏在运行中`);
       return;
     }
-    
+
     const result = await window.api.executeFile({
       id: game.id,
       path: game.launch_path,
@@ -152,20 +163,24 @@ const GameCards = () => {
 
   return (
     <>
-      <div className="flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed  relative">
-      {/* 游戏模式选择器 */}
-      <div className='absolute top-0 left-0 w-13 rounded-b-full'>        
+      <div className="relative flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed">
+        {/* 游戏模式选择器 */}
+        <div className="absolute top-0 left-0 w-13 rounded-b-full">
           <Selector />
-      {/* 休息提示区域 */}           
-      </div>
-      {
-        showRestTimeModal && createPortal(
-          <RestTimeContent onClose={() => setShowRestTimeModal(false)} />,
-          document.body
-        )
-      }
-     {/*  暂用 */}
-      <button onClick={() => setShowRestTimeModal(true)} className='text-white'>休息时间调试</button>
+          {/* 休息提示区域 */}
+        </div>
+        {showRestTimeModal &&
+          createPortal(
+            <RestTimeContent onClose={() => setShowRestTimeModal(false)} />,
+            document.body,
+          )}
+        {/*  暂用 */}
+        <button
+          onClick={() => setShowRestTimeModal(true)}
+          className="text-white"
+        >
+          休息时间调试
+        </button>
         {games.map((game) => (
           <div key={game.id} className="flex-center flex-col p-4">
             <div className="flex flex-row">
@@ -185,8 +200,8 @@ const GameCards = () => {
                   }
                   alt="banner图"
                   className="h-70 w-120 rounded-2xl border-2 border-white bg-cover bg-center"
-                  initial={{opacity:0,x:100}}
-                  animate={{opacity:1,x:0,transition:{duration:0.8}}}
+                  initial={{ opacity: 0, x: 100 }}
+                  animate={{ opacity: 1, x: 0, transition: { duration: 0.8 } }}
                 />
                 {/* 圆形遮罩层 */}
                 <motion.div

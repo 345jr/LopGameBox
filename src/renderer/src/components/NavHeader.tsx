@@ -9,25 +9,41 @@ import useInfoStore from '@renderer/store/infoStore';
 import useGameStore from '@renderer/store/GameStore';
 import { formatTime } from '@renderer/util/timeFormat';
 
-
 const NavHeader = () => {
+  //#region 状态管理
+  // 用于控制动画指针的位置和旋转角度
   const [position, setPosition] = useState({ x: 0, y: 0, rotate: 0 });
+  // 搜索输入框的值
   const [inputRef, setInputRef] = useState<string>('');
+  // 用于标识鼠标是否处于抓取状态
   const [grab, setGrab] = useState<boolean>(false);
-  //状态管理 --
+  // 存储全局信息状态
   const info = useInfoStore((state) => state.info);
+  // 用于设置游戏列表
   const setGameList = useGameStore((state) => state.setGameList);
+  // 游戏运行的时间
   const gameTime = useGameStore((state) => state.gameTime);
+  // 游戏当前的运行状态（run stop null）
   const gameState = useGameStore((state) => state.gameState);
+  // 开启信息显示(下方小框)
   const onInfo = useInfoStore((state) => state.onInfo);
+  // 关闭信息显示(下方小框)
   const offInfo = useInfoStore((state) => state.offInfo);
-  const searchResults = useGameStore((state)=>state.setSearchResults)
+  // 设置搜索结果
+  const searchResults = useGameStore((state) => state.setSearchResults);
+  // 控制 Logo 动画的激活状态
   const [active, setActive] = useState(false);
-  const setGameModeSelector = useGameStore((state)=>state.setGameModeSelector)
-
-  //获取添加信息 --
+  // 开关模式选择器
+  const setGameModeSelector = useGameStore(
+    (state) => state.setGameModeSelector,
+  );
+  // 当前游戏模式
+  const gameMode = useGameStore((state) => state.gameMode);
+  //获取添加信息
   const setInfo = useInfoStore((state) => state.setInfo);
-  //添加游戏 --
+  //#endregion 状态管理
+
+  //添加游戏
   const handleAddGame = async () => {
     const path = await window.api.openFile();
     if (!path) return;
@@ -50,7 +66,8 @@ const NavHeader = () => {
       console.log(`${error.message}`);
     }
   };
-  // #region 动画 --
+
+  // #region 动画配置
   const divVariants = {
     initial: {},
     hover: {},
@@ -91,30 +108,40 @@ const NavHeader = () => {
     offInfo();
   };
   // 处理模糊查询
-  const handleSearch = async (keyword:string)=>{
-    const gameList = await window.api.searchGames(keyword)
-    searchResults(gameList)
-  }
+  const handleSearch = async (keyword: string) => {
+    const gameList = await window.api.searchGames(keyword);
+    searchResults(gameList);
+  };
   //模式选择器动画
   const logoAnimate: Variants = {
-    initial:{scale:1 ,rotate:0},
-    active:{scale:1.2 ,rotate:180,transition:{ease:["easeOut"]}}
-  }
- 
-  
+    initial: { scale: 1, rotate: 0 },
+    active: { scale: 1.2, rotate: 180, transition: { ease: ['easeOut'] } },
+  };
+  //游戏模式中文映射
+  const gameModeMap: { [key: string]: string } = {
+    Normal: '普通模式',
+    Fast: '快速模式',
+    Afk: '挂机模式',
+    Test: '测试模式',
+    Infinity: '沉浸模式',
+  };
+
   return (
-    <div className="items-centers flex justify-start border-b-1 border-black ">
-      <motion.img src={logo} alt="logo" className="mr-5 w-12 rounded-2xl cursor-pointer z-10"
-      variants={logoAnimate} 
-      initial='initial'
-      animate={active ? "active" : "disabled"}
-      onClick={()=>{
-        setActive(!active)
-        setGameModeSelector()
-      }}
-      onMouseEnter={()=>{
-        setPosition({x:-50,y:20,rotate:90})
-      }}
+    <div className="items-centers flex justify-start border-b-1 border-black">
+      <motion.img
+        src={logo}
+        alt="logo"
+        className="z-10 mr-5 w-12 cursor-pointer rounded-2xl"
+        variants={logoAnimate}
+        initial="initial"
+        animate={active ? 'active' : 'disabled'}
+        onClick={() => {
+          setActive(!active);
+          setGameModeSelector();
+        }}
+        onMouseEnter={() => {
+          setPosition({ x: -50, y: 20, rotate: 90 });
+        }}
       />
 
       <div className="relative flex w-full flex-row">
@@ -180,7 +207,10 @@ const NavHeader = () => {
               onChange={(e) => setInputRef(e.target.value)}
             />
           </div>
-          <button onClick={()=>handleSearch(inputRef)} className="absolute top-3.5 right-1.5 cursor-pointer text-stone-900 hover:text-stone-600">
+          <button
+            onClick={() => handleSearch(inputRef)}
+            className="absolute top-3.5 right-1.5 cursor-pointer text-stone-900 hover:text-stone-600"
+          >
             <FaSearch className="text-xl" />
           </button>
         </motion.div>
@@ -229,6 +259,7 @@ const NavHeader = () => {
             ) : (
               <>
                 <p className="text-xs">暂无游戏运行</p>
+                <p>{gameModeMap[gameMode] || '...'}</p>
               </>
             )}
           </div>
@@ -237,6 +268,5 @@ const NavHeader = () => {
     </div>
   );
 };
-
 
 export default NavHeader;

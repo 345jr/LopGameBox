@@ -24,15 +24,27 @@ import { getSize } from './util/diskSize';
 import { getDelectPath } from './util/path';
 
 // 变量区
+// 主窗口
 let mainWindow: BrowserWindow | null = null;
+//子进程
 let childProcess: ChildProcess | null = null;
+//计时器
 let timerInterval: NodeJS.Timeout | null = null;
-let gracePeriodTimeout:NodeJS.Timeout | null = null;
+//宽限期计时器
+let gracePeriodTimeout: NodeJS.Timeout | null = null;
+//开始时间
 let startTime: number | null = null;
+//游戏模式(当前)
 let gameMode: string | undefined = undefined;
+//宽限期
 let gracePeriod: boolean = false;
+//休息期
 let isResting: boolean = false;
+//玩过的时间
 let elapsedTimeSeconds: number = 0;
+//
+let modeToggleLog: boolean = false;
+let modeToggle: string[] = new Array(2).fill('');
 //创建 数据库操控实例
 const gameService = new GameService(
   new GameRepository(),
@@ -135,7 +147,7 @@ app.whenReady().then(() => {
         // 设置当前的游戏模式
         gameMode = game.gameMode;
         //获取启动时的时间戳
-        startTime = Date.now();        
+        startTime = Date.now();
         return new Promise((resolve) => {
           // 监听进程的 'error' 事件
           childProcess?.on('error', (err) => {
@@ -183,7 +195,19 @@ app.whenReady().then(() => {
                   'timer:update',
                   elapsedTimeSeconds,
                 );
-
+                //模式热切换后记录前一次的数据
+                if (modeToggleLog) {
+                  gameService.logGame(
+                    game.id,
+                    startTime || 0,
+                    Date.now(),
+                    'success',
+                    modeToggle[0],
+                  );
+                  modeToggleLog = false;
+                  elapsedTimeSeconds = 0;
+                  startTime = Date.now();
+                }
                 try {
                   switch (gameMode) {
                     case 'Normal':
@@ -255,10 +279,12 @@ app.whenReady().then(() => {
                       gameMode = 'Infinity';
                     },
                     1000 * 60 * 5,
-                  );                  
+                  );
                 }
                 // 休息期
-              } else if(isResting){
+              } else if (isResting) {
+                //通知前端打开休息期窗口
+                mainWindow?.webContents.send('open-rest-time-modal');
                 if (gracePeriodTimeout) {
                   clearTimeout(gracePeriodTimeout);
                   gracePeriodTimeout = null;
@@ -297,6 +323,7 @@ app.whenReady().then(() => {
               code,
               finalElapsedSeconds,
             });
+            //记录游戏时长
             gameService.updateGameOnClose(game.id, finalElapsedSeconds);
             // 记录成功游戏日志
             gameService.logGame(
@@ -324,15 +351,41 @@ app.whenReady().then(() => {
   );
   //修改游戏模式
   ipcMain.handle('op:setGameMode', (_event, mode: string) => {
-    //模式对应时间的映射
-    //对比目前玩的时间是否大于映射的时间
-    //若大于将其清零
-    gameMode = mode;
+    // const modeTimeMapping = {
+    //   Normal: 60 * 40, // 普通模式：40分钟
+    //   Fast: 60 * 20, // 快速模式：20分钟
+    //   Afk: 60 * 60, // 挂机模式：60分钟
+    //   Infinity: Infinity, // 无限模式：无限时间
+    //   Test: 60, // 测试模式：1分钟
+    // };
+    // // 检查模式是否存在于映射中
+    // if (!modeTimeMapping[mode]) {
+    //   console.error(`未知的游戏模式: ${mode}`);
+    //   return;
+    // }
+    // 获取当前模式的时间限制
+    // const timeLimit = modeTimeMapping[mode];
+    // 如果当前已玩的时间大于模式限制时间，则清零
+    // if (elapsedTimeSeconds > timeLimit) {
+      modeToggleLog = true;
+      modeToggle[0] = gameMode as string;
+      //需要切换的模式
+      modeToggle[1] = mode;
+      //切换
+      gameMode = mode;
+    // } else {
+    //   modeToggleLog = true;
+    //   modeToggle[0] = gameMode as string;
+    //   modeToggle[1] = mode;
+    //   gameMode = mode;
+    // }
   });
+
   //设置休息状态
   ipcMain.handle('op:setResting', (_event, resting: boolean) => {
     isResting = resting;
     gracePeriod = false;
+    console.log(`this is resting: ${isResting}`);
   });
 
   //查询全部游戏

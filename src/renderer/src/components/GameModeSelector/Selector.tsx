@@ -10,9 +10,13 @@ import {
 } from 'react-icons/fa6';
 
 const Selector = () => {
+  //游戏模式选择器
   const gameModeSelector = useGameStore((state) => state.gameModeSelector);
+  //当前游戏模式
   const gameMode = useGameStore((state) => state.gameMode);
+  //设置游戏模式
   const setGameMode = useGameStore((state) => state.setGameMode);
+  //游戏状态
   const gameState = useGameStore((state) => state.gameState);
   //动画
   const selector: Variants = {
@@ -58,7 +62,9 @@ const Selector = () => {
           </button>
         </div>
 
-        <div className={`flex-1${gameState === 'run' ? '': ' rounded-b-2xl'} bg-stone-500 px-2.5 py-7`}>
+        <div
+          className={`flex-1${gameState === 'run' ? '' : 'rounded-b-2xl'} bg-stone-500 px-2.5 py-7`}
+        >
           <button onClick={() => selectMode('Test')} className="cursor-pointer">
             <FaGlasses className="text-3xl text-black" />
           </button>

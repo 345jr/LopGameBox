@@ -2,7 +2,10 @@ import { Link } from 'react-router-dom';
 import { FaSearch } from 'react-icons/fa';
 import { VscTriangleDown, VscComment } from 'react-icons/vsc';
 import { motion, Variants } from 'framer-motion';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import gsap from 'gsap';
+import { TextPlugin } from 'gsap/TextPlugin';
+import { useGSAP } from '@gsap/react';
 
 import logo from '../assets/lopgame.png';
 import useInfoStore from '@renderer/store/infoStore';
@@ -34,13 +37,14 @@ const NavHeader = () => {
   // 控制 Logo 动画的激活状态
   const [active, setActive] = useState(false);
   // 开关模式选择器
-  const setGameModeSelector = useGameStore(
-    (state) => state.setGameModeSelector,
-  );
+  const setGameModeSelector = useGameStore((state) => state.setGameModeSelector);
   // 当前游戏模式
   const gameMode = useGameStore((state) => state.gameMode);
   //获取添加信息
   const setInfo = useInfoStore((state) => state.setInfo);
+  //打字机效果
+  const typewriterRef = useRef<HTMLParagraphElement>(null);
+
   //#endregion 状态管理
 
   //添加游戏
@@ -67,7 +71,8 @@ const NavHeader = () => {
     }
   };
 
-  // #region 动画配置
+  //#region 动画配置
+
   const divVariants = {
     initial: {},
     hover: {},
@@ -87,7 +92,27 @@ const NavHeader = () => {
       rotate: 15,
     },
   };
-  // #endregion
+  gsap.registerPlugin(TextPlugin);
+  //打字机效果
+  useGSAP(() => {
+    if (typewriterRef.current) {
+      gsap.fromTo(
+        typewriterRef.current,
+        { text: '' },
+        { text: '暂无游戏运行', duration: 1, ease: 'none' },
+      );
+    }
+  });
+  // 流动渐变文字动画
+  useGSAP(() => {
+    gsap.to('.GSAPanimate-modeText', {
+      backgroundPosition: '200% center',
+      duration: 3,
+      ease: 'none',
+      repeat: -1,
+    });
+  });
+  //#endregion
 
   //处理字符串
   function truncateString(str: string | undefined, maxLength: number): string {
@@ -146,10 +171,7 @@ const NavHeader = () => {
 
       <div className="relative flex w-full flex-row">
         {/* 动画指针 */}
-        <motion.div
-          className="absolute bottom-9 left-8 z-50"
-          animate={position}
-        >
+        <motion.div className="absolute bottom-9 left-8 z-50" animate={position}>
           <VscTriangleDown />
         </motion.div>
         {/* 添加游戏 */}
@@ -241,9 +263,7 @@ const NavHeader = () => {
           <div className="relative p-2">
             {gameState === 'run' ? (
               <>
-                <p className="text-xs">
-                  {formatTime(gameTime) && '游戏运行中'}
-                </p>
+                <p className="text-xs">{formatTime(gameTime) && '游戏运行中'}</p>
                 <p>{formatTime(gameTime) || '...'}</p>
                 <span className="absolute top-1.5 right-1.5 inline-flex h-3 w-3 animate-ping rounded-full bg-green-400 opacity-75"></span>
                 <span className="absolute top-2 right-2 inline-flex h-2 w-2 rounded-full bg-green-500"></span>
@@ -258,8 +278,18 @@ const NavHeader = () => {
               </>
             ) : (
               <>
-                <p className="text-xs">暂无游戏运行</p>
-                <p>{gameModeMap[gameMode] || '...'}</p>
+                <p ref={typewriterRef} className="text-xs">
+                  暂无游戏运行
+                </p>
+                <p
+                  style={{
+                    backgroundSize: '200% 100%',
+                    backgroundPosition: '0% center',
+                  }}
+                  className=" GSAPanimate-modeText bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 bg-clip-text text-transparent"
+                >
+                  {gameModeMap[gameMode] || '...'}
+                </p>
               </>
             )}
           </div>

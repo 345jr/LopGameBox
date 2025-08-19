@@ -8,7 +8,10 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
   const gameMode = useGameStore((state) => state.gameMode);
   const [restTime, setRestTime] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  //文本动画
   const context = useRef(null);
+  //按钮动画
+  const btn = useRef(null);
 
   //开始休息
   const startRest = () => {
@@ -29,49 +32,101 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
     onClose();
   };
   //#region GSAP动画
+  //4段小文本
   useGSAP(
-  () => {
-    const timeline = gsap.timeline();
-    timeline
-      .from('.GSAPanimate-p1', {
-        opacity: 0,
-        x: -100,
-        duration: 0.8,
-        ease: 'power2.out',
-      })
-      .from(
-        '.GSAPanimate-p2',
-        {
-          opacity: 0,
-          x: 100,
-          duration: 0.8,
-          ease: 'power2.out',
-        },
-        '-=0.5'
-      )
-      .from(
-        '.GSAPanimate-p3',
-        {
+    () => {
+      const timeline = gsap.timeline();
+      timeline
+        .from('.GSAPanimate-p1', {
           opacity: 0,
           x: -100,
           duration: 0.8,
           ease: 'power2.out',
-        },
-        '-=0.5'
-      )
-      .from(
-        '.GSAPanimate-p4',
-        {
+        })
+        .from(
+          '.GSAPanimate-p2',
+          {
+            opacity: 0,
+            x: 100,
+            duration: 0.8,
+            ease: 'power2.out',
+          },
+          '-=0.5',
+        )
+        .from(
+          '.GSAPanimate-p3',
+          {
+            opacity: 0,
+            x: -100,
+            duration: 0.8,
+            ease: 'power2.out',
+          },
+          '-=0.5',
+        )
+        .from(
+          '.GSAPanimate-p4',
+          {
+            opacity: 0,
+            x: 100,
+            duration: 0.8,
+            ease: 'power2.out',
+          },
+          '-=0.5',
+        );
+    },
+    { scope: context },
+  );
+  //按钮入场动画
+  useGSAP(
+    () => {
+      //由gsap接管背景色
+      gsap.set('.GSAPanimate-btnStartRest', { backgroundColor: '#22c55e' });
+      gsap.set('.GSAPanimate-btnEndRest', { backgroundColor: '#ef4444' });
+      const timeline = gsap.timeline();
+      timeline
+        .from('.GSAPanimate-btnStartRest', {
           opacity: 0,
-          x: 100,
+          y: 20,
           duration: 0.8,
           ease: 'power2.out',
-        },
-        '-=0.5'
-      );
-  },
-  { scope: context }
-);
+        })
+        .from(
+          '.GSAPanimate-btnEndRest',
+          {
+            opacity: 0,
+            y: 20,
+            duration: 0.8,
+            ease: 'power2.out',
+          },
+          '-=0.5',
+        )
+    },
+    { scope: btn },
+  );
+  const handleOnMouseDown = (btnClassName: string) => {
+    gsap.to(`.${btnClassName}`, {
+      y: 4,
+      duration: 0.1,
+    });
+  };
+  const handleOnMouseUp = (btnClassName: string) => {
+    gsap.to(`.${btnClassName}`, {
+      y: 0,
+      duration: 0.2,
+    });
+  };
+  const handleOnMouseEnter = (btnClassName: string, color: string) => {
+    gsap.to(`.${btnClassName}`, {
+      backgroundColor: color,
+      duration: 0.3,
+    });
+  };
+  const handleOnMouseLeave = (btnClassName: string, color: string) => {
+    gsap.to(`.${btnClassName}`, {
+      backgroundColor: color,
+      duration: 0.3,
+    });
+  };
   //#endregion
   //模式中文映射
   const modeMap: Record<string, string> = {
@@ -90,77 +145,29 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div ref={context} className="flex flex-col items-center">
-          <p className="GSAPanimate-p1 text-2xl font-semibold text-gray-800">
-            休息时间到了!
-          </p>
+          <p className="GSAPanimate-p1 text-2xl font-semibold text-gray-800">休息时间到了!</p>
           <p className="GSAPanimate-p2">当前模式: {modeMap[gameMode]}</p>
 
           <p className="GSAPanimate-p3">等会再来玩呦~</p>
-          <p className="GSAPanimate-p4">
-            当前休息时长: {formatTimeToMinutes(restTime)}分钟
-          </p>
-          <div>
+          <p className="GSAPanimate-p4">当前休息时长: {formatTimeToMinutes(restTime)}分钟</p>
+          <div ref={btn}>
             <button
               onClick={startRest}
-              onMouseDown={() =>
-                gsap.to('.GSAPanimate-btnStartRest', {
-                  y: 4,
-                  scale: 0.95,
-                  duration: 0.1,
-                })
-              }
-              onMouseUp={() =>
-                gsap.to('.GSAPanimate-btnStartRest', {
-                  y: 0,
-                  scale: 1,
-                  duration: 0.2,
-                })
-              }
-              onMouseEnter={() =>
-                gsap.to('.GSAPanimate-btnStartRest', {
-                  backgroundColor: '#16a34a',
-                  duration: 0.3,
-                })
-              }
-              onMouseLeave={() =>
-                gsap.to('.GSAPanimate-btnStartRest', {
-                  backgroundColor: '#22c55e',
-                  duration: 0.3,
-                })
-              }
-              className="GSAPanimate-btnStartRest mt-4 mr-4 rounded bg-green-500 px-4 py-2 text-white"
+              onMouseDown={() => handleOnMouseDown('GSAPanimate-btnStartRest')}
+              onMouseUp={() => handleOnMouseUp('GSAPanimate-btnStartRest')}
+              onMouseEnter={() => handleOnMouseEnter('GSAPanimate-btnStartRest', '#16a34a')}
+              onMouseLeave={() => handleOnMouseLeave('GSAPanimate-btnStartRest', '#22c55e')}
+              className="GSAPanimate-btnStartRest mt-4 mr-4 rounded px-4 py-2 text-white"
             >
               开始休息
             </button>
             <button
               onClick={endRest}
-              onMouseDown={() =>
-                gsap.to('.GSAPanimate-btnEndRest', {
-                  y: 4,
-                  scale: 0.95,
-                  duration: 0.1,
-                })
-              }
-              onMouseUp={() =>
-                gsap.to('.GSAPanimate-btnEndRest', {
-                  y: 0,
-                  scale: 1,
-                  duration: 0.2,
-                })
-              }
-              onMouseEnter={() =>
-                gsap.to('.GSAPanimate-btnEndRest', {
-                  backgroundColor: '#dc2626',
-                  duration: 0.3,
-                })
-              }
-              onMouseLeave={() =>
-                gsap.to('.GSAPanimate-btnEndRest', {
-                  backgroundColor: '#ef4444',
-                  duration: 0.3,
-                })
-              }
-              className="GSAPanimate-btnEndRest mt-4 rounded bg-red-500 px-4 py-2 text-white"
+              onMouseDown={() => handleOnMouseDown('GSAPanimate-btnEndRest')}
+              onMouseUp={() => handleOnMouseUp('GSAPanimate-btnEndRest')}
+              onMouseEnter={() => handleOnMouseEnter('GSAPanimate-btnEndRest', '#dc2626')}
+              onMouseLeave={() => handleOnMouseLeave('GSAPanimate-btnEndRest', '#ef4444')}
+              className="GSAPanimate-btnEndRest mt-4 rounded px-4 py-2 text-white"
             >
               结束休息
             </button>

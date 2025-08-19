@@ -42,9 +42,11 @@ let gracePeriod: boolean = false;
 let isResting: boolean = false;
 //玩过的时间
 let elapsedTimeSeconds: number = 0;
-//
+//模式热切换记录开关
 let modeToggleLog: boolean = false;
+//需要切换的模式和未切换前的状态
 let modeToggle: string[] = new Array(2).fill('');
+
 //创建 数据库操控实例
 const gameService = new GameService(
   new GameRepository(),
@@ -189,6 +191,8 @@ app.whenReady().then(() => {
             timerInterval = setInterval(() => {
               //开始且不在宽限时间且不在休息期
               if (startTime && !gracePeriod && !isResting) {
+                //一轮新的周期
+               
                 const elapsedTime = Date.now() - startTime;
                 elapsedTimeSeconds = Math.round(elapsedTime / 1000);
                 mainWindow?.webContents.send(
@@ -283,8 +287,6 @@ app.whenReady().then(() => {
                 }
                 // 休息期
               } else if (isResting) {
-                //通知前端打开休息期窗口
-                mainWindow?.webContents.send('open-rest-time-modal');
                 if (gracePeriodTimeout) {
                   clearTimeout(gracePeriodTimeout);
                   gracePeriodTimeout = null;
@@ -299,10 +301,12 @@ app.whenReady().then(() => {
                     'success',
                     gameMode,
                   );
+                  //通知前端打开休息期窗口
+                  mainWindow?.webContents.send('open-rest-time-modal');
+                  elapsedTimeSeconds = 0;
                   isLoged = true;
                 }
                 //重置时间
-                elapsedTimeSeconds = 0;
                 startTime = Date.now();
               }
             }, 1000);
@@ -351,34 +355,12 @@ app.whenReady().then(() => {
   );
   //修改游戏模式
   ipcMain.handle('op:setGameMode', (_event, mode: string) => {
-    // const modeTimeMapping = {
-    //   Normal: 60 * 40, // 普通模式：40分钟
-    //   Fast: 60 * 20, // 快速模式：20分钟
-    //   Afk: 60 * 60, // 挂机模式：60分钟
-    //   Infinity: Infinity, // 无限模式：无限时间
-    //   Test: 60, // 测试模式：1分钟
-    // };
-    // // 检查模式是否存在于映射中
-    // if (!modeTimeMapping[mode]) {
-    //   console.error(`未知的游戏模式: ${mode}`);
-    //   return;
-    // }
-    // 获取当前模式的时间限制
-    // const timeLimit = modeTimeMapping[mode];
-    // 如果当前已玩的时间大于模式限制时间，则清零
-    // if (elapsedTimeSeconds > timeLimit) {
-      modeToggleLog = true;
-      modeToggle[0] = gameMode as string;
-      //需要切换的模式
-      modeToggle[1] = mode;
-      //切换
-      gameMode = mode;
-    // } else {
-    //   modeToggleLog = true;
-    //   modeToggle[0] = gameMode as string;
-    //   modeToggle[1] = mode;
-    //   gameMode = mode;
-    // }
+    modeToggleLog = true;
+    modeToggle[0] = gameMode as string;
+    //需要切换的模式
+    modeToggle[1] = mode;
+    //切换
+    gameMode = mode;
   });
 
   //设置休息状态

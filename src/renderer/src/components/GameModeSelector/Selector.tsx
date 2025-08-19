@@ -27,6 +27,8 @@ const Selector = () => {
   const selectMode = (mode: string) => {
     console.log(`要切换的模式是${mode}`);
     setGameMode(mode);
+    //如果游戏真正运行 ，则视为热切换
+    if(gameState==='run') window.api.setGameMode(mode);
   };
   //进入休息状态
   const enterRestMode = () => {

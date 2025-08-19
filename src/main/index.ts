@@ -180,19 +180,15 @@ app.whenReady().then(() => {
 
           // 监听进程的 'spawn' 事件，启动成功
           childProcess?.on('spawn', () => {
-            //不同模式下的提醒
-            let normalNotified = false;
-            let fastNotified = false;
+            //挂机模式记录           
             let lastAfkNotifySec = 0;
-            let testNotified = false;
             //只记录一次和设置一个定时器
             let isLoged = false;
             // 启动成功，设置定时器
             timerInterval = setInterval(() => {
               //开始且不在宽限时间且不在休息期
               if (startTime && !gracePeriod && !isResting) {
-                //一轮新的周期
-               
+                //一轮新的周期               
                 const elapsedTime = Date.now() - startTime;
                 elapsedTimeSeconds = Math.round(elapsedTime / 1000);
                 mainWindow?.webContents.send(
@@ -215,23 +211,21 @@ app.whenReady().then(() => {
                 try {
                   switch (gameMode) {
                     case 'Normal':
-                      if (!normalNotified && elapsedTimeSeconds >= 60 * 40) {
+                      if (elapsedTimeSeconds >= 60 * 40) {
                         new Notification({
                           title: '普通模式提醒',
                           body: '您已经玩了超过 40 分钟！',
                         }).show();
-                        normalNotified = true;
                         gracePeriod = true;
                         mainWindow?.webContents.send('open-rest-time-modal');
                       }
                       break;
                     case 'Fast':
-                      if (!fastNotified && elapsedTimeSeconds >= 60 * 20) {
+                      if (elapsedTimeSeconds >= 60 * 20) {
                         new Notification({
                           title: '快速模式提醒',
                           body: '您已经玩了超过 20 分钟！',
                         }).show();
-                        fastNotified = true;
                         gracePeriod = true;
                         mainWindow?.webContents.send('open-rest-time-modal');
                       }
@@ -248,12 +242,11 @@ app.whenReady().then(() => {
                     case 'Infinity':
                       break;
                     case 'Test':
-                      if (!testNotified && elapsedTimeSeconds > 60) {
+                      if ( elapsedTimeSeconds > 60) {
                         new Notification({
                           title: '测试模式提醒',
                           body: '您已经玩了超过 1 分钟！',
                         }).show();
-                        testNotified = true;
                         gracePeriod = true;
                         mainWindow?.webContents.send('open-rest-time-modal');
                       }
@@ -301,7 +294,7 @@ app.whenReady().then(() => {
                     'success',
                     gameMode,
                   );
-                  //通知前端打开休息期窗口
+                  //通知前端打开休息期窗口(若被动进入则无效果)
                   mainWindow?.webContents.send('open-rest-time-modal');
                   elapsedTimeSeconds = 0;
                   isLoged = true;

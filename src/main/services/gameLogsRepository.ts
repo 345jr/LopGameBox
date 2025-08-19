@@ -18,6 +18,7 @@ export class GameLogsRepository {
     stmt.run(gameId, play_time, launchedAt, endedAt, launchState, gameMode);
   }
   //获取今天，本周，本月的游戏时长记录
+  //日时间的界限是每天的4点
   public getGameLogDayWeekMonth() {
     const stmt = this.db.prepare(`
         SELECT

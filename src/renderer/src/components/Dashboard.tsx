@@ -22,7 +22,6 @@ const Dashboard = () => {
     ]);
     //获取本日 ，本周 ，本月的记录
     const { todayHours, weekHours, monthHours } = await window.api.countDayWeekMonth();
-    // console.log(result)
     const StatisticsObject: GameStatistics = {
       gameCount: count,
       gamePlayTime: timeCount,

@@ -21,8 +21,7 @@ const Dashboard = () => {
       window.api.countLaunchTimes(),
     ]);
     //获取本日 ，本周 ，本月的记录
-    const { todayHours, weekHours, monthHours } =
-      await window.api.countDayWeekMonth();
+    const { todayHours, weekHours, monthHours } = await window.api.countDayWeekMonth();
     // console.log(result)
     const StatisticsObject: GameStatistics = {
       gameCount: count,
@@ -53,6 +52,29 @@ const Dashboard = () => {
         <Link to={'/'}>
           <button className="cursor-pointer">返回主页</button>
         </Link>
+      </div>
+      <div>文字翻转效果测试</div>
+      {/* <div className="size-20 perspective-normal ">
+        <div className="translate-z-12 rotate-x-0 bg-sky-300/75 ...">1</div>
+        <div className="-translate-z-12 rotate-y-18 bg-sky-300/75 ...">2</div>
+        <div className="translate-x-12 rotate-y-90 bg-sky-300/75 ...">3</div>
+        <div className="-translate-x-12 -rotate-y-90 bg-sky-300/75 ...">4</div>
+        <div className="-translate-y-12 rotate-x-90 bg-sky-300/75 ...">5</div>
+        <div className="translate-y-12 -rotate-x-90 bg-sky-300/75 ...">6</div>
+      </div>
+      <div className="size-20 perspective-dramatic ...">
+        <div className="translate-z-12 rotate-x-0 bg-sky-300/75 ...">1</div>
+        <div className="-translate-z-12 rotate-y-18 bg-sky-300/75 ...">2</div>
+        <div className="translate-x-12 rotate-y-90 bg-sky-300/75 ...">3</div>
+        <div className="-translate-x-12 -rotate-y-90 bg-sky-300/75 ...">4</div>
+        <div className="-translate-y-12 rotate-x-90 bg-sky-300/75 ...">5</div>
+        <div className="translate-y-12 -rotate-x-90 bg-sky-300/75 ...">6</div>
+      </div> */}
+      <div className='flex transform-3d'>
+        <div className=' perspective-[400px]'>
+          <div className='rotate-x-30'>Hello world</div>
+        </div>
+
       </div>
     </>
   );

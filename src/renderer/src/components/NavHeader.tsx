@@ -112,6 +112,25 @@ const NavHeader = () => {
       repeat: -1,
     });
   });
+  const flipperRef = useRef<HTMLDivElement>(null);
+  const frontTextRef = useRef<HTMLParagraphElement>(null);
+  const backTextRef = useRef<HTMLParagraphElement>(null);
+  // 文字翻转效果
+  useGSAP(() => {
+    if (gameState === 'run' || gameState === 'stop') {
+      const timeline = gsap.timeline({ repeat: -1, yoyo: true });
+
+      timeline.to(flipperRef.current, {
+        text: 'hello,world',
+        rotationX: 180,
+        duration: 2,
+        ease: 'power2.inOut',
+        delay: 0.5,
+      });
+      return () => timeline.kill();
+    }
+    return () => {};
+  }, [gameState]);
   //#endregion
 
   //处理字符串
@@ -142,13 +161,21 @@ const NavHeader = () => {
     initial: { scale: 1, rotate: 0 },
     active: { scale: 1.2, rotate: 180, transition: { ease: ['easeOut'] } },
   };
-  //游戏模式中文映射
+  //游戏模式名中文映射
   const gameModeMap: { [key: string]: string } = {
     Normal: '普通模式',
     Fast: '快速模式',
     Afk: '挂机模式',
     Test: '测试模式',
     Infinity: '沉浸模式',
+  };
+  // 游戏模式颜色映射
+  const gameModeColorMap: { [key: string]: string } = {
+    Normal: 'from-lime-500 via-green-500 to-emerald-500',
+    Fast: 'from-orange-500 via-amber-500 to-yellow-400',
+    Afk: 'from-blue-500 via-cyan-500 to-sky-400',
+    Test: 'from-purple-500 via-violet-500 to-fuchsia-500',
+    Infinity: 'from-rose-500 via-pink-500 to-purple-500',
   };
 
   return (
@@ -263,6 +290,23 @@ const NavHeader = () => {
           <div className="relative p-2">
             {gameState === 'run' ? (
               <>
+                {/* <div ref={flipperRef} className="perspective-distant">
+                  <p ref={frontTextRef} className="text-xs">
+                    {formatTime(gameTime) && '游戏运行中'}
+                  </p>
+                  <p
+                    ref={backTextRef}
+                    style={{
+                      backgroundSize: '200% 100%',
+                      backgroundPosition: '0% center',
+                    }}
+                    className={`GSAPanimate-modeText bg-gradient-to-bl ${
+                      gameModeColorMap[gameMode] || 'from-lime-500 via-green-500 to-emerald-500'
+                    } bg-clip-text text-transparent`}
+                  >
+                    {gameModeMap[gameMode] || '...'}
+                  </p>
+                </div> */}
                 <p className="text-xs">{formatTime(gameTime) && '游戏运行中'}</p>
                 <p>{formatTime(gameTime) || '...'}</p>
                 <span className="absolute top-1.5 right-1.5 inline-flex h-3 w-3 animate-ping rounded-full bg-green-400 opacity-75"></span>
@@ -286,7 +330,9 @@ const NavHeader = () => {
                     backgroundSize: '200% 100%',
                     backgroundPosition: '0% center',
                   }}
-                  className=" GSAPanimate-modeText bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 bg-clip-text text-transparent"
+                  className={`GSAPanimate-modeText bg-gradient-to-bl ${
+                    gameModeColorMap[gameMode] || 'from-lime-500 via-green-500 to-emerald-500'
+                  } bg-clip-text text-transparent`}
                 >
                   {gameModeMap[gameMode] || '...'}
                 </p>

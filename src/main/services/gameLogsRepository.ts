@@ -2,19 +2,21 @@ import { DatabaseManager } from './databaseManager';
 
 export class GameLogsRepository {
   private db = DatabaseManager.getInstance();
-  //插入游玩记录(游戏关闭时)
+  //插入游玩记录
   public insertGameLog(
     gameId: number,
     launchedAt: number,
     endedAt: number,
     launchState: string,
-    gameMode: string = ''
+    gameMode: string = '',
   ) {
+    // 如果游玩时长小于10秒则不记录
+    const play_time = Math.round((endedAt - launchedAt) / 1000);
+    if (play_time < 10) return;
     const stmt = this.db.prepare(`
       INSERT INTO game_logs (game_id, play_time, launched_at, ended_at, launch_state, game_mode)
       VALUES (?, ?, ?, ?, ?, ?)
     `);
-    const play_time = Math.round((endedAt - launchedAt) / 1000);
     stmt.run(gameId, play_time, launchedAt, endedAt, launchState, gameMode);
   }
   //获取今天，本周，本月的游戏时长记录

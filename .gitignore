@@ -4,8 +4,14 @@ out
 .DS_Store
 .eslintcache
 *.log*
+# 封面图以及游戏图集
 public/*
+# 杂物
 src/main/misc/*
 package-lock.json
+# 数据库
 db/*
+# 备份
 备份/*
+# 计划
+todo.md

@@ -230,13 +230,13 @@ const NavHeader = () => {
         {/* 更新记录 */}
         <motion.div className="mt-3" whileHover={{ scale: 1.3 }}>
           <Link
-            to={'/update'}
+            to={'/setting'}
             className="flex-center cursor-pointer flex-row px-2 text-stone-900 hover:text-stone-600"
             onMouseMove={() => {
               setPosition({ x: 160, y: 0, rotate: 0 });
             }}
           >
-            更新记录
+            设置中心
           </Link>
         </motion.div>
         {/* 搜索区域 */}
@@ -314,7 +314,7 @@ const NavHeader = () => {
               </>
             ) : gameState === 'stop' ? (
               <>
-                <p className="text-xs">{formatTime(gameTime) && '游戏结束'}</p>
+                <p className="text-xs">{formatTime(gameTime) && '运行时间'}</p>
                 <p>
                   {formatTime(gameTime) || '...'}
                   <span className="absolute top-2 right-2 inline-flex h-2 w-2 rounded-full bg-red-500"></span>

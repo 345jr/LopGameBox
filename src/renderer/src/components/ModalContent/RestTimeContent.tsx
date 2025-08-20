@@ -8,7 +8,7 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
   //#region 状态管理
   const gameMode = useGameStore((state) => state.gameMode);
   const [restTime, setRestTime] = useState(0);
-  const [isResting, setIsResting] = useState(false); // 添加休息状态标记
+  const [isResting, setIsResting] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   //文本动画
   const context = useRef(null);
@@ -38,10 +38,10 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
     onClose();
   };
   //不休息，进入沉浸模式
-  const skipRest = () => {
+  const skipRest = async () => {
     //切换模式+关闭窗口+脱离休息期
-    window.api.setResting(false);
-    window.api.setGameMode('Infinity'); 
+    await window.api.setResting(false);
+    await window.api.setGameMode('Infinity'); 
     setGameMode('Infinity');       
     onClose();
   }

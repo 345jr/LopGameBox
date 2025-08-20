@@ -1,6 +1,5 @@
 import useGameStore from '@renderer/store/GameStore';
 import { motion, Variants } from 'framer-motion';
-import { useEffect } from 'react';
 import {
   FaFaceSmileBeam,
   FaHourglassEnd,
@@ -12,8 +11,6 @@ import {
 const Selector = () => {
   //游戏模式选择器
   const gameModeSelector = useGameStore((state) => state.gameModeSelector);
-  //当前游戏模式
-  const gameMode = useGameStore((state) => state.gameMode);
   //设置游戏模式
   const setGameMode = useGameStore((state) => state.setGameMode);
   //游戏状态
@@ -34,9 +31,7 @@ const Selector = () => {
   const enterRestMode = () => {
     window.api.setResting(true);
   };
-  useEffect(() => {
-    console.log(`当前的模式是${gameMode}`);
-  }, []);
+  
   return (
     <>
       <motion.div

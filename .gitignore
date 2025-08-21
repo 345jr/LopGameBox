@@ -9,6 +9,7 @@ public/*
 # 杂物
 src/main/misc/*
 package-lock.json
+misc
 # 数据库
 db/*
 # 备份

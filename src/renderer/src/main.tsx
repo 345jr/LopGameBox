@@ -7,6 +7,7 @@ import Gallery from './components/Gallery'
 import Update from './components/SettingCenter/Update'
 import Dashboard from './components/Dashboard'
 import SettingPage from './components/SettingCenter/SettingPage'
+import Practice from './components/SettingCenter/Practice'
 import App from './App'
 
 const router = createBrowserRouter([
@@ -17,7 +18,8 @@ const router = createBrowserRouter([
     path: "/setting",
     element: <SettingPage />,
     children: [
-      { path: "update", element: <Update /> }
+      { path: "update", element: <Update /> },
+      { path: "practice", element: <Practice /> }
     ]
   }
 ])

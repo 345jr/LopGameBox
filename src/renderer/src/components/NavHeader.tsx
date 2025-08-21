@@ -1,16 +1,16 @@
-import { Link } from 'react-router-dom';
-import { FaSearch } from 'react-icons/fa';
-import { VscTriangleDown, VscComment } from 'react-icons/vsc';
+import { useGSAP } from '@gsap/react';
 import { motion, Variants } from 'framer-motion';
-import { useRef, useState } from 'react';
 import gsap from 'gsap';
 import { TextPlugin } from 'gsap/TextPlugin';
-import { useGSAP } from '@gsap/react';
+import { useRef, useState } from 'react';
+import { FaSearch } from 'react-icons/fa';
+import { VscComment, VscTriangleDown } from 'react-icons/vsc';
+import { Link } from 'react-router-dom';
 
-import logo from '../assets/lopgame.png';
-import useInfoStore from '@renderer/store/infoStore';
 import useGameStore from '@renderer/store/GameStore';
+import useInfoStore from '@renderer/store/infoStore';
 import { formatTime } from '@renderer/util/timeFormat';
+import logo from '../assets/lopgame.png';
 
 const NavHeader = () => {
   //#region 状态管理
@@ -113,24 +113,20 @@ const NavHeader = () => {
     });
   });
   const flipperRef = useRef<HTMLDivElement>(null);
-  const frontTextRef = useRef<HTMLParagraphElement>(null);
-  const backTextRef = useRef<HTMLParagraphElement>(null);
   // 文字翻转效果
-  useGSAP(() => {
-    if (gameState === 'run' || gameState === 'stop') {
-      const timeline = gsap.timeline({ repeat: -1, yoyo: true });
-
-      timeline.to(flipperRef.current, {
-        text: 'hello,world',
-        rotationX: 180,
-        duration: 2,
-        ease: 'power2.inOut',
-        delay: 0.5,
-      });
-      return () => timeline.kill();
-    }
-    return () => {};
-  }, [gameState]);
+  useGSAP(
+    () => {
+      if (!flipperRef.current) return;
+      const tl = gsap.timeline({ repeat: -1 });
+      // 背面停留10秒,正面停留10秒
+      tl.to(flipperRef.current, { rotationY: 180, duration: 1 })
+        .to(flipperRef.current, {}, '+=10')
+        .to(flipperRef.current, { rotationY: 0, duration: 1 })
+        .to(flipperRef.current, {}, '+=10');
+      return () => tl.kill();
+    },
+    { scope: flipperRef, dependencies: [gameState] },
+  );
   //#endregion
 
   //处理字符串
@@ -290,25 +286,23 @@ const NavHeader = () => {
           <div className="relative p-2">
             {gameState === 'run' ? (
               <>
-                {/* <div ref={flipperRef} className="perspective-distant">
-                  <p ref={frontTextRef} className="text-xs">
+                {/* 文字翻转效果 */}
+                <div ref={flipperRef} className="relative transform-3d">
+                  {/* 文字正面 */}
+                  <p className="absolute text-xs backface-hidden">
                     {formatTime(gameTime) && '游戏运行中'}
                   </p>
+                  {/* 文字背面 */}
                   <p
-                    ref={backTextRef}
-                    style={{
-                      backgroundSize: '200% 100%',
-                      backgroundPosition: '0% center',
-                    }}
-                    className={`GSAPanimate-modeText bg-gradient-to-bl ${
-                      gameModeColorMap[gameMode] || 'from-lime-500 via-green-500 to-emerald-500'
+                    className={`absolute left-3 rotate-y-180 bg-gradient-to-bl text-sm whitespace-nowrap backface-hidden ${
+                      gameModeColorMap[gameMode]
                     } bg-clip-text text-transparent`}
                   >
                     {gameModeMap[gameMode] || '...'}
                   </p>
-                </div> */}
-                <p className="text-xs">{formatTime(gameTime) && '游戏运行中'}</p>
-                <p>{formatTime(gameTime) || '...'}</p>
+                </div>
+                <p className="mt-3.5">{formatTime(gameTime) || '...'}</p>
+                {/* 绿色闪烁灯 */}
                 <span className="absolute top-1.5 right-1.5 inline-flex h-3 w-3 animate-ping rounded-full bg-green-400 opacity-75"></span>
                 <span className="absolute top-2 right-2 inline-flex h-2 w-2 rounded-full bg-green-500"></span>
               </>
@@ -331,7 +325,7 @@ const NavHeader = () => {
                     backgroundPosition: '0% center',
                   }}
                   className={`GSAPanimate-modeText bg-gradient-to-bl ${
-                    gameModeColorMap[gameMode] || 'from-lime-500 via-green-500 to-emerald-500'
+                    gameModeColorMap[gameMode]
                   } bg-clip-text text-transparent`}
                 >
                   {gameModeMap[gameMode] || '...'}

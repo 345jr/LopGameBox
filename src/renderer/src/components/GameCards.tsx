@@ -1,23 +1,17 @@
 import { Banners, Game } from '@renderer/types/Game';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  VscFolder,
-  VscPlay,
-  VscTrash,
-  VscFileMedia,
-  VscVm,
-} from 'react-icons/vsc';
+import { VscFileMedia, VscFolder, VscPlay, VscTrash, VscVm } from 'react-icons/vsc';
 
-import { formatTime, formatTimeCalender } from '@renderer/util/timeFormat';
-import gameSizeFormat from '@renderer/util/gameSizeFormat';
-import Portal from './Portal';
-import { Link } from 'react-router-dom';
-import { motion, Variants } from 'motion/react';
 import useGameStore from '@renderer/store/GameStore';
 import useInfoStore from '@renderer/store/infoStore';
+import gameSizeFormat from '@renderer/util/gameSizeFormat';
+import { formatTime, formatTimeCalender } from '@renderer/util/timeFormat';
+import { motion, Variants } from 'motion/react';
+import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
 import Selector from './GameModeSelector/Selector';
 import { RestTimeContent } from './ModalContent/RestTimeContent';
-import { createPortal } from 'react-dom';
+import Portal from './Portal';
 
 const GameCards = () => {
   // #region 状态管理
@@ -175,10 +169,7 @@ const GameCards = () => {
             document.body,
           )}
         {/*  暂用 */}
-        <button
-          onClick={() => setShowRestTimeModal(true)}
-          className="text-white"
-        >
+        <button onClick={() => setShowRestTimeModal(true)} className="text-white">
           休息时间调试
         </button>
         {games.map((game) => (
@@ -217,21 +208,15 @@ const GameCards = () => {
                   className="absolute top-0 right-0 h-70 w-60 rounded-l-[20px] rounded-r-2xl border-r-2 border-white bg-stone-800/75 p-5"
                 >
                   <p className="p-0.5 text-white">游戏名:{game.game_name}</p>
-                  <p className="p-0.5 text-white">
-                    游戏时间:{formatTime(game.total_play_time)}
-                  </p>
+                  <p className="p-0.5 text-white">游戏时间:{formatTime(game.total_play_time)}</p>
                   <p className="p-0.5 whitespace-nowrap text-white">
                     上次启动:
-                    {game.last_launch_time
-                      ? formatTimeCalender(game.last_launch_time)
-                      : '暂无'}
+                    {game.last_launch_time ? formatTimeCalender(game.last_launch_time) : '暂无'}
                   </p>
                   <p className="p-0.5 whitespace-nowrap text-white">
                     添加时间:{formatTimeCalender(game.created_at)}
                   </p>
-                  <p className="p-0.5 text-white">
-                    启动次数:{game.launch_count}
-                  </p>
+                  <p className="p-0.5 text-white">启动次数:{game.launch_count}</p>
                   <p className="mb-4 p-0.5 text-white">
                     空间占用大小:{gameSizeFormat(game.disk_size)}
                   </p>

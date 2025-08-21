@@ -1,14 +1,6 @@
 @import 'tailwindcss';
 
 @font-face {
-  font-family: 'LXGW';
-  src: url('../fonts/LXGWWenKai-Regular.ttf') format('truetype');
-}
-@font-face {
-  font-family: 'LXGW-L';
-  src: url('../fonts/LXGWWenKai-Light.ttf') format('truetype');
-}
-@font-face {
   font-family: 'LXGW-M';
   src: url('../fonts/LXGWWenKai-Medium.ttf') format('truetype');
 }

@@ -1,7 +1,7 @@
 import { Game } from '@renderer/types/Game';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-interface InfoStore {
+interface GameStore {
   gameId: number;
   gameTime: number;
   gameState: string;
@@ -16,7 +16,7 @@ interface InfoStore {
   setGameMode: (mode: string) => void;
 }
 //柯里化函数
-const useGameStore = create<InfoStore>()(
+const useGameStore = create<GameStore>()(
   persist(
     (set) => ({
       //状态

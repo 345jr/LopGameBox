@@ -14,14 +14,10 @@ const router = createBrowserRouter([
   { path: "/", element: <App /> },
   { path: "/gallery/:gameId", element: <Gallery /> },
   { path: "/dashboard", element: <Dashboard /> },
-  {
-    path: "/setting",
-    element: <SettingPage />,
-    children: [
-      { path: "update", element: <Update /> },
-      { path: "practice", element: <Practice /> }
-    ]
-  }
+  //设置中心
+  { path: "/setting", element: <SettingPage /> },
+  { path: "/setting/update", element: <Update /> },
+  { path: "/setting/practice", element: <Practice /> }
 ])
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

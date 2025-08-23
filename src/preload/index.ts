@@ -94,6 +94,8 @@ const api = {
   setResting: (resting: boolean) => {
     ipcRenderer.invoke('op:setResting', resting);
   },
+  //获取4种模式下的游戏时长分布
+  getGameLogByMode: () => ipcRenderer.invoke('db:getGameLogByMode'),
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

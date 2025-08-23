@@ -84,4 +84,8 @@ export class GameService {
   public getGameLogDayWeekMonth() {
     return this.gameLogsRepo.getGameLogDayWeekMonth();
   }
+  //查询4种模式下的游戏时长分布
+  public getGameLogByMode() {
+    return this.gameLogsRepo.getGameLogByMode();
+  }
 }

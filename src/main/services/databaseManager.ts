@@ -52,12 +52,26 @@ export class DatabaseManager {
       launched_at INTEGER NOT NULL,          -- 启动时间
       ended_at INTEGER,                      -- 结束时间
       launch_state TEXT NOT NULL,           -- 启动状态
+      game_mode TEXT DEFAULT 'Normal',      -- 游戏模式 (Normal, Fast, Afk, Infinity)
       FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
       );
       -- 建索引，加快按时间查询的速度
       CREATE INDEX IF NOT EXISTS idx_game_logs_launched_at ON game_logs (launched_at);
       CREATE INDEX IF NOT EXISTS idx_game_logs_game_id ON game_logs (game_id);
+      
+      -- 为现有数据库添加 game_mode 列（如果不存在）
+      PRAGMA table_info(game_logs);
     `);
+    
+    // 检查并添加 game_mode 列
+    const columns = this.dbInstance.prepare('PRAGMA table_info(game_logs)').all();
+    const hasGameModeColumn = columns.some((col: any) => col.name === 'game_mode');
+    
+    if (!hasGameModeColumn) {
+      this.dbInstance.exec(`
+        ALTER TABLE game_logs ADD COLUMN game_mode TEXT DEFAULT 'Normal';
+      `);
+    }
   }
   //关闭数据库实例
   public static close() {

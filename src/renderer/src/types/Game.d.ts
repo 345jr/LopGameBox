@@ -42,4 +42,8 @@ export interface GameStatistics {
   todayHours: number;
   weekHours: number;
   monthHours: number;
+  normalHours: number;
+  fastHours: number;
+  afkHours: number;
+  infinityHours: number;
 }

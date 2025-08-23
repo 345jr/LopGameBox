@@ -19,8 +19,7 @@ export class GameLogsRepository {
     `);
     stmt.run(gameId, play_time, launchedAt, endedAt, launchState, gameMode);
   }
-  //获取今天，本周，本月的游戏时长记录
-  //日时间的界限是每天的4点
+  //获取今天，本周，本月的游戏时长记录|时间的界限是每天的4点
   public getGameLogDayWeekMonth() {
     const stmt = this.db.prepare(`
         SELECT
@@ -48,4 +47,32 @@ export class GameLogsRepository {
     `);
     return stmt.get();
   }
+  //获取4种模式下不同的时长分布
+  public getGameLogByMode() {
+    const stmt = this.db.prepare(`
+      SELECT
+        (
+          SELECT COALESCE(SUM(play_time) / 3600.0, 0)
+          FROM game_logs
+          WHERE launch_state = 'success' AND game_mode = 'Normal'
+        ) AS normalHours,
+        (
+          SELECT COALESCE(SUM(play_time) / 3600.0, 0)
+          FROM game_logs
+          WHERE launch_state = 'success' AND game_mode = 'Fast'
+        ) AS fastHours,
+        (
+          SELECT COALESCE(SUM(play_time) / 3600.0, 0)
+          FROM game_logs
+          WHERE launch_state = 'success' AND game_mode = 'Afk'
+        ) AS afkHours,
+        (
+          SELECT COALESCE(SUM(play_time) / 3600.0, 0)
+          FROM game_logs
+          WHERE launch_state = 'success' AND game_mode = 'Infinity'
+        ) AS infinityHours;
+    `);
+    return stmt.get();
+  }
+
 }

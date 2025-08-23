@@ -480,9 +480,9 @@ app.whenReady().then(() => {
   ipcMain.handle('db:getGameLogDayWeekMonth', () => {
     return gameService.getGameLogDayWeekMonth();
   });
-  //消息通知模拟
-  ipcMain.handle('op:sendNotification', (_event, title: string, body: string) => {
-    new Notification({ title: title, body: body }).show();
+  //查询4种模式下的游戏时长分布
+  ipcMain.handle('db:getGameLogByMode', () => {
+    return gameService.getGameLogByMode();
   });
 
   createWindow();

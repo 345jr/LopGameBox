@@ -6,15 +6,7 @@ import { createPortal } from 'react-dom';
 import UpdateContent from '../ModalContent/UpdateContent';
 import LoginContent from '../ModalContent/LoginContent';
 
-interface UserData {
-  message: string;
-  token: string;
-  user: {
-    id: number;
-    username: string;
-    role: string;
-  };
-}
+import type { UserData } from '@renderer/types/SettingCenter';
 
 const SettingPage = () => {
   const [userData, setUserData] = useState<UserData | null>(null);

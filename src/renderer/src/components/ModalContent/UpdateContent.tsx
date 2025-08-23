@@ -1,16 +1,7 @@
 import { useEffect, useState } from 'react';
 
-interface UpdateInfo {
-  update: boolean;
-  message: string;
-  latest: string;
-}
-interface VersionInfo {
-  id: number;
-  version: string;
-  release_date: string;
-  notes: string;
-}
+import type { UpdateInfo, VersionInfo } from '@renderer/types/SettingCenter';
+
 const UpdateContent = ({ onClose }: { onClose: () => void }) => {
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
 
@@ -73,7 +64,7 @@ const UpdateContent = ({ onClose }: { onClose: () => void }) => {
         >
           <h2 className="mb-4 text-lg font-bold">检查更新</h2>
           <p>当前版本: {currentVersion.version}</p>
-          <p>发布日期: {currentVersionInfo?.release_date.slice(0,10)}</p>
+          <p>发布日期: {currentVersionInfo?.release_date.slice(0, 10)}</p>
           <p>版本概述: {currentVersionInfo?.notes}</p>
           {updateInfo ? (
             <>
@@ -88,9 +79,9 @@ const UpdateContent = ({ onClose }: { onClose: () => void }) => {
                     <a href="https://github.com/345jr/LopGameBox">Github</a>
                   </div>
                 ) : (
-                  <div className='flex flex-row'>
-                    <span className="text-red-500 ">否</span>
-                    <p className="text-gray-500 ml-5">{updateInfo.message}</p>
+                  <div className="flex flex-row">
+                    <span className="text-red-500">否</span>
+                    <p className="ml-5 text-gray-500">{updateInfo.message}</p>
                   </div>
                 )}
               </p>

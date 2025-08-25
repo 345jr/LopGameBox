@@ -30,3 +30,25 @@ export function formatTimeToMinutes(seconds: number | undefined): string {
   const minutes = Math.floor(seconds / 60);
   return `${minutes}`;
 }
+//获取本周或者上周时间
+export const getWeekRange = (isNowWeek: boolean): string => {
+    const getMonday = (date: Date) => {
+      const d = new Date(date);
+      const day = d.getDay();
+      d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+      d.setHours(0, 0, 0, 0);
+      return d;
+    };
+
+    const now = new Date();
+    const monday = getMonday(now);
+    const startOfWeek = isNowWeek
+      ? monday
+      : new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() - 7);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    const format = (d: Date) => `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+
+    return `${format(startOfWeek)} - ${format(endOfWeek)}`;
+  };

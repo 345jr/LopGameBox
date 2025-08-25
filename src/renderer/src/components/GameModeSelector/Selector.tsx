@@ -62,7 +62,7 @@ const Selector = () => {
         <div
           className={`flex-1${gameState === 'run' ? '' : 'rounded-b-2xl'} bg-stone-500 px-2.5 py-7`}
         >
-          <button onClick={() => selectMode('Test')} className="cursor-pointer">
+          <button onClick={() => selectMode('Infinity')} className="cursor-pointer">
             <FaGlasses className="text-3xl text-black" />
           </button>
         </div>

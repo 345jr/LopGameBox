@@ -47,7 +47,7 @@ export class GameLogsRepository {
     `);
     return stmt.get();
   }
-  //获取4种模式下不同的时长分布
+  //获取4种模式下不同的时长分布(总)
   public getGameLogByMode() {
     const stmt = this.db.prepare(`
       SELECT
@@ -74,5 +74,84 @@ export class GameLogsRepository {
     `);
     return stmt.get();
   }
+  //获取本周的游戏模式时长分布  本周（周一到周日）逐日分组统计，每日分列 Normal/Fast/Afk/Infinity 小时数
+  public getGameLogByModeThisWeek() {
+    const stmt = this.db.prepare(`     
+    WITH RECURSIVE
+    bounds AS (
+        SELECT
+            date('now','start of day','localtime', '-' || ((strftime('%w','now','localtime') + 6) % 7) || ' days') AS week_start,
+            date('now','start of day','localtime', '-' || ((strftime('%w','now','localtime') + 6) % 7) || ' days', '+6 days') AS week_end
+    ),
+    dates(day) AS (
+        SELECT week_start FROM bounds
+        UNION ALL
+        SELECT date(day, '+1 day') FROM dates
+        WHERE day < (SELECT week_end FROM bounds)
+    ),
+    agg AS (
+        SELECT
+            date(launched_at / 1000, 'unixepoch', 'localtime') AS day,
+            game_mode,
+            SUM(play_time) / 3600.0 AS hours
+        FROM game_logs
+        WHERE launch_state = 'success'
+            AND date(launched_at / 1000, 'unixepoch', 'localtime') BETWEEN (SELECT week_start FROM bounds) AND (SELECT week_end FROM bounds)
+        GROUP BY date(launched_at / 1000, 'unixepoch', 'localtime'), game_mode
+    )
+  SELECT
+    d.day AS play_date,
+    COALESCE(SUM(CASE WHEN a.game_mode = 'Normal' THEN a.hours END), 0)   AS normalHours,
+    COALESCE(SUM(CASE WHEN a.game_mode = 'Fast' THEN a.hours END), 0)     AS fastHours,
+    COALESCE(SUM(CASE WHEN a.game_mode = 'Afk' THEN a.hours END), 0)      AS afkHours,
+    COALESCE(SUM(CASE WHEN a.game_mode = 'Infinity' THEN a.hours END), 0) AS infinityHours,
+    COALESCE(SUM(a.hours), 0)                                             AS totalHours
+    FROM dates d
+    LEFT JOIN agg a ON a.day = d.day
+    GROUP BY d.day
+    ORDER BY d.day;
+      `);
+    return stmt.all();
+  }
 
+  // 获取上周（周一到周日）的游戏模式时长分布：逐日分组，分列 Normal/Fast/Afk/Infinity 小时数
+  public getGameLogByModeLastWeek() {
+    const stmt = this.db.prepare(`
+    WITH RECURSIVE
+    bounds AS (
+        SELECT
+            -- 上周周一与周日
+            date('now','start of day','localtime', '-' || ((strftime('%w','now','localtime') + 6) % 7) || ' days', '-7 days') AS week_start,
+            date('now','start of day','localtime', '-' || ((strftime('%w','now','localtime') + 6) % 7) || ' days', '-7 days', '+6 days') AS week_end
+    ),
+    dates(day) AS (
+        SELECT week_start FROM bounds
+        UNION ALL
+        SELECT date(day, '+1 day') FROM dates
+        WHERE day < (SELECT week_end FROM bounds)
+    ),
+    agg AS (
+        SELECT
+            date(launched_at / 1000, 'unixepoch', 'localtime') AS day,
+            game_mode,
+            SUM(play_time) / 3600.0 AS hours
+        FROM game_logs
+        WHERE launch_state = 'success'
+          AND date(launched_at / 1000, 'unixepoch', 'localtime') BETWEEN (SELECT week_start FROM bounds) AND (SELECT week_end FROM bounds)
+        GROUP BY date(launched_at / 1000, 'unixepoch', 'localtime'), game_mode
+    )
+    SELECT
+      d.day AS play_date,
+      COALESCE(SUM(CASE WHEN a.game_mode = 'Normal' THEN a.hours END), 0)   AS normalHours,
+      COALESCE(SUM(CASE WHEN a.game_mode = 'Fast' THEN a.hours END), 0)     AS fastHours,
+      COALESCE(SUM(CASE WHEN a.game_mode = 'Afk' THEN a.hours END), 0)      AS afkHours,
+      COALESCE(SUM(CASE WHEN a.game_mode = 'Infinity' THEN a.hours END), 0) AS infinityHours,
+      COALESCE(SUM(a.hours), 0)                                             AS totalHours
+    FROM dates d
+    LEFT JOIN agg a ON a.day = d.day
+    GROUP BY d.day
+    ORDER BY d.day;
+    `);
+    return stmt.all();
+  }
 }

@@ -88,4 +88,12 @@ export class GameService {
   public getGameLogByMode() {
     return this.gameLogsRepo.getGameLogByMode();
   }
+  //获取本周的时长分布
+  public getGameLogByModeThisWeek() {
+    return this.gameLogsRepo.getGameLogByModeThisWeek();
+  }
+  //获取上周的时长分布
+  public getGameLogByModeLastWeek() {
+    return this.gameLogsRepo.getGameLogByModeLastWeek();
+  }
 }

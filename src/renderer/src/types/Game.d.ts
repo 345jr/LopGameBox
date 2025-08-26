@@ -47,3 +47,12 @@ export interface GameStatistics {
   afkHours: number;
   infinityHours: number;
 }
+//游戏周模式时长分布
+export interface GameLog {
+  play_date:string;
+  normalHours	:number;
+  fastHours	:number;
+  afkHours	:number;
+  infinityHours	:number;
+  totalHours:number;
+}

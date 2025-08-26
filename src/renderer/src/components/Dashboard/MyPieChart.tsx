@@ -22,6 +22,8 @@ const PIE_COLORS = ['#84cc16', '#eab308', '#0ea5e9', '#a855f7'];
 
 // 自定义饼图标签渲染函数
 const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, percent }: any) => {
+  // 如果小于8%，则不显示标签
+  if (Number((percent * 100).toFixed(1)) < 8) return null;
   const RADIAN = Math.PI / 180;
   // 在饼图外部25像素的位置
   const radius = outerRadius + 10;

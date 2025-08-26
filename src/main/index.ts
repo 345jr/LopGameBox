@@ -484,6 +484,14 @@ app.whenReady().then(() => {
   ipcMain.handle('db:getGameLogByMode', () => {
     return gameService.getGameLogByMode();
   });
+  //获取本周的时长分布
+  ipcMain.handle('db:getGameLogByModeThisWeek', () => {
+    return gameService.getGameLogByModeThisWeek();
+  });
+  //获取上周的时长分布
+  ipcMain.handle('db:getGameLogByModeLastWeek', () => {
+    return gameService.getGameLogByModeLastWeek();
+  });
 
   createWindow();
 

@@ -71,6 +71,10 @@ declare global {
         afkHours: number;
         infinityHours: number;
       }>;
+      //获取本周的时长分布
+      getGameLogByModeThisWeek: () => Promise<GameLog[]>;
+      //获取上周的时长分布
+      getGameLogByModeLastWeek: () => Promise<GameLog[]>;
     };
   }
 }

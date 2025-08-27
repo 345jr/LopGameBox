@@ -154,8 +154,8 @@ const NavHeader = () => {
   };
   //模式选择器动画
   const logoAnimate: Variants = {
-    initial: { scale: 1, rotate: 0 },
-    active: { scale: 1.2, rotate: 180, transition: { ease: ['easeOut'] } },
+    initial: { rotate: 0 },
+    active: { rotate: 90, transition: { ease: ['easeOut'] } },
   };
   //游戏模式名中文映射
   const gameModeMap: { [key: string]: string } = {
@@ -175,7 +175,7 @@ const NavHeader = () => {
   };
 
   return (
-    <div className="items-centers flex justify-start border-b-1 border-black">
+    <div className="items-centers relative flex justify-start border-b-1 border-black ">
       <motion.img
         src={logo}
         alt="logo"

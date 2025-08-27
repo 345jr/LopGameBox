@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { GameLog, GameStatistics } from '@renderer/types/Game';
 import {
   ResponsiveContainer,

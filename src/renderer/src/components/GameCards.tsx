@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import Selector from './GameModeSelector/Selector';
 import { RestTimeContent } from './ModalContent/RestTimeContent';
 import Portal from './Portal';
+import { FaArrowUp, FaPersonWalkingArrowRight } from 'react-icons/fa6';
 
 const GameCards = () => {
   // #region 状态管理
@@ -35,6 +36,8 @@ const GameCards = () => {
   const searchResults = useGameStore((state) => state.searchResults);
   // 获取当前选择的游戏模式
   const gameMode = useGameStore((state) => state.gameMode);
+  //游戏状态
+  const gameState = useGameStore((state) => state.gameState);
   // #endregion
 
   useEffect(() => {
@@ -154,24 +157,53 @@ const GameCards = () => {
     initial: { x: 100, opacity: 0 },
     hover: { x: 0, opacity: 1 },
   };
-
+  //进入休息状态
+  const enterRestMode = () => {
+    window.api.setResting(true);
+  };
   return (
     <>
       <div className="relative flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed">
         {/* 游戏模式选择器 */}
-        <div className="absolute top-0 left-0 w-13 rounded-b-full">
+        {/* 简易遮罩 */}
+        <div className="fixed top-1/2 left-0 w-40 -translate-y-1/2">
           <Selector />
-          {/* 休息提示区域 */}
         </div>
+        {/* 主动休息按钮 */}
+        {gameState === 'run' && (
+          <motion.div>
+            <div className="fixed top-20 right-0 z-30 rounded-l-2xl border border-gray-300 bg-white px-2 py-2 shadow-md">
+              <button
+                onClick={() => enterRestMode()}
+                className="flex cursor-pointer flex-row items-center"
+              >
+                <FaPersonWalkingArrowRight className="text-3xl text-gray-700" />
+                <p className="ml-2">休息</p>
+              </button>
+            </div>
+          </motion.div>
+        )}
+        {/* 回到顶部按钮 */}
+        <motion.div>
+          <div className="fixed right-4 bottom-8 z-30 rounded-2xl border border-gray-300/50 bg-white px-2 py-2 shadow-md">
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="flex cursor-pointer flex-row items-center"
+            >
+              <FaArrowUp className="text-3xl text-gray-700" />
+            </button>
+          </div>
+        </motion.div>
         {showRestTimeModal &&
           createPortal(
             <RestTimeContent onClose={() => setShowRestTimeModal(false)} />,
             document.body,
           )}
-        {/*  暂用 */}
-        <button onClick={() => setShowRestTimeModal(true)} className="text-white">
+        {/*  暂用-休息调试 */}
+        {/* <button onClick={() => setShowRestTimeModal(true)} className="text-white">
           休息时间调试
-        </button>
+        </button> */}
+        {/* 游戏卡片 */}
         {games.map((game) => (
           <div key={game.id} className="flex-center flex-col p-4">
             <div className="flex flex-row">
@@ -208,7 +240,7 @@ const GameCards = () => {
                   className="absolute top-0 right-0 h-70 w-60 rounded-l-[20px] rounded-r-2xl border-r-2 border-white bg-stone-800/75 p-5"
                 >
                   <p className="p-0.5 text-white">游戏名:{game.game_name}</p>
-                  <p className="p-0.5 text-white">游戏时间:{formatTime(game.total_play_time)}</p>
+                  <p className="p-0.5 text-white">游戏时长:{formatTime(game.total_play_time)}</p>
                   <p className="p-0.5 whitespace-nowrap text-white">
                     上次启动:
                     {game.last_launch_time ? formatTimeCalender(game.last_launch_time) : '暂无'}
@@ -269,8 +301,10 @@ const GameCards = () => {
                 </motion.div>
               </motion.div>
               {/* 一个阻挡的块，防止触发隐藏的动画元素 */}
-              <div className="z-50 h-70 w-30 bg-amber-300 opacity-0"></div>
+              <div className="z-20 h-70 w-30 bg-amber-300 opacity-0"></div>
             </div>
+            {/* 底部模糊层 */}
+            <div className="fixed top-9/10 right-0 bottom-0 left-0 z-10 bg-gradient-to-b from-transparent to-gray-600/20"></div>
           </div>
         ))}
       </div>

@@ -175,7 +175,7 @@ const NavHeader = () => {
   };
 
   return (
-    <div className="items-centers relative flex justify-start border-b-1 border-black ">
+    <div className="items-centers relative flex justify-start border-b-1 border-black">
       <motion.img
         src={logo}
         alt="logo"

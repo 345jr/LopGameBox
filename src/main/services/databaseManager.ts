@@ -62,11 +62,11 @@ export class DatabaseManager {
       -- 为现有数据库添加 game_mode 列（如果不存在）
       PRAGMA table_info(game_logs);
     `);
-    
+
     // 检查并添加 game_mode 列
     const columns = this.dbInstance.prepare('PRAGMA table_info(game_logs)').all();
     const hasGameModeColumn = columns.some((col: any) => col.name === 'game_mode');
-    
+
     if (!hasGameModeColumn) {
       this.dbInstance.exec(`
         ALTER TABLE game_logs ADD COLUMN game_mode TEXT DEFAULT 'Normal';

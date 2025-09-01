@@ -6,19 +6,19 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    confirmPassword: '' // 仅注册时使用
+    confirmPassword: '', // 仅注册时使用
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
   const setJwtToken = useUserStore((state) => state.setJwtToken);
 
   // 处理输入变化
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     setError(''); // 清除错误信息
   };
@@ -110,16 +110,14 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
       >
         {/* 标题和切换按钮 */}
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-800">
-            {isLogin ? '登录' : '注册'}
-          </h2>
+          <h2 className="text-xl font-bold text-gray-800">{isLogin ? '登录' : '注册'}</h2>
           <button
             onClick={() => {
               setIsLogin(!isLogin);
               setError('');
               setFormData({ username: '', password: '', confirmPassword: '' });
             }}
-            className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+            className="text-sm text-blue-600 transition-colors hover:text-blue-800"
           >
             {isLogin ? '没有账号？注册' : '已有账号？登录'}
           </button>
@@ -127,7 +125,7 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
 
         {/* 错误信息 */}
         {error && (
-          <div className="mb-4 rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+          <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
             {error}
           </div>
         )}
@@ -135,7 +133,7 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
         {/* 表单 */}
         <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-4">
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="username" className="mb-1 block text-sm font-medium text-gray-700">
               用户名
             </label>
             <input
@@ -145,13 +143,13 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
               value={formData.username}
               onChange={handleInputChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="请输入用户名"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
               密码
             </label>
             <input
@@ -161,7 +159,7 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
               value={formData.password}
               onChange={handleInputChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="请输入密码"
             />
           </div>
@@ -169,7 +167,10 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
           {/* 注册时显示确认密码 */}
           {!isLogin && (
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="confirmPassword"
+                className="mb-1 block text-sm font-medium text-gray-700"
+              >
                 确认密码
               </label>
               <input
@@ -179,25 +180,25 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="请再次输入密码"
               />
             </div>
           )}
 
           {/* 按钮组 */}
-          <div className="flex gap-3 mt-6">
+          <div className="mt-6 flex gap-3">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="flex-1 rounded-md bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:bg-blue-400"
             >
-              {loading ? '处理中...' : (isLogin ? '登录' : '注册')}
+              {loading ? '处理中...' : isLogin ? '登录' : '注册'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none"
             >
               关闭
             </button>

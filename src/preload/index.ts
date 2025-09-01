@@ -17,9 +17,7 @@ const api = {
   },
 
   //监听计时器停止
-  onTimerStopped: (
-    callback: (result: { code: number; finalElapsedTime: number }) => void,
-  ) => {
+  onTimerStopped: (callback: (result: { code: number; finalElapsedTime: number }) => void) => {
     ipcRenderer.on('timer:stopped', (_event, result) => {
       callback(result);
     });
@@ -29,10 +27,7 @@ const api = {
     ipcRenderer.removeListener('timer:update', callback),
   //移除计时器监听器
   offTimerStopped: (
-    callback: (
-      _event: any,
-      result: { code: number; finalElapsedTime: number },
-    ) => void,
+    callback: (_event: any, result: { code: number; finalElapsedTime: number }) => void,
   ) => ipcRenderer.removeListener('timer:stopped', callback),
 
   //数据库操作
@@ -41,42 +36,28 @@ const api = {
   addGame: (game: { gameName: string; launchPath: string }) =>
     ipcRenderer.invoke('db:addGame', game),
   deleteGame: (id: number) => ipcRenderer.invoke('db:deleteGame', id),
-  addBanner: (gameImage: {
-    gameId: number;
-    imagePath: string;
-    relativePath: string;
-  }) => ipcRenderer.invoke('db:addBanner', gameImage),
+  addBanner: (gameImage: { gameId: number; imagePath: string; relativePath: string }) =>
+    ipcRenderer.invoke('db:addBanner', gameImage),
   getBanners: () => ipcRenderer.invoke('db:getBanners'),
-  getGameSnapshot: (gameId: number) =>
-    ipcRenderer.invoke('db:getSnapshot', gameId),
-  addGameSnapshot: (gameImage: {
-    gameId: number;
-    imagePath: string;
-    relativePath: string;
-  }) => ipcRenderer.invoke('db:addSnapshot', gameImage),
+  getGameSnapshot: (gameId: number) => ipcRenderer.invoke('db:getSnapshot', gameId),
+  addGameSnapshot: (gameImage: { gameId: number; imagePath: string; relativePath: string }) =>
+    ipcRenderer.invoke('db:addSnapshot', gameImage),
   delectSnapshot: (id: number) => ipcRenderer.invoke('db:delectSnapshot', id),
   modifyGameName: (id: number, newName: string) =>
     ipcRenderer.invoke('db:modifyGameName', id, newName),
   updateGameSize: (id: number, launch_path: string) =>
     ipcRenderer.invoke('db:updateGameSize', id, launch_path),
-  searchGames: (keyword: string) =>
-    ipcRenderer.invoke('db:searchGames', keyword),
+  searchGames: (keyword: string) => ipcRenderer.invoke('db:searchGames', keyword),
   countGames: () => ipcRenderer.invoke('db:countGames'),
   countGameTime: () => ipcRenderer.invoke('db:countGameTime'),
   countLaunchTimes: () => ipcRenderer.invoke('db:countLaunchTimes'),
   //统计今日 ，本周 ，本月游戏时长
   countDayWeekMonth: () => ipcRenderer.invoke('db:getGameLogDayWeekMonth'),
   //文件操作
-  copyImages: (move: {
-    origin: string;
-    target: string;
-    gameName: string;
-    oldFilePath: string;
-  }) => ipcRenderer.invoke('op:copyImages', move),
-  delectImages: (relative_path: string) =>
-    ipcRenderer.invoke('op:delectImages', relative_path),
-  openFolder: (folderPath: string) =>
-    ipcRenderer.invoke('op:openFolder', folderPath),
+  copyImages: (move: { origin: string; target: string; gameName: string; oldFilePath: string }) =>
+    ipcRenderer.invoke('op:copyImages', move),
+  delectImages: (relative_path: string) => ipcRenderer.invoke('op:delectImages', relative_path),
+  openFolder: (folderPath: string) => ipcRenderer.invoke('op:openFolder', folderPath),
   //消息通知
   sendNotification: (title: string, body: string) =>
     ipcRenderer.invoke('op:sendNotification', title, body),

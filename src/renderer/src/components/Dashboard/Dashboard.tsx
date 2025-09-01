@@ -100,10 +100,7 @@ const Dashboard = () => {
               查看上周
             </button>
           ) : (
-            <button
-              onClick={switchToWeekData}
-              className="ml-2 cursor-pointer"
-            >
+            <button onClick={switchToWeekData} className="ml-2 cursor-pointer">
               查看本周
             </button>
           )}

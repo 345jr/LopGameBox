@@ -41,10 +41,10 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
   const skipRest = async () => {
     //切换模式+关闭窗口+脱离休息期
     await window.api.setResting(false);
-    await window.api.setGameMode('Infinity'); 
-    setGameMode('Infinity');       
+    await window.api.setGameMode('Infinity');
+    setGameMode('Infinity');
     onClose();
-  }
+  };
   //#region GSAP动画
   //4段小文本
   useGSAP(
@@ -97,13 +97,13 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
       const startRestBtn = document.querySelector('.GSAPanimate-btnStartRest');
       const endRestBtn = document.querySelector('.GSAPanimate-btnEndRest');
       const skipRestBtn = document.querySelector('.GSAPanimate-btnSkipRest');
-      
+
       if (startRestBtn) gsap.set('.GSAPanimate-btnStartRest', { backgroundColor: '#22c55e' });
       if (endRestBtn) gsap.set('.GSAPanimate-btnEndRest', { backgroundColor: '#ef4444' });
       if (skipRestBtn) gsap.set('.GSAPanimate-btnSkipRest', { backgroundColor: '#a855f7' });
-      
+
       const timeline = gsap.timeline();
-      
+
       if (startRestBtn) {
         timeline.from('.GSAPanimate-btnStartRest', {
           opacity: 0,
@@ -112,7 +112,7 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
           ease: 'power2.out',
         });
       }
-      
+
       if (endRestBtn) {
         timeline.from(
           '.GSAPanimate-btnEndRest',
@@ -125,7 +125,7 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
           '-=0.5',
         );
       }
-      
+
       if (skipRestBtn) {
         timeline.from(
           '.GSAPanimate-btnSkipRest',
@@ -139,7 +139,7 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
         );
       }
     },
-    { scope: btn, dependencies: [isResting] }
+    { scope: btn, dependencies: [isResting] },
   );
   const handleOnMouseDown = (btnClassName: string) => {
     gsap.to(`.${btnClassName}`, {

@@ -1,11 +1,6 @@
 import useGameStore from '@renderer/store/GameStore';
 import { motion, Variants } from 'framer-motion';
-import {
-  FaHourglassEnd,
-  FaGlasses,
-  FaClock,
-  FaFaceLaugh,
-} from 'react-icons/fa6';
+import { FaHourglassEnd, FaGlasses, FaClock, FaFaceLaugh } from 'react-icons/fa6';
 
 const Selector = () => {
   //游戏模式选择器
@@ -23,8 +18,8 @@ const Selector = () => {
     },
   };
   const item: Variants = {
-    initial: {  x: -140 },
-    animate: {  x: 0, transition: { duration: 0.5 } },
+    initial: { x: -140 },
+    animate: { x: 0, transition: { duration: 0.5 } },
   };
   //选择模式
   const selectMode = (mode: string) => {
@@ -43,46 +38,49 @@ const Selector = () => {
       {/* 遮罩层防防点击 */}
       {/* {gameModeSelector?null:<div className="absolute top-0 left-0 z-10 h-120 w-20 bg-red-500/50 opacity-0" />} */}
       <motion.div
-        className="z-0 flex flex-col "
+        className="z-0 flex flex-col"
         variants={container}
         initial="initial"
         animate={gameModeSelector ? 'animate' : 'initial'}
       >
         {/* 普通模式 */}
         <motion.div variants={item}>
-          <div className="flex-1 rounded-tr-2xl bg-white px-2.5 py-5 border border-gray-300 shadow-md">          
-            <button onClick={() => selectMode('Normal')} className="cursor-pointer flex flex-row justify-center items-center">
-              <p className='ml-5'>普通模式</p>
-              <FaFaceLaugh  className="text-3xl text-gray-700 ml-2" />
+          <div className="flex-1 rounded-tr-2xl border border-gray-300 bg-white px-2.5 py-5 shadow-md">
+            <button
+              onClick={() => selectMode('Normal')}
+              className="flex cursor-pointer flex-row items-center justify-center"
+            >
+              <p className="ml-5">普通模式</p>
+              <FaFaceLaugh className="ml-2 text-3xl text-gray-700" />
             </button>
           </div>
         </motion.div>
         {/* 快速模式 */}
         <motion.div variants={item}>
-          <div className="flex-1 bg-white px-2.5 py-5 border border-gray-300 shadow-md">
-            <button onClick={() => selectMode('Fast')} className="cursor-pointer flex flex-row">
-              <p className='ml-5'>快速模式</p>
-              <FaHourglassEnd className="text-3xl text-gray-700 ml-2" />
+          <div className="flex-1 border border-gray-300 bg-white px-2.5 py-5 shadow-md">
+            <button onClick={() => selectMode('Fast')} className="flex cursor-pointer flex-row">
+              <p className="ml-5">快速模式</p>
+              <FaHourglassEnd className="ml-2 text-3xl text-gray-700" />
             </button>
           </div>
         </motion.div>
         {/* AFK模式 */}
         <motion.div variants={item}>
-          <div className="flex-1 bg-white px-2.5 py-7 border border-gray-300 shadow-md">
-            <button onClick={() => selectMode('Afk')} className="cursor-pointer flex flex-row">
-              <p className='ml-5'>挂机模式</p>
-              <FaClock className="text-3xl text-gray-700 ml-2" />
+          <div className="flex-1 border border-gray-300 bg-white px-2.5 py-7 shadow-md">
+            <button onClick={() => selectMode('Afk')} className="flex cursor-pointer flex-row">
+              <p className="ml-5">挂机模式</p>
+              <FaClock className="ml-2 text-3xl text-gray-700" />
             </button>
           </div>
         </motion.div>
         {/* 沉浸模式 */}
         <motion.div variants={item}>
           <div
-            className={`flex-1 rounded-br-2xl bg-white px-2.5 py-7 border border-gray-300 shadow-md`}
+            className={`flex-1 rounded-br-2xl border border-gray-300 bg-white px-2.5 py-7 shadow-md`}
           >
-            <button onClick={() => selectMode('Infinity')} className="cursor-pointer flex flex-row">
-              <p className='ml-5'>沉浸模式</p>
-              <FaGlasses className="text-3xl text-gray-700 ml-2" />
+            <button onClick={() => selectMode('Infinity')} className="flex cursor-pointer flex-row">
+              <p className="ml-5">沉浸模式</p>
+              <FaGlasses className="ml-2 text-3xl text-gray-700" />
             </button>
           </div>
         </motion.div>

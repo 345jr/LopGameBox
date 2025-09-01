@@ -15,21 +15,19 @@
     @apply flex items-center justify-center;
   }
   /* 横向垂直居中 */
-  .flex-row-v
-  {
-    @apply flex flex-row items-center
+  .flex-row-v {
+    @apply flex flex-row items-center;
   }
   /* 竖向垂直居中 */
-  .flex-col-v
-  {
-    @apply flex flex-col items-center
+  .flex-col-v {
+    @apply flex flex-col items-center;
   }
 }
 
 @layer components {
   /* 图标按钮 */
-  .iconBtn{
-    @apply cursor-pointer text-2xl text-white
+  .iconBtn {
+    @apply cursor-pointer text-2xl text-white;
   }
 }
 

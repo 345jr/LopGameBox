@@ -5,7 +5,7 @@ export class GameService {
   constructor(
     private gameRepo: GameRepository,
     private galleryRepo: GalleryRepository,
-    private gameLogsRepo: GameLogsRepository
+    private gameLogsRepo: GameLogsRepository,
   ) {}
   //添加游戏
   public addGame(gameName: string, launchPath: string, diskSize: number) {
@@ -31,34 +31,34 @@ export class GameService {
   public deleteGame(id: number) {
     return this.gameRepo.deleteGame(id);
   }
-  
+
   //添加游戏封面图
-  public setGameBanner(gameId:number,imagePath:string,relativePath:string) {
-    return this.galleryRepo.setGameBanner(gameId,imagePath,relativePath)
+  public setGameBanner(gameId: number, imagePath: string, relativePath: string) {
+    return this.galleryRepo.setGameBanner(gameId, imagePath, relativePath);
   }
   //获取游戏封面图
-  public getBanners(){
-    return this.galleryRepo.getGameBanner()
+  public getBanners() {
+    return this.galleryRepo.getGameBanner();
   }
   //添加游戏快照图
-  public setGameSnapshot(gameId:number,imagePath:string,relativePath:string){
-    return this.galleryRepo.setGameSnapshot(gameId,imagePath,relativePath)
+  public setGameSnapshot(gameId: number, imagePath: string, relativePath: string) {
+    return this.galleryRepo.setGameSnapshot(gameId, imagePath, relativePath);
   }
   //获取游戏快照图
-  public getGameSnapshot(gameId:number){
-    return this.galleryRepo.getGameSnapshot(gameId)
+  public getGameSnapshot(gameId: number) {
+    return this.galleryRepo.getGameSnapshot(gameId);
   }
   //删除游戏快照图
-  public delectSnapshot(id:number){
-    return this.galleryRepo.delectSnapshot(id)
+  public delectSnapshot(id: number) {
+    return this.galleryRepo.delectSnapshot(id);
   }
   //修改游戏名
-  public modifyGameName(id:number,newName:string){
-    return this.gameRepo.modifyGameName(id,newName)
+  public modifyGameName(id: number, newName: string) {
+    return this.gameRepo.modifyGameName(id, newName);
   }
   //更新游戏大小
-  public updateGameSize(id:number,disk_size:number){
-    return this.gameRepo.updateGameSize(id,disk_size)
+  public updateGameSize(id: number, disk_size: number) {
+    return this.gameRepo.updateGameSize(id, disk_size);
   }
   //模糊查询搜索
   public searchGames(keyword: string) {
@@ -77,7 +77,13 @@ export class GameService {
     return this.gameRepo.countLaunchTimes();
   }
   //记录游戏记录
-  public logGame(gameId: number, launchedAt: number, endedAt: number, launchState: string, gameMode: string = '') {
+  public logGame(
+    gameId: number,
+    launchedAt: number,
+    endedAt: number,
+    launchState: string,
+    gameMode: string = '',
+  ) {
     this.gameLogsRepo.insertGameLog(gameId, launchedAt, endedAt, launchState, gameMode);
   }
   //查询今日 ，本周 ，本月的游戏记录

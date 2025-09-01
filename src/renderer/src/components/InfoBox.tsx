@@ -7,12 +7,13 @@ const InfoBox = () => {
   return (
     <>
       {display && (
-        <motion.div className='flex-col-v'
+        <motion.div
+          className="flex-col-v"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <VscTriangleUp className="mb-[-10px] text-2xl text-white" />
-          <div className="h-30 w-60 rounded-xl bg-white p-2 text-black border-3 border-stone-900">
+          <div className="h-30 w-60 rounded-xl border-3 border-stone-900 bg-white p-2 text-black">
             {info || '「暂无信息」'}
           </div>
         </motion.div>

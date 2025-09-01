@@ -71,7 +71,9 @@ const GameCards = () => {
   }, [fetchGames]);
   //重载模糊查询数据 --
   useEffect(() => {
-    setGames(searchResults);
+    if (searchResults.length > 0) {
+      setGames(searchResults);
+    }
   }, [searchResults]);
   //打开游戏文件夹 --
   const handleOpenGameFolder = async (folderPath: string) => {

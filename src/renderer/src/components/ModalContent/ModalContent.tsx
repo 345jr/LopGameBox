@@ -67,10 +67,7 @@ export default function ModalContent({
             placeholder="点击右侧保存"
             className="mb-1 w-full rounded border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
-          <button
-            onClick={handleConfirm}
-            className="absolute top-1.5 right-2 cursor-pointer"
-          >
+          <button onClick={handleConfirm} className="absolute top-1.5 right-2 cursor-pointer">
             <VscPassFilled className="text-3xl text-lime-500" />
           </button>
         </div>
@@ -89,9 +86,7 @@ export default function ModalContent({
           {size > 0 && (
             <>
               <VscArrowRight className="mx-2 mt-2.5 text-2xl" />
-              <p className="mt-2.5 ml-2 text-lg text-black">
-                游戏大小:{gameSizeFormat(size)}
-              </p>
+              <p className="mt-2.5 ml-2 text-lg text-black">游戏大小:{gameSizeFormat(size)}</p>
             </>
           )}
         </div>

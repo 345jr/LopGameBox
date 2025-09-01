@@ -1,4 +1,4 @@
-export default function formatFileSize(bytes:number) {
+export default function formatFileSize(bytes: number) {
   if (!bytes || bytes === 0) return '0 KB';
   // 转换为KB
   const kb = bytes / 1024;
@@ -16,4 +16,3 @@ export default function formatFileSize(bytes:number) {
   const gb = mb / 1024;
   return gb.toFixed(1) + ' GB';
 }
-

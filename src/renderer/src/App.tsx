@@ -9,7 +9,7 @@ function App(): React.JSX.Element {
         <div className="absolute top-0 right-20 z-50 flex flex-col items-center">
           <InfoBox />
         </div>
-        <div className=''>
+        <div className="">
           <GameCards />
         </div>
       </div>

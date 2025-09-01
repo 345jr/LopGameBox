@@ -71,16 +71,12 @@ export class GameRepository {
   }
   //统计游戏时间
   public countGameTime() {
-    const stmt = this.db.prepare(
-      'SELECT SUM(total_play_time) as timeCount FROM games',
-    );
+    const stmt = this.db.prepare('SELECT SUM(total_play_time) as timeCount FROM games');
     return stmt.get();
   }
   //统计启动次数
   public countLaunchTimes() {
-    const stmt = this.db.prepare(
-      'SELECT SUM(launch_count) as launchCount FROM games',
-    );
+    const stmt = this.db.prepare('SELECT SUM(launch_count) as launchCount FROM games');
     return stmt.get();
   }
 }

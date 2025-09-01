@@ -23,16 +23,16 @@ export interface Banners {
   image_path: string;
   image_type: string;
   created_at: number;
-  relative_path:string;
+  relative_path: string;
 }
-//游戏快照图片数据 
+//游戏快照图片数据
 export interface Snapshot {
   id: number;
   game_id: number;
   image_path: string;
   image_type: string;
   created_at: number;
-  relative_path:string;
+  relative_path: string;
 }
 //游戏统计数据
 export interface GameStatistics {
@@ -49,10 +49,10 @@ export interface GameStatistics {
 }
 //游戏周模式时长分布
 export interface GameLog {
-  play_date:string;
-  normalHours	:number;
-  fastHours	:number;
-  afkHours	:number;
-  infinityHours	:number;
-  totalHours:number;
+  play_date: string;
+  normalHours: number;
+  fastHours: number;
+  afkHours: number;
+  infinityHours: number;
+  totalHours: number;
 }

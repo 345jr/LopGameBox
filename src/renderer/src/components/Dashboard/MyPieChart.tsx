@@ -1,5 +1,5 @@
-import { formatTimeToHours } from "@renderer/util/timeFormat";
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { formatTimeToHours } from '@renderer/util/timeFormat';
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 // 饼图自定义提示框
 const PieTooltip = ({ active, payload }: any) => {
@@ -45,7 +45,7 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, percent }: any) 
   );
 };
 
-const MyPieChart = ({gameStatistics}) => {
+const MyPieChart = ({ gameStatistics }) => {
   //饼图数据
   const PIE_DATA = [
     { name: '普通模式', value: gameStatistics.normalHours },

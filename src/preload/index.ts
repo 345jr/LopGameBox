@@ -81,6 +81,10 @@ const api = {
   getGameLogByModeThisWeek: () => ipcRenderer.invoke('db:getGameLogByModeThisWeek'),
   //获取上周的时长分布
   getGameLogByModeLastWeek: () => ipcRenderer.invoke('db:getGameLogByModeLastWeek'),
+  // 云备份（触发主进程备份数据库）
+  backupDatabase: () => ipcRenderer.invoke('db:backupDatabase'),
+  // 备份并上传到远程服务器，参数: uploadUrl, token(可选)
+  backupAndUpload: (uploadUrl: string, token?: string) => ipcRenderer.invoke('db:backupAndUpload', uploadUrl, token),
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

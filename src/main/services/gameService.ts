@@ -1,11 +1,13 @@
 import { GameRepository } from './gameRepository';
 import { GalleryRepository } from './galleryRepository';
 import { GameLogsRepository } from './gameLogsRepository';
+import { BackupService } from './backup';
 export class GameService {
   constructor(
     private gameRepo: GameRepository,
     private galleryRepo: GalleryRepository,
     private gameLogsRepo: GameLogsRepository,
+    private backupService: BackupService,
   ) {}
   //添加游戏
   public addGame(gameName: string, launchPath: string, diskSize: number) {
@@ -101,5 +103,13 @@ export class GameService {
   //获取上周的时长分布
   public getGameLogByModeLastWeek() {
     return this.gameLogsRepo.getGameLogByModeLastWeek();
+  }
+  //备份数据库
+  public async backupDatabase(): Promise<string> {
+    return this.backupService.backupDatabase();
+  }
+  // 上传备份文件（转发到 BackupService）
+  public async uploadBackup(backupPath: string, uploadUrl: string, token?: string) {
+    return this.backupService.uploadBackup(backupPath, uploadUrl, token);
   }
 }

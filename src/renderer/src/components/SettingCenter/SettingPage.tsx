@@ -59,7 +59,7 @@ const SettingPage = () => {
       <div className="flex flex-row">
         {/* 用户信息区 */}
         {userData ? (
-          <div className="grid w-45 grid-cols-3 grid-rows-2 items-center justify-center ml-4">
+          <div className="ml-4 grid w-45 grid-cols-3 grid-rows-2 items-center justify-center">
             {/* 用户画像 */}
             <div className="flex justify-center">
               <img src={DefaultAvatar} alt="用户头像" className="w-25" />
@@ -79,7 +79,7 @@ const SettingPage = () => {
             <p className="text-xs text-red-600">● 未登录</p>
           </div>
         )}
-        {/* 用户操作区 */}
+        {/* 3个按钮 */}
         <div className="p-5">
           <div className="grid grid-cols-3 grid-rows-2 gap-4">
             <div className="col-span-3 gap-4">
@@ -117,6 +117,15 @@ const SettingPage = () => {
             </div>
           </div>
         </div>
+        {/* 2个按钮 */}
+        <div className="flex flex-col justify-center gap-4 p-5 grow">
+          <button className="w-full rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white">
+            绑定Steam
+          </button>
+          <button className="w-full rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white">
+            应用设置
+          </button>
+        </div>
       </div>
 
       {/* 登录模态框 */}
@@ -131,7 +140,7 @@ const SettingPage = () => {
         <Link to="/setting/practice">代码练习</Link>
         <Link to="/setting/info">关于这款软件</Link>
       </div> */}
-      <div className="text-center mt-10">
+      <div className="mt-10 text-center">
         <Link to="/">返回主页</Link>
       </div>
     </>

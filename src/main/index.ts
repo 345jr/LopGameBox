@@ -11,6 +11,7 @@ import { GameService } from './services/gameService';
 import { GameRepository } from './services/gameRepository';
 import { GalleryRepository } from './services/galleryRepository';
 import { GameLogsRepository } from './services/gameLogsRepository';
+import { BackupService } from './services/backup';
 import { getSize } from './util/diskSize';
 import { getDelectPath } from './util/path';
 
@@ -45,7 +46,9 @@ const gameService = new GameService(
   new GameRepository(),
   new GalleryRepository(),
   new GameLogsRepository(),
+  new BackupService()
 );
+
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -492,6 +495,22 @@ app.whenReady().then(() => {
   ipcMain.handle('db:getGameLogByModeLastWeek', () => {
     return gameService.getGameLogByModeLastWeek();
   });
+  //备份数据库(本地)
+  ipcMain.handle('db:backupDatabase', async () => {
+    return gameService.backupDatabase();
+  });
+  //上传备份数据
+  ipcMain.handle('db:backupAndUpload', async (_event, uploadUrl: string, token?: string) => {
+    try {
+      const backupPath = await gameService.backupDatabase();
+      const uploadResult = await gameService.uploadBackup(backupPath, uploadUrl, token);
+      return { success: true, path: backupPath, uploadResult };
+    } catch (err: any) {
+      console.error('备份并上传失败:', err);
+      return { success: false, error: err?.message ?? String(err) };
+    }
+  });
+
 
   createWindow();
 

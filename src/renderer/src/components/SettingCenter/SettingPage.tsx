@@ -5,6 +5,7 @@ import DefaultAvatar from '../../assets/lopgame.png';
 import { createPortal } from 'react-dom';
 import UpdateContent from '../ModalContent/UpdateContent';
 import LoginContent from '../ModalContent/LoginContent';
+import { getMe } from '@renderer/api';
 
 import type { UserData } from '@renderer/types/SettingCenter';
 
@@ -33,23 +34,32 @@ const SettingPage = () => {
   //从服务器获取用户信息
   const fetchUserData = async () => {
     try {
-      const response = await fetch('http://199.115.229.247:8086/me', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${JwtToken}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('网络错误');
-      }
-
-      const data = await response.json();
+      const data = await getMe(JwtToken);
       setUserData(data);
     } catch (error) {
       console.error('获取用户信息失败:', error);
       // 如果获取用户信息失败，可能token已过期，清除token
       setJwtToken('');
+    }
+  };
+
+  // 备份数据库处理函数
+  const handleBackup = async () => {
+    try {
+      // 固定使用本地开发环境的上传地址，且必须已登录（有 JwtToken）
+      if (!JwtToken) {
+        alert('请先登录后再进行云备份');
+        return;
+      }
+      const uploadUrl = 'http://localhost:3000/upload';
+      const result = await window.api.backupAndUpload(uploadUrl, JwtToken);
+      if (result.success) {
+        alert(`备份并上传成功，路径: ${result.path}`);
+      } else {
+        alert(`备份或上传失败: ${result.error}`);
+      }
+    } catch (err) {
+      alert(`备份发生异常: ${String(err)}`);
     }
   };
 
@@ -101,7 +111,10 @@ const SettingPage = () => {
             </div>
 
             <div className="col-span-2 gap-4">
-              <button className="w-full rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white">
+              <button
+                onClick={handleBackup}
+                className="w-full rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
+              >
                 云备份
               </button>
             </div>

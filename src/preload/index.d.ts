@@ -75,6 +75,10 @@ declare global {
       getGameLogByModeThisWeek: () => Promise<GameLog[]>;
       //获取上周的时长分布
       getGameLogByModeLastWeek: () => Promise<GameLog[]>;
+      // 云备份
+      backupDatabase: () => Promise<{ success: boolean; path?: string; error?: string }>;
+      // 备份并上传到远端
+      backupAndUpload: (uploadUrl: string, token?: string) => Promise<{ success: boolean; path?: string; uploadResult?: any; error?: string }>;
     };
   }
 }

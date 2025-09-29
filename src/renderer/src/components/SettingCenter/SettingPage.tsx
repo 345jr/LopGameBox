@@ -79,32 +79,32 @@ const SettingPage = () => {
             </div>
           </div>
         )}
-        {/* 用户操作区*/}
+        {/* 用户操作区 */}
         <div className="w-full p-5">
           <div className="grid grid-cols-3 gap-4">
             {JwtToken ? (
               <button
                 onClick={handleLogout}
-                className="rounded bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600"
+                className="rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
               >
                 退出登录
               </button>
             ) : (
               <button
                 onClick={() => setShowLogin(true)}
-                className="rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
+                className="rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
               >
                 登录
               </button>
             )}
-            <button className="rounded bg-purple-500 px-4 py-2 text-white transition-colors hover:bg-purple-600">
+            <button className="rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white">
               云备份
             </button>
             <button
               onClick={() => {
                 setShowUpdate(true);
               }}
-              className="rounded bg-orange-500 px-4 py-2 text-white transition-colors hover:bg-orange-600"
+              className="rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
             >
               检查更新
             </button>

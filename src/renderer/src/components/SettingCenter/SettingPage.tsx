@@ -55,74 +55,83 @@ const SettingPage = () => {
 
   return (
     <>
-      <div className="text-center">设置中心</div>
-
       {/* 用户配置 */}
       <div className="flex flex-row">
-        {/* 用户画像 */}
-        <div className="">
-          <img src={DefaultAvatar} alt="用户头像" className="w-25" />
-        </div>
         {/* 用户信息区 */}
         {userData ? (
-          <div className="ml-4 flex w-40 flex-col justify-center">
-            <p className="text-lg font-semibold">用户名: {userData.user.username || '未知用户'}</p>
-            <p className="text-sm text-gray-600">用户ID: {userData.user.id || '未知'}</p>
+          <div className="grid w-45 grid-cols-3 grid-rows-2 items-center justify-center ml-4">
+            {/* 用户画像 */}
+            <div className="flex justify-center">
+              <img src={DefaultAvatar} alt="用户头像" className="w-25" />
+            </div>
+            <p className="col-span-2 text-center text-lg font-semibold">
+              {userData.user.username || '未知用户'}
+            </p>
+            <p className="col-span-2 text-center text-sm text-gray-600">
+              用户ID: {userData.user.id || '未知'}
+            </p>
             {/* <p className='text-sm text-gray-600'>用户权限:{userData.user.role == "user" ? '普通用户' : '管理员'}</p> */}
             <p className="mt-1 text-xs text-green-600">● 已登录</p>
           </div>
         ) : (
-          <div className="ml-4 flex items-center">
-            <div>
-              <p className="text-gray-600">当前为离线状态</p>
-              <p className="text-xs text-red-600">● 未登录</p>
-            </div>
+          <div className="m-4 grid items-center gap-2">
+            <p className="whitespace-nowrap text-gray-600">当前为离线状态</p>
+            <p className="text-xs text-red-600">● 未登录</p>
           </div>
         )}
         {/* 用户操作区 */}
-        <div className="w-full p-5">
-          <div className="grid grid-cols-3 gap-4">
-            {JwtToken ? (
+        <div className="p-5">
+          <div className="grid grid-cols-3 grid-rows-2 gap-4">
+            <div className="col-span-3 gap-4">
+              {JwtToken ? (
+                <button
+                  onClick={handleLogout}
+                  className="w-full rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
+                >
+                  退出登录
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowLogin(true)}
+                  className="w-full rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
+                >
+                  登录
+                </button>
+              )}
+            </div>
+
+            <div className="col-span-2 gap-4">
+              <button className="w-full rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white">
+                云备份
+              </button>
+            </div>
+            <div className="">
               <button
-                onClick={handleLogout}
+                onClick={() => {
+                  setShowUpdate(true);
+                }}
                 className="rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
               >
-                退出登录
+                检查更新
               </button>
-            ) : (
-              <button
-                onClick={() => setShowLogin(true)}
-                className="rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
-              >
-                登录
-              </button>
-            )}
-            <button className="rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white">
-              云备份
-            </button>
-            <button
-              onClick={() => {
-                setShowUpdate(true);
-              }}
-              className="rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
-            >
-              检查更新
-            </button>
+            </div>
           </div>
         </div>
       </div>
+
       {/* 登录模态框 */}
       {showLogin &&
         createPortal(<LoginContent onClose={() => setShowLogin(false)} />, document.body)}
       {/* 检查更新模态框 */}
       {showUpdate &&
         createPortal(<UpdateContent onClose={() => setShowUpdate(false)} />, document.body)}
-      <div className="grid grid-rows-3 gap-4">
+      
+      {/* <div className="grid grid-rows-3 gap-4">
         <Link to="/setting/update">更新记录</Link>
         <Link to="/setting/practice">代码练习</Link>
         <Link to="/setting/info">关于这款软件</Link>
-      </div>
-      <div className="text-center">
+      </div> */}
+      <div className="text-center mt-10">
         <Link to="/">返回主页</Link>
       </div>
     </>

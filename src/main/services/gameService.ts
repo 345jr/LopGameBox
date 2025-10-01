@@ -112,4 +112,56 @@ export class GameService {
   public async uploadBackup(backupPath: string, uploadUrl: string, token?: string) {
     return this.backupService.uploadBackup(backupPath, uploadUrl, token);
   }
+  //更新游戏版本
+  public updateGameVersion(
+    gameId: number,
+    type: 'minor' | 'major',
+    summary: string,
+    fileSize?: number,
+  ) {
+    // 获取当前最新版本
+    const latest: any = this.gameRepo.getLatestVersion(gameId);
+
+    let baseVersion: string = '1.0';
+    if (latest && latest.version) {
+      baseVersion = String(latest.version);
+    } else {
+      // 回退到 games 表中的 game_version 字段
+      const game: any = this.gameRepo.getGameById(gameId);
+      baseVersion = String(game?.game_version || '1.0');
+    }
+
+    // 解析版本号，支持 x 或 x.y 格式
+    const parts = baseVersion.split('.').map((p: string) => parseInt(p, 10) || 0);
+    let major = parts[0] || 0;
+    let minor = parts[1] || 0;
+
+    if (type === 'major') {
+      major += 1;
+      minor = 0;
+    } else {
+      // minor 更新：+0.1 -> 等同于 minor + 1
+      minor += 1;
+    }
+
+    const newVersion = `${major}.${minor}`;
+
+    // 插入版本表并同步更新 games.game_version
+    const inserted = this.gameRepo.addGameVersion(gameId, newVersion, summary, fileSize);
+    this.gameRepo.updateGameCurrentVersion(gameId, newVersion);
+    return inserted;
+  }
+
+  // 查询某条版本的概述（按版本 id）
+  public getVersionSummary(versionId: number) {
+    const v: any = this.gameRepo.getGameVersionById(versionId);
+    if (!v) return null;
+    return {
+      id: v.id,
+      game_id: v.game_id,
+      version: v.version,
+      summary: v.summary,
+      created_at: v.created_at,
+    };
+  }
 }

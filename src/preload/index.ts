@@ -85,6 +85,11 @@ const api = {
   backupDatabase: () => ipcRenderer.invoke('db:backupDatabase'),
   // 备份并上传到远程服务器，参数: uploadUrl, token(可选)
   backupAndUpload: (uploadUrl: string, token?: string) => ipcRenderer.invoke('db:backupAndUpload', uploadUrl, token),
+  // 更新游戏版本：gameId, type ('minor'|'major'), summary, fileSize?
+  updateGameVersion: (gameId: number, type: 'minor' | 'major', summary: string, fileSize?: number) =>
+    ipcRenderer.invoke('db:updateGameVersion', gameId, type, summary, fileSize),
+  // 根据版本ID查询版本概述
+  getVersionSummary: (versionId: number) => ipcRenderer.invoke('db:getVersionSummary', versionId),
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

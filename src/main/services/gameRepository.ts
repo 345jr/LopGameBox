@@ -79,4 +79,40 @@ export class GameRepository {
     const stmt = this.db.prepare('SELECT SUM(launch_count) as launchCount FROM games');
     return stmt.get();
   }
+  //更新游戏版本
+  // 插入一条新的游戏版本记录
+  public addGameVersion(gameId: number, version: string, summary: string, fileSize?: number) {
+    const stmt = this.db.prepare(`
+      INSERT INTO game_versions (game_id, version, summary, file_size, created_at, updated_at)
+      VALUES (?, ?, ?, ?, strftime('%s','now'), strftime('%s','now'))
+    `);
+    const info = stmt.run(gameId, version, summary, fileSize || null);
+    return { id: info.lastInsertRowid, gameId, version, summary, fileSize };
+  }
+
+  // 根据 game_id 获取最新的一条版本记录
+  public getLatestVersion(gameId: number) {
+    const stmt = this.db.prepare(`
+      SELECT * FROM game_versions WHERE game_id = ? ORDER BY created_at DESC, id DESC LIMIT 1
+    `);
+    return stmt.get(gameId);
+  }
+
+  // 根据版本 id 查询版本记录
+  public getGameVersionById(id: number) {
+    const stmt = this.db.prepare('SELECT * FROM game_versions WHERE id = ?');
+    return stmt.get(id);
+  }
+
+  // 根据 game_id 与 version 字符串查一条记录
+  public getGameVersionByGameAndVersion(gameId: number, version: string) {
+    const stmt = this.db.prepare('SELECT * FROM game_versions WHERE game_id = ? AND version = ?');
+    return stmt.get(gameId, version);
+  }
+
+  // 同步更新 games 表中的 game_version 字段
+  public updateGameCurrentVersion(gameId: number, version: string) {
+  const stmt = this.db.prepare(`UPDATE games SET game_version = ?, updated_at = strftime('%s','now') WHERE id = ?`);
+  stmt.run(version, gameId);
+  }
 }

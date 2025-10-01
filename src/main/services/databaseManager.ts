@@ -32,7 +32,8 @@ export class DatabaseManager {
         launch_count INTEGER DEFAULT 0,
         created_at INTEGER DEFAULT (strftime('%s', 'now')),
         updated_at INTEGER DEFAULT (strftime('%s', 'now')),
-        disk_size INTEGER DEFAULT 0
+        disk_size INTEGER DEFAULT 0,
+        game_version TEXT NOT NULL DEFAULT '1.0'
       );
       -- 画廊表
       CREATE TABLE IF NOT EXISTS game_gallery (
@@ -59,8 +60,19 @@ export class DatabaseManager {
       CREATE INDEX IF NOT EXISTS idx_game_logs_launched_at ON game_logs (launched_at);
       CREATE INDEX IF NOT EXISTS idx_game_logs_game_id ON game_logs (game_id);
       
-      -- 为现有数据库添加 game_mode 列（如果不存在）
-      PRAGMA table_info(game_logs);
+      -- 游戏版本表：存储每个游戏的历史版本信息
+      CREATE TABLE IF NOT EXISTS game_versions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        game_id INTEGER NOT NULL,
+        version TEXT NOT NULL,
+        summary TEXT,
+        file_size INTEGER,
+        created_at INTEGER DEFAULT (strftime('%s','now')),
+        updated_at INTEGER DEFAULT (strftime('%s','now')),
+        FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
+      );
+      -- 复合唯一索引，确保同一游戏的版本号唯一
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_game_versions_gameid_version ON game_versions (game_id, version);
     `);
 
     // 检查并添加 game_mode 列

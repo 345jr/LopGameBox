@@ -56,3 +56,13 @@ export interface GameLog {
   infinityHours: number;
   totalHours: number;
 }
+
+//游戏版本信息
+export interface GameVersion {
+  id: number;
+  game_id: number;
+  version: string;
+  description: string;
+  release_date: number;
+  created_at: number;
+}

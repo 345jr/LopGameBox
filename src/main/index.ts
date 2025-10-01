@@ -510,6 +510,34 @@ app.whenReady().then(() => {
       return { success: false, error: err?.message ?? String(err) };
     }
   });
+  //更新游戏版本
+  ipcMain.handle(
+    'db:updateGameVersion',
+    async (
+      _event,
+      gameId: number,
+      type: 'minor' | 'major',
+      summary: string,
+      fileSize?: number,
+    ) => {
+      try {
+        return gameService.updateGameVersion(gameId, type, summary, fileSize);
+      } catch (err: any) {
+        console.error('更新游戏版本失败:', err);
+        throw err;
+      }
+    },
+  );
+
+  // 根据版本ID查询版本概述
+  ipcMain.handle('db:getVersionSummary', (_event, versionId: number) => {
+    try {
+      return gameService.getVersionSummary(versionId);
+    } catch (err: any) {
+      console.error('查询版本概述失败:', err);
+      return null;
+    }
+  });
 
 
   createWindow();

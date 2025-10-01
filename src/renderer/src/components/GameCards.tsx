@@ -187,7 +187,7 @@ const GameCards = () => {
         )}
         {/* 回到顶部按钮 */}
         <motion.div>
-          <div className="fixed right-4 bottom-8 z-30 rounded-2xl border border-gray-300/50 bg-white px-2 py-2 shadow-md">
+          <div className="fixed right-4 bottom-8 z-50 rounded-2xl border border-gray-300/50 bg-white px-2 py-2 shadow-md">
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="flex cursor-pointer flex-row items-center"
@@ -239,7 +239,7 @@ const GameCards = () => {
                 />
                 <motion.div
                   variants={gameItems}
-                  className="absolute top-0 right-0 h-70 w-60 rounded-l-[20px] rounded-r-2xl border-r-2 border-white bg-stone-800/75 p-5"
+                  className="z-20 absolute top-0 right-0 h-70 w-60 rounded-l-[20px] rounded-r-2xl border-r-2 border-white bg-stone-800/75 p-5"
                 >
                   <p className="p-0.5 text-white">游戏名:{game.game_name}</p>
                   <p className="p-0.5 text-white">游戏时长:{formatTime(game.total_play_time)}</p>
@@ -303,12 +303,12 @@ const GameCards = () => {
                 </motion.div>
               </motion.div>
               {/* 一个阻挡的块，防止触发隐藏的动画元素 */}
-              <div className="z-20 h-70 w-30 bg-amber-300 opacity-0"></div>
+              <div className="z-30 h-70 w-30 bg-amber-300 opacity-0"></div>
             </div>
-            {/* 底部模糊层 */}
-            <div className="fixed top-9/10 right-0 bottom-0 left-0 z-10 bg-gradient-to-b from-transparent to-gray-600/20"></div>
           </div>
         ))}
+        {/* 底部模糊层 */}
+        <div className="fixed top-9/10 right-0 bottom-0 left-0 z-10 bg-gradient-to-b from-transparent to-gray-600/95"></div>
       </div>
     </>
   );

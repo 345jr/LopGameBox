@@ -14,7 +14,7 @@ const UpdateContent = ({ onClose }: { onClose: () => void }) => {
   //获取检查更新信息
   const fetchUpdateInfo = async () => {
     try {
-      const response = await fetch('http://199.115.229.247:8086/check-update', {
+      const response = await fetch('https://lopbox.lopop.top/check-update', {
         method: 'POST',
         body: JSON.stringify({
           version: currentVersion.version,
@@ -36,7 +36,7 @@ const UpdateContent = ({ onClose }: { onClose: () => void }) => {
   const fetchCurrentVersion = async () => {
     try {
       const response = await fetch(
-        `http://199.115.229.247:8086/version/${encodeURIComponent(currentVersion.version)}`,
+        `https://lopbox.lopop.top/version/${encodeURIComponent(currentVersion.version)}`,
         {
           method: 'GET',
         },
@@ -80,7 +80,6 @@ const UpdateContent = ({ onClose }: { onClose: () => void }) => {
                   </div>
                 ) : (
                   <div className="flex flex-row">
-                    <span className="text-red-500">否</span>
                     <p className="ml-5 text-gray-500">{updateInfo.message}</p>
                   </div>
                 )}

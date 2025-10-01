@@ -29,5 +29,27 @@ export const getMe = async (token: string) => {
   });
 };
 
+// 用户登录 (POST /login)
+export const login = async (username: string, password: string) => {
+  return apiRequest('/login', {
+    method: 'POST',
+    body: JSON.stringify({
+      username,
+      password,
+    }),
+  });
+};
+
+// 用户注册 (POST /register)
+export const register = async (username: string, password: string) => {
+  return apiRequest('/register', {
+    method: 'POST',
+    body: JSON.stringify({
+      username,
+      password,
+    }),
+  });
+};
+
 // 导出基础 URL 供其他地方使用
 export { BASE_URL };

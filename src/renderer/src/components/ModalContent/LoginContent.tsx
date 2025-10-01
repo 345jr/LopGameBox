@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import useUserStore from '@renderer/store/UserStore';
+import { login, register } from '@renderer/api';
 
 const LoginContent = ({ onClose }: { onClose: () => void }) => {
   const [isLogin, setIsLogin] = useState(true); // 切换登录/注册
@@ -30,26 +31,11 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
     setError('');
 
     try {
-      const response = await fetch('http://199.115.229.247:8086/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('登录失败，请检查用户名和密码');
-      }
-
-      const data = await response.json();
+      const data = await login(formData.username, formData.password);
       setJwtToken(data.token);
       onClose(); // 登录成功后关闭模态框
     } catch (error) {
-      setError(error instanceof Error ? error.message : '登录失败');
+      setError(error instanceof Error ? error.message : '登录失败，请检查用户名和密码');
     } finally {
       setLoading(false);
     }
@@ -69,22 +55,7 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
     }
 
     try {
-      const response = await fetch('http://199.115.229.247:8086/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('注册失败，用户名可能已存在');
-      }
-
-      const data = await response.json();
+      const data = await register(formData.username, formData.password);
       // 注册成功后自动登录
       if (data.token) {
         setJwtToken(data.token);
@@ -96,7 +67,7 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
         setFormData({ username: '', password: '', confirmPassword: '' });
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : '注册失败');
+      setError(error instanceof Error ? error.message : '注册失败，用户名可能已存在');
     } finally {
       setLoading(false);
     }

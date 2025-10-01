@@ -40,7 +40,7 @@ const SettingPage = () => {
         alert('请先登录后再进行云备份');
         return;
       }
-      const uploadUrl = 'http://localhost:3000/upload';
+      const uploadUrl = 'https://lopbox.lopop.top/upload';
       const result = await window.api.backupAndUpload(uploadUrl, JwtToken);
       if (result.success) {
         alert(`备份并上传成功，路径: ${result.path}`);
@@ -61,26 +61,6 @@ const SettingPage = () => {
       console.error('获取用户信息失败:', error);
       // 如果获取用户信息失败，可能token已过期，清除token
       setJwtToken('');
-    }
-  };
-
-  // 备份数据库处理函数
-  const handleBackup = async () => {
-    try {
-      // 固定使用本地开发环境的上传地址，且必须已登录（有 JwtToken）
-      if (!JwtToken) {
-        alert('请先登录后再进行云备份');
-        return;
-      }
-      const uploadUrl = 'http://localhost:3000/upload';
-      const result = await window.api.backupAndUpload(uploadUrl, JwtToken);
-      if (result.success) {
-        alert(`备份并上传成功，路径: ${result.path}`);
-      } else {
-        alert(`备份或上传失败: ${result.error}`);
-      }
-    } catch (err) {
-      alert(`备份发生异常: ${String(err)}`);
     }
   };
 

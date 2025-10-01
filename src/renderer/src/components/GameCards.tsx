@@ -108,7 +108,8 @@ const GameCards = () => {
       setInfo(`不能删除正在运行的游戏！`);
       return;
     }
-    if (confirm(`确定要删除游戏《${game.game_name}》吗？此操作不可撤销。`)) {
+    if (confirm(`确定要删除游戏《${game.game_name}》?\n此操作只会删除游戏的记录 ,不会删除游戏本地的文件。
+      `)) {
       await window.api.deleteGame(game.id);
       setInfo(`游戏${game.game_name}已删除。`);
       fetchGames();
@@ -258,7 +259,7 @@ const GameCards = () => {
 
                   {/* 操作区 */}
                   {/* 启动游戏 */}
-                  <div className="grid grid-cols-6 gap-1">
+                  <div className="grid grid-cols-6 grid-rows-2 gap-1">
                     <motion.button
                       onClick={() => handleRunGame(game)}
                       initial={{ y: 0 }}
@@ -298,7 +299,7 @@ const GameCards = () => {
                       </Link>
                     </motion.button>
                     {/* 打开配置页面 */}
-                    <Portal gameId={game.id} updata={setGames} />
+                    <Portal gameId={game.id} updata={setGames} />                    
                   </div>
                 </motion.div>
               </motion.div>

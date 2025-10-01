@@ -25,6 +25,7 @@
     "@electron-toolkit/utils": "^4.0.0",
     "@gsap/react": "^2.1.2",
     "@tailwindcss/vite": "^4.1.11",
+    "antd": "^5.27.4",
     "better-sqlite3": "^12.2.0",
     "gsap": "^3.13.0",
     "motion": "^12.23.12",

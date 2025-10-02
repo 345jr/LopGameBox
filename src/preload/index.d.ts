@@ -83,6 +83,8 @@ declare global {
   updateGameVersion: (gameId: number, type: 'minor' | 'major', summary: string, fileSize?: number) => Promise<any>;
   // 根据版本ID查询版本概述
   getVersionSummary: (versionId: number) => Promise<{ id: number; game_id: number; version: string; summary: string; created_at: number } | null>;
+  // 根据游戏ID查询其所有的版本信息
+  getVersionsByGame: (gameId: number) => Promise<Array<{ id: number; game_id: number; version: string; summary: string; file_size?: number; created_at: number }>>;
     };
   }
 }

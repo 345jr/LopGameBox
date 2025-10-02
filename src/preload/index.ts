@@ -90,6 +90,8 @@ const api = {
     ipcRenderer.invoke('db:updateGameVersion', gameId, type, summary, fileSize),
   // 根据版本ID查询版本概述
   getVersionSummary: (versionId: number) => ipcRenderer.invoke('db:getVersionSummary', versionId),
+  // 根据游戏ID查询其所有的版本信息
+  getVersionsByGame: (gameId: number) => ipcRenderer.invoke('db:getVersionsByGame', gameId),
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

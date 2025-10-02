@@ -164,4 +164,9 @@ export class GameService {
       created_at: v.created_at,
     };
   }
+
+  // 根据游戏ID查询其所有的版本信息
+  public getVersionsByGame(gameId: number) {
+    return this.gameRepo.getVersionsByGame(gameId);
+  }
 }

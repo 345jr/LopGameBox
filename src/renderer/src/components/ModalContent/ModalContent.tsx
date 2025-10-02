@@ -19,36 +19,38 @@ export default function ModalContent({
   const inputRef = useRef<HTMLInputElement>(null);
   const [size, setSize] = useState<number>(0);
 
-  // 模拟版本数据，实际应该从API获取
-  const [gameVersions, setGameVersions] = useState<GameVersion[]>([
-    {
-      id: 1,
-      game_id: gameId,
-      version: '1.0',
-      description: '初始版本，包含基础功能',
-      release_date: Date.now() - 30 * 24 * 60 * 60 * 1000,
-      created_at: Date.now() - 30 * 24 * 60 * 60 * 1000
-    },
-    {
-      id: 2,
-      game_id: gameId,
-      version: '1.1',
-      description: '修复了若干bug，优化了性能',
-      release_date: Date.now() - 15 * 24 * 60 * 60 * 1000,
-      created_at: Date.now() - 15 * 24 * 60 * 60 * 1000
-    },
-    {
-      id: 3,
-      game_id: gameId,
-      version: '2.0',
-      description: '重大更新：新增多个功能模块，UI全面升级',
-      release_date: Date.now(),
-      created_at: Date.now()
+  const [gameVersions, setGameVersions] = useState<GameVersion[]>([]);
+
+  // 从后端加载版本列表
+  const loadVersions = async () => {
+    try {
+      const rows: any[] = await window.api.getVersionsByGame(gameId);
+      const mapped: GameVersion[] = rows.map((r) => ({
+        id: r.id,
+        game_id: r.game_id,
+        version: r.version,
+        description: r.summary || r.description || '',
+        release_date: (r.created_at || Date.now()) * 1000,
+        created_at: (r.created_at || Date.now()) * 1000,
+      } as GameVersion));
+      setGameVersions(mapped);
+    } catch (err) {
+      console.error('加载版本列表失败', err);
     }
-  ]);
+  };
+
+  // 在组件挂载时加载版本列表
+  useState(() => {
+    loadVersions();
+  });
 
   const [selectedVersion, setSelectedVersion] = useState<GameVersion | null>(null);
   const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
+  // 更新版本模态框状态
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [updateType, setUpdateType] = useState<'minor' | 'major'>('minor');
+  const [updateSummary, setUpdateSummary] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const setInfo = useInfoStore((state) => state.setInfo);
   
@@ -56,6 +58,15 @@ export default function ModalContent({
   const handleVersionClick = (version: GameVersion) => {
     setSelectedVersion(version);
     setIsVersionModalOpen(true);
+  };
+
+  // 打开更新模态框（同时自动计算游戏大小）
+  const openUpdateModal = async (type: 'minor' | 'major') => {
+    setUpdateType(type);
+    setUpdateSummary('');
+    // 在打开更新界面时自动获取游戏大小并展示
+    await handleGetGameSize(gameId);
+    setIsUpdateModalOpen(true);
   };
 
   // 关闭版本详情模态框
@@ -88,6 +99,38 @@ export default function ModalContent({
     //重新获取数据
     const newGameList = await window.api.getAllGames();
     updata(newGameList);
+  };
+
+  // 确认提交更新（调用主进程接口）
+  const handleConfirmUpdate = async () => {
+    if (!updateSummary) {
+      setInfo('请填写更新概述');
+      return;
+    }
+    setIsUpdating(true);
+    try {
+      const inserted: any = await window.api.updateGameVersion(gameId, updateType, updateSummary, size);
+      // 插入到本地版本列表（前端使用的字段名与后端可能不同，做映射）
+      const newVersion: GameVersion = {
+        id: inserted.id || Date.now(),
+        game_id: gameId,
+        version: inserted.version || `${inserted.version}`,
+        description: inserted.summary || updateSummary,
+        release_date: Date.now(),
+        created_at: inserted.created_at ? inserted.created_at * 1000 : Date.now(),
+      } as any;
+  // 重新拉取所有版本并刷新游戏列表
+  await loadVersions();
+  const newGameList = await window.api.getAllGames();
+  updata(newGameList);
+      setInfo(`已创建新版本 ${newVersion.version}`);
+      setIsUpdateModalOpen(false);
+    } catch (err: any) {
+      console.error('更新版本失败', err);
+      setInfo(`更新失败: ${err?.message ?? String(err)}`);
+    } finally {
+      setIsUpdating(false);
+    }
   };
   return (
     // 遮罩层
@@ -143,10 +186,10 @@ export default function ModalContent({
           <div>
             <p className="py-2 text-lg text-center">更新版本记录</p>
             <div className="flex flex-row gap-4 justify-center">
-              <Button color="primary" variant="filled">
+              <Button color="primary" variant="filled" onClick={() => openUpdateModal('major')}>
                 大更新
               </Button>
-              <Button color="primary" variant="filled">
+              <Button color="primary" variant="filled" onClick={() => openUpdateModal('minor')}>
                 小更新
               </Button>
             </div>
@@ -210,6 +253,30 @@ export default function ModalContent({
               </div>
             </div>
           )}
+        </Modal>
+        {/* 提交更新的模态框 */}
+        <Modal
+          title={updateType === 'major' ? '创建大更新' : '创建小更新'}
+          open={isUpdateModalOpen}
+          onCancel={() => setIsUpdateModalOpen(false)}
+          onOk={handleConfirmUpdate}
+          confirmLoading={isUpdating}
+        >
+          <div className="space-y-4">
+            <div>
+              <p className="font-medium">当前游戏大小：</p>
+              <p>{gameSizeFormat(size)}</p>
+            </div>
+            <div>
+              <p className="font-medium">更新概述（必填）</p>
+              <textarea
+                value={updateSummary}
+                onChange={(e) => setUpdateSummary(e.target.value)}
+                className="w-full rounded border p-2"
+                rows={4}
+              />
+            </div>
+          </div>
         </Modal>
         <div className="absolute top-4 right-4">
           <button

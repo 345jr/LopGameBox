@@ -538,6 +538,16 @@ app.whenReady().then(() => {
       return null;
     }
   });
+  // 根据游戏ID查询其所有的版本信息
+  ipcMain.handle('db:getVersionsByGame', (_event, gameId: number) => {
+    try {
+      return gameService.getVersionsByGame(gameId);
+    } catch (err: any) {
+      console.error('查询游戏版本列表失败:', err);
+      return [];
+    }
+  });
+  //根据游戏ID查询其所有的版本信息
 
 
   createWindow();

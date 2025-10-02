@@ -62,6 +62,10 @@ export class GameService {
   public updateGameSize(id: number, disk_size: number) {
     return this.gameRepo.updateGameSize(id, disk_size);
   }
+  //更新游戏路径
+  public updateGamePath(id: number, newPath: string) {
+    return this.gameRepo.updateGamePath(id, newPath);
+  }
   //模糊查询搜索
   public searchGames(keyword: string) {
     return this.gameRepo.searchGames(keyword);

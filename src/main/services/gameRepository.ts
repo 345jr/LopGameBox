@@ -52,6 +52,12 @@ export class GameRepository {
     stmt.run(disk_size, id);
     console.log('get disk_size success');
   }
+  //更新游戏路径
+  public updateGamePath(id: number, newPath: string) {
+    const stmt = this.db.prepare(`UPDATE games SET launch_path = ?, updated_at = strftime('%s', 'now') WHERE id = ?`);
+    stmt.run(newPath, id);
+    console.log('update game path success');
+  }
   //通过ID查询游戏
   public getGameById(id: number) {
     const stmt = this.db.prepare('SELECT * FROM games WHERE id = ?');

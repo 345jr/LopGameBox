@@ -37,6 +37,7 @@ declare global {
       delectSnapshot: (id: number) => Promise<{ changes: number }>;
       modifyGameName: (id: number, newName: string) => Promise<void>;
       updateGameSize: (id: number, launch_path: string) => Promise<number>;
+      updateGamePath: (gameId: number, newPath: string) => Promise<{ success: boolean; message: string }>;
       searchGames: (keyword: string) => Promise<Game[]>;
       countGames: () => Promise<{ count: number }>;
       countGameTime: () => Promise<{ timeCount: number }>;

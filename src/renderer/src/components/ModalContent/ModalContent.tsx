@@ -54,6 +54,8 @@ export default function ModalContent({
   const [updateType, setUpdateType] = useState<'minor' | 'major'>('minor');
   const [updateSummary, setUpdateSummary] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [newGamePath, setNewGamePath] = useState<string>('');
+  const [shouldRecalculateSize, setShouldRecalculateSize] = useState<boolean>(false);
 
   const setInfo = useInfoStore((state) => state.setInfo);
 
@@ -63,12 +65,21 @@ export default function ModalContent({
     setIsVersionModalOpen(true);
   };
 
-  // 打开更新模态框（同时自动计算游戏大小）
+  // 打开更新模态框（要求选择新的游戏路径）
   const openUpdateModal = async (type: 'minor' | 'major') => {
+    // 打开文件选择对话框
+    const selectedPath = await window.api.openFile();
+    
+    if (!selectedPath) {
+      setInfo('未选择游戏路径，已取消更新');
+      return;
+    }
+    
     setUpdateType(type);
     setUpdateSummary('');
-    // 在打开更新界面时自动获取游戏大小并展示
-    await handleGetGameSize(gameId);
+    setNewGamePath(selectedPath);
+    setShouldRecalculateSize(false);
+    setSize(0);
     setIsUpdateModalOpen(true);
   };
 
@@ -104,20 +115,54 @@ export default function ModalContent({
     updata(newGameList);
   };
 
+  // 手动计算游戏大小（在模态框中触发）
+  const handleRecalculateSizeInModal = async () => {
+    if (!newGamePath) {
+      setInfo('未选择游戏路径');
+      return;
+    }
+    try {
+      const calculatedSize = await window.api.updateGameSize(gameId, newGamePath);
+      setSize(calculatedSize);
+      setShouldRecalculateSize(true);
+      setInfo('游戏大小计算完成');
+    } catch (err: any) {
+      console.error('计算游戏大小失败', err);
+      setInfo(`计算失败: ${err?.message ?? String(err)}`);
+    }
+  };
+
   // 确认提交更新（调用主进程接口）
   const handleConfirmUpdate = async () => {
     if (!updateSummary) {
       setInfo('请填写更新概述');
       return;
     }
+    if (!newGamePath) {
+      setInfo('未选择游戏路径');
+      return;
+    }
     setIsUpdating(true);
     try {
+      // 如果用户选择了重新计算游戏大小，则传入 size，否则传 undefined
+      const gameSizeToSubmit = shouldRecalculateSize ? size : undefined;
+      
+      // 先更新游戏路径
+      const pathUpdateResult = await window.api.updateGamePath(gameId, newGamePath);
+      if (!pathUpdateResult.success) {
+        setInfo(`路径更新失败: ${pathUpdateResult.message}`);
+        setIsUpdating(false);
+        return;
+      }
+      
+      // 然后创建新版本
       const inserted: any = await window.api.updateGameVersion(
         gameId,
         updateType,
         updateSummary,
-        size,
+        gameSizeToSubmit,
       );
+      
       // 插入到本地版本列表（前端使用的字段名与后端可能不同，做映射）
       const newVersion: GameVersion = {
         id: inserted.id || Date.now(),
@@ -127,11 +172,12 @@ export default function ModalContent({
         release_date: Date.now(),
         created_at: inserted.created_at ? inserted.created_at * 1000 : Date.now(),
       } as any;
+      
       // 重新拉取所有版本并刷新游戏列表
       await loadVersions();
       const newGameList = await window.api.getAllGames();
       updata(newGameList);
-      setInfo(`已创建新版本 ${newVersion.version}`);
+      setInfo(`已创建新版本 ${newVersion.version}，游戏路径已更新`);
       setIsUpdateModalOpen(false);
     } catch (err: any) {
       console.error('更新版本失败', err);
@@ -269,13 +315,40 @@ export default function ModalContent({
           title={updateType === 'major' ? '创建大更新' : '创建小更新'}
           open={isUpdateModalOpen}
           onCancel={() => setIsUpdateModalOpen(false)}
-          onOk={handleConfirmUpdate}
-          confirmLoading={isUpdating}
+          footer={[
+            <Button key="cancel" onClick={() => setIsUpdateModalOpen(false)}>
+              取消
+            </Button>,
+            <Button
+              key="submit"
+              type="primary"
+              loading={isUpdating}
+              onClick={handleConfirmUpdate}
+            >
+              确定
+            </Button>
+          ]}
         >
           <div className="space-y-4">
             <div>
-              <p className="font-medium">当前游戏大小：</p>
-              <p>{gameSizeFormat(size)}</p>
+              <p className="font-medium">新游戏路径：</p>
+              <p className="text-sm text-gray-600 break-all">{newGamePath || '未选择'}</p>
+            </div>
+            <div>
+              <p className="font-medium">重新计算游戏大小（可选）：</p>
+              <div className="flex items-center gap-2">
+                <Button onClick={handleRecalculateSizeInModal}>
+                  {size > 0 ? '重新计算' : '计算游戏大小'}
+                </Button>
+                {size > 0 && (
+                  <span className="text-sm text-gray-600">
+                    当前大小: {gameSizeFormat(size)}
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                提示：如果不计算游戏大小，版本记录将不包含文件大小信息
+              </p>
             </div>
             <div>
               <p className="font-medium">更新概述（必填）</p>
@@ -284,6 +357,7 @@ export default function ModalContent({
                 onChange={(e) => setUpdateSummary(e.target.value)}
                 className="w-full rounded border p-2"
                 rows={4}
+                placeholder="请描述本次更新的内容..."
               />
             </div>
           </div>

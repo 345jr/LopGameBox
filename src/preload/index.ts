@@ -47,6 +47,8 @@ const api = {
     ipcRenderer.invoke('db:modifyGameName', id, newName),
   updateGameSize: (id: number, launch_path: string) =>
     ipcRenderer.invoke('db:updateGameSize', id, launch_path),
+  updateGamePath: (gameId: number, newPath: string) =>
+    ipcRenderer.invoke('db:updateGamePath', gameId, newPath),
   searchGames: (keyword: string) => ipcRenderer.invoke('db:searchGames', keyword),
   countGames: () => ipcRenderer.invoke('db:countGames'),
   countGameTime: () => ipcRenderer.invoke('db:countGameTime'),

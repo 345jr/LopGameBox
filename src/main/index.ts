@@ -541,7 +541,22 @@ app.whenReady().then(() => {
       return [];
     }
   });
-
+  //更新游戏路径
+  ipcMain.handle('db:updateGamePath', async (_event, gameId: number, newPath: string) => {
+    try {
+      // 检查新路径是否已存在（排除当前游戏自己）
+      const existingGame: any = gameService.getGameByPath(newPath);
+      if (existingGame && existingGame.id !== gameId) {
+        throw new Error('该路径已被其他游戏使用！');
+      }
+      gameService.updateGamePath(gameId, newPath);
+      return { success: true, message: '路径更新成功' };
+    } catch (err: any) {
+      console.error('更新游戏路径失败:', err);
+      return { success: false, message: err?.message ?? String(err) };
+    }
+  });
+  
   createWindow();
 
   app.on('activate', function () {

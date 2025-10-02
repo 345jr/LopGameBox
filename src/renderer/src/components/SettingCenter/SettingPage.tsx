@@ -132,7 +132,7 @@ const SettingPage = () => {
           </div>
         </div>
         {/* 2个按钮 */}
-        <div className="flex flex-col justify-center gap-4 p-5 grow">
+        <div className="flex grow flex-col justify-center gap-4 p-5">
           <button className="w-full rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white">
             绑定Steam
           </button>
@@ -148,7 +148,7 @@ const SettingPage = () => {
       {/* 检查更新模态框 */}
       {showUpdate &&
         createPortal(<UpdateContent onClose={() => setShowUpdate(false)} />, document.body)}
-      
+
       {/* <div className="grid grid-rows-3 gap-4">
         <Link to="/setting/update">更新记录</Link>
         <Link to="/setting/practice">代码练习</Link>

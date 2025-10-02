@@ -46,7 +46,7 @@ const gameService = new GameService(
   new GameRepository(),
   new GalleryRepository(),
   new GameLogsRepository(),
-  new BackupService()
+  new BackupService(),
 );
 
 function createWindow(): void {
@@ -513,13 +513,7 @@ app.whenReady().then(() => {
   //更新游戏版本
   ipcMain.handle(
     'db:updateGameVersion',
-    async (
-      _event,
-      gameId: number,
-      type: 'minor' | 'major',
-      summary: string,
-      fileSize?: number,
-    ) => {
+    async (_event, gameId: number, type: 'minor' | 'major', summary: string, fileSize?: number) => {
       try {
         return gameService.updateGameVersion(gameId, type, summary, fileSize);
       } catch (err: any) {
@@ -547,8 +541,6 @@ app.whenReady().then(() => {
       return [];
     }
   });
-  //根据游戏ID查询其所有的版本信息
-
 
   createWindow();
 

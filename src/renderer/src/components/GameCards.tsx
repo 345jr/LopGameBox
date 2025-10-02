@@ -108,8 +108,10 @@ const GameCards = () => {
       setInfo(`不能删除正在运行的游戏！`);
       return;
     }
-    if (confirm(`确定要删除游戏《${game.game_name}》?\n此操作只会删除游戏的记录 ,不会删除游戏本地的文件。
-      `)) {
+    if (
+      confirm(`确定要删除游戏《${game.game_name}》?\n此操作只会删除游戏的记录 ,不会删除游戏本地的文件。
+      `)
+    ) {
       await window.api.deleteGame(game.id);
       setInfo(`游戏${game.game_name}已删除。`);
       fetchGames();
@@ -240,7 +242,7 @@ const GameCards = () => {
                 />
                 <motion.div
                   variants={gameItems}
-                  className="z-20 absolute top-0 right-0 h-70 w-60 rounded-l-[20px] rounded-r-2xl border-r-2 border-white bg-stone-800/75 p-5"
+                  className="absolute top-0 right-0 z-20 h-70 w-60 rounded-l-[20px] rounded-r-2xl border-r-2 border-white bg-stone-800/75 p-5"
                 >
                   <p className="p-0.5 text-white">游戏名:{game.game_name}</p>
                   <p className="p-0.5 text-white">游戏时长:{formatTime(game.total_play_time)}</p>
@@ -299,7 +301,7 @@ const GameCards = () => {
                       </Link>
                     </motion.button>
                     {/* 打开配置页面 */}
-                    <Portal gameId={game.id} updata={setGames} />                    
+                    <Portal gameId={game.id} updata={setGames} />
                   </div>
                 </motion.div>
               </motion.div>

@@ -79,7 +79,6 @@ export class GameRepository {
     const stmt = this.db.prepare('SELECT SUM(launch_count) as launchCount FROM games');
     return stmt.get();
   }
-  //更新游戏版本
   // 插入一条新的游戏版本记录
   public addGameVersion(gameId: number, version: string, summary: string, fileSize?: number) {
     const stmt = this.db.prepare(`
@@ -112,13 +111,17 @@ export class GameRepository {
 
   // 根据 game_id 查询该游戏的所有版本（按时间降序）
   public getVersionsByGame(gameId: number) {
-    const stmt = this.db.prepare('SELECT * FROM game_versions WHERE game_id = ? ORDER BY created_at DESC, id DESC');
+    const stmt = this.db.prepare(
+      'SELECT * FROM game_versions WHERE game_id = ? ORDER BY created_at DESC, id DESC',
+    );
     return stmt.all(gameId);
   }
 
   // 同步更新 games 表中的 game_version 字段
   public updateGameCurrentVersion(gameId: number, version: string) {
-  const stmt = this.db.prepare(`UPDATE games SET game_version = ?, updated_at = strftime('%s','now') WHERE id = ?`);
-  stmt.run(version, gameId);
+    const stmt = this.db.prepare(
+      `UPDATE games SET game_version = ?, updated_at = strftime('%s','now') WHERE id = ?`,
+    );
+    stmt.run(version, gameId);
   }
 }

@@ -25,14 +25,17 @@ export default function ModalContent({
   const loadVersions = async () => {
     try {
       const rows: any[] = await window.api.getVersionsByGame(gameId);
-      const mapped: GameVersion[] = rows.map((r) => ({
-        id: r.id,
-        game_id: r.game_id,
-        version: r.version,
-        description: r.summary || r.description || '',
-        release_date: (r.created_at || Date.now()) * 1000,
-        created_at: (r.created_at || Date.now()) * 1000,
-      } as GameVersion));
+      const mapped: GameVersion[] = rows.map(
+        (r) =>
+          ({
+            id: r.id,
+            game_id: r.game_id,
+            version: r.version,
+            description: r.summary || r.description || '',
+            release_date: (r.created_at || Date.now()) * 1000,
+            created_at: (r.created_at || Date.now()) * 1000,
+          }) as GameVersion,
+      );
       setGameVersions(mapped);
     } catch (err) {
       console.error('加载版本列表失败', err);
@@ -53,7 +56,7 @@ export default function ModalContent({
   const [isUpdating, setIsUpdating] = useState(false);
 
   const setInfo = useInfoStore((state) => state.setInfo);
-  
+
   // 打开版本详情模态框
   const handleVersionClick = (version: GameVersion) => {
     setSelectedVersion(version);
@@ -109,7 +112,12 @@ export default function ModalContent({
     }
     setIsUpdating(true);
     try {
-      const inserted: any = await window.api.updateGameVersion(gameId, updateType, updateSummary, size);
+      const inserted: any = await window.api.updateGameVersion(
+        gameId,
+        updateType,
+        updateSummary,
+        size,
+      );
       // 插入到本地版本列表（前端使用的字段名与后端可能不同，做映射）
       const newVersion: GameVersion = {
         id: inserted.id || Date.now(),
@@ -119,10 +127,10 @@ export default function ModalContent({
         release_date: Date.now(),
         created_at: inserted.created_at ? inserted.created_at * 1000 : Date.now(),
       } as any;
-  // 重新拉取所有版本并刷新游戏列表
-  await loadVersions();
-  const newGameList = await window.api.getAllGames();
-  updata(newGameList);
+      // 重新拉取所有版本并刷新游戏列表
+      await loadVersions();
+      const newGameList = await window.api.getAllGames();
+      updata(newGameList);
       setInfo(`已创建新版本 ${newVersion.version}`);
       setIsUpdateModalOpen(false);
     } catch (err: any) {
@@ -184,8 +192,8 @@ export default function ModalContent({
           </div>
           {/* 版本管理 */}
           <div>
-            <p className="py-2 text-lg text-center">更新版本记录</p>
-            <div className="flex flex-row gap-4 justify-center">
+            <p className="py-2 text-center text-lg">更新版本记录</p>
+            <div className="flex flex-row justify-center gap-4">
               <Button color="primary" variant="filled" onClick={() => openUpdateModal('major')}>
                 大更新
               </Button>
@@ -219,37 +227,39 @@ export default function ModalContent({
 
         {/* 版本详情模态框 */}
         <Modal
-          title={`版本 ${selectedVersion?.version} 详情`}
+          title={`版本详情`}
           open={isVersionModalOpen}
           onCancel={handleVersionModalClose}
           footer={[
             <Button key="close" onClick={handleVersionModalClose}>
               关闭
-            </Button>
+            </Button>,
           ]}
           width={600}
         >
           {selectedVersion && (
             <div className="space-y-4">
-              <div>
-                <p className="font-semibold text-gray-700">版本号:</p>
-                <p className="text-gray-900">{selectedVersion.version}</p>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-700">发布日期:</p>
-                <p className="text-gray-900">
-                  {new Date(selectedVersion.release_date).toLocaleString('zh-CN')}
-                </p>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <p className="font-semibold text-gray-700">版本号:</p>
+                  <p className="text-gray-900">{selectedVersion.version}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-700">发布日期:</p>
+                  <p className="text-gray-900">
+                    {new Date(selectedVersion.release_date).toLocaleString('zh-CN')}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-700">创建时间:</p>
+                  <p className="text-gray-900">
+                    {new Date(selectedVersion.created_at).toLocaleString('zh-CN')}
+                  </p>
+                </div>
               </div>
               <div>
                 <p className="font-semibold text-gray-700">版本描述:</p>
                 <p className="text-gray-900">{selectedVersion.description}</p>
-              </div>
-              <div>
-                <p className="font-semibold text-gray-700">创建时间:</p>
-                <p className="text-gray-900">
-                  {new Date(selectedVersion.created_at).toLocaleString('zh-CN')}
-                </p>
               </div>
             </div>
           )}

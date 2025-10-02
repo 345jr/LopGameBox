@@ -84,10 +84,15 @@ const api = {
   // 云备份（触发主进程备份数据库）
   backupDatabase: () => ipcRenderer.invoke('db:backupDatabase'),
   // 备份并上传到远程服务器，参数: uploadUrl, token(可选)
-  backupAndUpload: (uploadUrl: string, token?: string) => ipcRenderer.invoke('db:backupAndUpload', uploadUrl, token),
+  backupAndUpload: (uploadUrl: string, token?: string) =>
+    ipcRenderer.invoke('db:backupAndUpload', uploadUrl, token),
   // 更新游戏版本：gameId, type ('minor'|'major'), summary, fileSize?
-  updateGameVersion: (gameId: number, type: 'minor' | 'major', summary: string, fileSize?: number) =>
-    ipcRenderer.invoke('db:updateGameVersion', gameId, type, summary, fileSize),
+  updateGameVersion: (
+    gameId: number,
+    type: 'minor' | 'major',
+    summary: string,
+    fileSize?: number,
+  ) => ipcRenderer.invoke('db:updateGameVersion', gameId, type, summary, fileSize),
   // 根据版本ID查询版本概述
   getVersionSummary: (versionId: number) => ipcRenderer.invoke('db:getVersionSummary', versionId),
   // 根据游戏ID查询其所有的版本信息

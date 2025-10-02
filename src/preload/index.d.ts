@@ -78,13 +78,40 @@ declare global {
       // 云备份
       backupDatabase: () => Promise<{ success: boolean; path?: string; error?: string }>;
       // 备份并上传到远端
-      backupAndUpload: (uploadUrl: string, token?: string) => Promise<{ success: boolean; path?: string; uploadResult?: any; error?: string }>;
-  // 更新游戏版本：gameId, type ('minor'|'major'), summary, fileSize?
-  updateGameVersion: (gameId: number, type: 'minor' | 'major', summary: string, fileSize?: number) => Promise<any>;
-  // 根据版本ID查询版本概述
-  getVersionSummary: (versionId: number) => Promise<{ id: number; game_id: number; version: string; summary: string; created_at: number } | null>;
-  // 根据游戏ID查询其所有的版本信息
-  getVersionsByGame: (gameId: number) => Promise<Array<{ id: number; game_id: number; version: string; summary: string; file_size?: number; created_at: number }>>;
+      backupAndUpload: (
+        uploadUrl: string,
+        token?: string,
+      ) => Promise<{ success: boolean; path?: string; uploadResult?: any; error?: string }>;
+      // 更新游戏版本：gameId, type ('minor'|'major'), summary, fileSize?
+      updateGameVersion: (
+        gameId: number,
+        type: 'minor' | 'major',
+        summary: string,
+        fileSize?: number,
+      ) => Promise<any>;
+      // 根据版本ID查询版本概述
+      getVersionSummary: (
+        versionId: number,
+      ) => Promise<{
+        id: number;
+        game_id: number;
+        version: string;
+        summary: string;
+        created_at: number;
+      } | null>;
+      // 根据游戏ID查询其所有的版本信息
+      getVersionsByGame: (
+        gameId: number,
+      ) => Promise<
+        Array<{
+          id: number;
+          game_id: number;
+          version: string;
+          summary: string;
+          file_size?: number;
+          created_at: number;
+        }>
+      >;
     };
   }
 }

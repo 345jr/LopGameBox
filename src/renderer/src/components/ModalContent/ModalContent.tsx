@@ -46,12 +46,11 @@ export default function ModalContent({
   const loadGameCategory = async () => {
     try {
       const game: Game = await window.api.getGameById(gameId);
-      const category = (game as any).category || 'playing';
-      // 只接受 playing 或 archived,其他情况默认为 playing
+      const category = (game as any).category;
       if (category === 'playing' || category === 'archived') {
         setCurrentCategory(category);
       } else {
-        setCurrentCategory('playing');
+        setCurrentCategory('all');
       }
     } catch (err) {
       console.error('加载游戏分类失败', err);

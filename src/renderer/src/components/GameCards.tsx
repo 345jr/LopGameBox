@@ -53,7 +53,7 @@ const GameCards = () => {
   // #endregion
 
   useEffect(() => {
-    fetchGames();
+    fetchGamesByCategory(); // 改为使用分类查询,这样会读取持久化的 selectedCategory
     //当游戏全局状态ID改变时触发
   }, [getGameList]);
   
@@ -61,14 +61,6 @@ const GameCards = () => {
   useEffect(() => {
     fetchGamesByCategory();
   }, [selectedCategory]);
-
-  // 初始获取主页数据 --
-  const fetchGames = useCallback(async () => {
-    //获取游戏数据+获取游戏封面图
-    const gameList = await window.api.getAllGames();
-    BannersRef.current = await window.api.getBanners();
-    setGames(gameList);
-  }, []);
 
   // 根据分类获取游戏数据
   const fetchGamesByCategory = useCallback(async () => {
@@ -90,7 +82,7 @@ const GameCards = () => {
   }, [fetchGamesByCategory]);
   //加载主页数据 --
   useEffect(() => {
-    fetchGames();
+    fetchGamesByCategory(); // 改为使用分类查询
     //放置打开休息界面监听器
     window.api.onOpenRestTimeModal(() => {
       setShowRestTimeModal(true);
@@ -99,7 +91,7 @@ const GameCards = () => {
     return () => {
       window.api.offOpenRestTimeModal();
     };
-  }, [fetchGames]);
+  }, [fetchGamesByCategory]);
   //重载模糊查询数据 --
   useEffect(() => {
     if (searchResults.length > 0) {

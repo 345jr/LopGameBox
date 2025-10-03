@@ -130,4 +130,13 @@ export class GameRepository {
     );
     stmt.run(version, gameId);
   }
+
+  // 更新版本描述
+  public updateVersionDescription(versionId: number, newDescription: string) {
+    const stmt = this.db.prepare(
+      `UPDATE game_versions SET summary = ?, updated_at = strftime('%s','now') WHERE id = ?`,
+    );
+    stmt.run(newDescription, versionId);
+    console.log('update version description success');
+  }
 }

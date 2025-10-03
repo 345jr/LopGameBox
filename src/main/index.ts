@@ -556,6 +556,16 @@ app.whenReady().then(() => {
       return { success: false, message: err?.message ?? String(err) };
     }
   });
+  //更新版本描述
+  ipcMain.handle('db:updateVersionDescription', async (_event, versionId: number, newDescription: string) => {
+    try {
+      gameService.updateVersionDescription(versionId, newDescription);
+      return { success: true, message: '版本描述更新成功' };
+    } catch (err: any) {
+      console.error('更新版本描述失败:', err);
+      return { success: false, message: err?.message ?? String(err) };
+    }
+  });
   
   createWindow();
 

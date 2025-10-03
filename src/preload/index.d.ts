@@ -113,6 +113,11 @@ declare global {
           created_at: number;
         }>
       >;
+      // 更新版本描述
+      updateVersionDescription: (
+        versionId: number,
+        newDescription: string,
+      ) => Promise<{ success: boolean; message: string }>;
     };
   }
 }

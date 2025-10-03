@@ -173,4 +173,9 @@ export class GameService {
   public getVersionsByGame(gameId: number) {
     return this.gameRepo.getVersionsByGame(gameId);
   }
+
+  // 更新版本描述
+  public updateVersionDescription(versionId: number, newDescription: string) {
+    return this.gameRepo.updateVersionDescription(versionId, newDescription);
+  }
 }

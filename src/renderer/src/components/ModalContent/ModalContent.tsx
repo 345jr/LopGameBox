@@ -56,6 +56,9 @@ export default function ModalContent({
   const [isUpdating, setIsUpdating] = useState(false);
   const [newGamePath, setNewGamePath] = useState<string>('');
   const [shouldRecalculateSize, setShouldRecalculateSize] = useState<boolean>(false);
+  // 编辑版本描述相关状态
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [editedDescription, setEditedDescription] = useState('');
 
   const setInfo = useInfoStore((state) => state.setInfo);
 
@@ -63,6 +66,8 @@ export default function ModalContent({
   const handleVersionClick = (version: GameVersion) => {
     setSelectedVersion(version);
     setIsVersionModalOpen(true);
+    setIsEditingDescription(false);
+    setEditedDescription(version.description);
   };
 
   // 打开更新模态框（要求选择新的游戏路径）
@@ -87,7 +92,48 @@ export default function ModalContent({
   const handleVersionModalClose = () => {
     setIsVersionModalOpen(false);
     setSelectedVersion(null);
+    setIsEditingDescription(false);
+    setEditedDescription('');
   };
+
+  // 开始编辑版本描述
+  const handleStartEditDescription = () => {
+    setIsEditingDescription(true);
+  };
+
+  // 取消编辑版本描述
+  const handleCancelEditDescription = () => {
+    setIsEditingDescription(false);
+    setEditedDescription(selectedVersion?.description || '');
+  };
+
+  // 保存版本描述
+  const handleSaveDescription = async () => {
+    if (!selectedVersion) return;
+    
+    if (!editedDescription.trim()) {
+      setInfo('版本描述不能为空');
+      return;
+    }
+
+    try {
+      const result = await window.api.updateVersionDescription(selectedVersion.id, editedDescription);
+      if (result.success) {
+        setInfo('版本描述更新成功');
+        setIsEditingDescription(false);
+        // 更新本地版本数据
+        setSelectedVersion({ ...selectedVersion, description: editedDescription });
+        // 重新加载版本列表
+        await loadVersions();
+      } else {
+        setInfo(`更新失败: ${result.message}`);
+      }
+    } catch (err: any) {
+      console.error('保存版本描述失败', err);
+      setInfo(`保存失败: ${err?.message ?? String(err)}`);
+    }
+  };
+
   //修改游戏名
   const handleConfirm = async () => {
     const newName = inputRef.current?.value;
@@ -277,9 +323,25 @@ export default function ModalContent({
           open={isVersionModalOpen}
           onCancel={handleVersionModalClose}
           footer={[
-            <Button key="close" onClick={handleVersionModalClose}>
-              关闭
-            </Button>,
+            isEditingDescription ? (
+              <>
+                <Button key="cancel-edit" onClick={handleCancelEditDescription}>
+                  取消编辑
+                </Button>
+                <Button key="save" type="primary" onClick={handleSaveDescription}>
+                  保存
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button key="edit" type="default" onClick={handleStartEditDescription}>
+                  编辑描述
+                </Button>
+                <Button key="close" onClick={handleVersionModalClose}>
+                  关闭
+                </Button>
+              </>
+            ),
           ]}
           width={600}
         >
@@ -287,25 +349,35 @@ export default function ModalContent({
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <p className="font-semibold text-gray-700">版本号:</p>
+                  <p className="font-semibold text-gray-700">版本号</p>
                   <p className="text-gray-900">{selectedVersion.version}</p>
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-700">发布日期:</p>
+                  <p className="font-semibold text-gray-700">发布日期</p>
                   <p className="text-gray-900">
                     {new Date(selectedVersion.release_date).toLocaleString('zh-CN')}
                   </p>
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-700">创建时间:</p>
+                  <p className="font-semibold text-gray-700">创建时间</p>
                   <p className="text-gray-900">
                     {new Date(selectedVersion.created_at).toLocaleString('zh-CN')}
                   </p>
                 </div>
               </div>
               <div>
-                <p className="font-semibold text-gray-700">版本描述:</p>
-                <p className="text-gray-900">{selectedVersion.description}</p>
+                <p className="font-semibold text-gray-700">版本描述</p>
+                {isEditingDescription ? (
+                  <textarea
+                    value={editedDescription}
+                    onChange={(e) => setEditedDescription(e.target.value)}
+                    className="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    rows={4}
+                    placeholder="请输入版本描述..."
+                  />
+                ) : (
+                  <p className="text-gray-900">{selectedVersion.description}</p>
+                )}
               </div>
             </div>
           )}

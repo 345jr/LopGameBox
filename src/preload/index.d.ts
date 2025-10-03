@@ -19,6 +19,7 @@ declare global {
       ) => void;
       // 数据库
       getAllGames: () => Promise<Game[]>;
+      getGamesByCategory: (category: string) => Promise<Game[]>;
       getGameById: (id: number) => Promise<Game>;
       addGame: (game: { gameName: string; launchPath: string }) => Promise<Game>;
       deleteGame: (id: number) => Promise<{ changes: number }>;
@@ -38,6 +39,7 @@ declare global {
       modifyGameName: (id: number, newName: string) => Promise<void>;
       updateGameSize: (id: number, launch_path: string) => Promise<number>;
       updateGamePath: (gameId: number, newPath: string) => Promise<{ success: boolean; message: string }>;
+      updateGameCategory: (gameId: number, category: string) => Promise<{ success: boolean; message: string }>;
       searchGames: (keyword: string) => Promise<Game[]>;
       countGames: () => Promise<{ count: number }>;
       countGameTime: () => Promise<{ timeCount: number }>;

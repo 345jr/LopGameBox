@@ -17,6 +17,10 @@ export class GameService {
   public getAllGames() {
     return this.gameRepo.getAllGames();
   }
+  //根据分类获取游戏
+  public getGamesByCategory(category: string) {
+    return this.gameRepo.getGamesByCategory(category);
+  }
   //获取单个游戏
   public getGameById(id: number) {
     return this.gameRepo.getGameById(id);
@@ -65,6 +69,10 @@ export class GameService {
   //更新游戏路径
   public updateGamePath(id: number, newPath: string) {
     return this.gameRepo.updateGamePath(id, newPath);
+  }
+  //更新游戏分类
+  public updateGameCategory(id: number, category: string) {
+    return this.gameRepo.updateGameCategory(id, category);
   }
   //模糊查询搜索
   public searchGames(keyword: string) {

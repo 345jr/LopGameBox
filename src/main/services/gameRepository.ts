@@ -17,6 +17,13 @@ export class GameRepository {
     `);
     return stmt.all();
   }
+  //根据分类查询游戏列表
+  public getGamesByCategory(category: string) {
+    const stmt = this.db.prepare(`
+      SELECT * FROM games WHERE category = ? ORDER BY last_launch_time DESC, game_name ASC
+    `);
+    return stmt.all(category);
+  }
   //根据游戏获取地址(用于查重)
   public getGameByPath(launchPath: string) {
     const stmt = this.db.prepare('SELECT * FROM games WHERE launch_path = ?');
@@ -57,6 +64,12 @@ export class GameRepository {
     const stmt = this.db.prepare(`UPDATE games SET launch_path = ?, updated_at = strftime('%s', 'now') WHERE id = ?`);
     stmt.run(newPath, id);
     console.log('update game path success');
+  }
+  //更新游戏分类
+  public updateGameCategory(id: number, category: string) {
+    const stmt = this.db.prepare(`UPDATE games SET category = ?, updated_at = strftime('%s', 'now') WHERE id = ?`);
+    stmt.run(category, id);
+    console.log('update game category success');
   }
   //通过ID查询游戏
   public getGameById(id: number) {

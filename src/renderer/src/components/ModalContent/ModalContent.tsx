@@ -18,6 +18,7 @@ export default function ModalContent({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [size, setSize] = useState<number>(0);
+  const [currentCategory, setCurrentCategory] = useState<'playing' | 'archived'>('playing');
 
   const [gameVersions, setGameVersions] = useState<GameVersion[]>([]);
 
@@ -41,11 +42,29 @@ export default function ModalContent({
       console.error('加载版本列表失败', err);
     }
   };
+  // 加载游戏当前分类
+  const loadGameCategory = async () => {
+    try {
+      const game: Game = await window.api.getGameById(gameId);
+      const category = (game as any).category || 'playing';
+      // 只接受 playing 或 archived,其他情况默认为 playing
+      if (category === 'playing' || category === 'archived') {
+        setCurrentCategory(category);
+      } else {
+        setCurrentCategory('playing');
+      }
+    } catch (err) {
+      console.error('加载游戏分类失败', err);
+    }
+  };
 
-  // 在组件挂载时加载版本列表
+  // 在组件挂载时加载版本列表和游戏分类
   useState(() => {
     loadVersions();
+    loadGameCategory();
   });
+
+  
 
   const [selectedVersion, setSelectedVersion] = useState<GameVersion | null>(null);
   const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
@@ -159,6 +178,25 @@ export default function ModalContent({
     //重新获取数据
     const newGameList = await window.api.getAllGames();
     updata(newGameList);
+  };
+
+  // 更新游戏分类
+  const handleUpdateCategory = async (category: 'playing' | 'archived') => {
+    try {
+      const result = await window.api.updateGameCategory(gameId, category);
+      if (result.success) {
+        setCurrentCategory(category);
+        setInfo(`分类已更新为: ${category === 'playing' ? '攻略中' : '已归档'}`);
+        // 重新获取数据
+        const newGameList = await window.api.getAllGames();
+        updata(newGameList);
+      } else {
+        setInfo(`更新失败: ${result.message}`);
+      }
+    } catch (err: any) {
+      console.error('更新游戏分类失败', err);
+      setInfo(`更新失败: ${err?.message ?? String(err)}`);
+    }
   };
 
   // 手动计算游戏大小（在模态框中触发）
@@ -280,6 +318,32 @@ export default function ModalContent({
                   <p className="mt-2.5 ml-2 text-lg text-black">游戏大小:{gameSizeFormat(size)}</p>
                 </>
               )}
+            </div>
+            {/* 设置游戏分类 */}
+            <div className="mt-4">
+              <p className="py-2 text-lg">设置游戏分类</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleUpdateCategory('playing')}
+                  className={`flex-1 rounded-md px-3 py-2 text-sm transition-all ${
+                    currentCategory === 'playing'
+                      ? 'bg-blue-500 text-white font-semibold'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  攻略中
+                </button>
+                <button
+                  onClick={() => handleUpdateCategory('archived')}
+                  className={`flex-1 rounded-md px-3 py-2 text-sm transition-all ${
+                    currentCategory === 'archived'
+                      ? 'bg-blue-500 text-white font-semibold'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+                >
+                  已归档
+                </button>
+              </div>
             </div>
           </div>
           {/* 版本管理 */}

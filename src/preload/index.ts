@@ -32,6 +32,7 @@ const api = {
 
   //数据库操作
   getAllGames: () => ipcRenderer.invoke('db:getAllGames'),
+  getGamesByCategory: (category: string) => ipcRenderer.invoke('db:getGamesByCategory', category),
   getGameById: (id: number) => ipcRenderer.invoke('db:getGameById', id),
   addGame: (game: { gameName: string; launchPath: string }) =>
     ipcRenderer.invoke('db:addGame', game),
@@ -49,6 +50,8 @@ const api = {
     ipcRenderer.invoke('db:updateGameSize', id, launch_path),
   updateGamePath: (gameId: number, newPath: string) =>
     ipcRenderer.invoke('db:updateGamePath', gameId, newPath),
+  updateGameCategory: (gameId: number, category: string) =>
+    ipcRenderer.invoke('db:updateGameCategory', gameId, category),
   searchGames: (keyword: string) => ipcRenderer.invoke('db:searchGames', keyword),
   countGames: () => ipcRenderer.invoke('db:countGames'),
   countGameTime: () => ipcRenderer.invoke('db:countGameTime'),

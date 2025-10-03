@@ -338,6 +338,10 @@ app.whenReady().then(() => {
   ipcMain.handle('db:getAllGames', () => {
     return gameService.getAllGames();
   });
+  //根据分类查询游戏
+  ipcMain.handle('db:getGamesByCategory', (_event, category: string) => {
+    return gameService.getGamesByCategory(category);
+  });
   //查询单个游戏
   ipcMain.handle('db:getGameById', (_event, id: number) => {
     return gameService.getGameById(id);
@@ -553,6 +557,16 @@ app.whenReady().then(() => {
       return { success: true, message: '路径更新成功' };
     } catch (err: any) {
       console.error('更新游戏路径失败:', err);
+      return { success: false, message: err?.message ?? String(err) };
+    }
+  });
+  //更新游戏分类
+  ipcMain.handle('db:updateGameCategory', (_event, gameId: number, category: string) => {
+    try {
+      gameService.updateGameCategory(gameId, category);
+      return { success: true, message: '分类更新成功' };
+    } catch (err: any) {
+      console.error('更新游戏分类失败:', err);
       return { success: false, message: err?.message ?? String(err) };
     }
   });

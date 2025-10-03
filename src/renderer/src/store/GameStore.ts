@@ -8,12 +8,14 @@ interface GameStore {
   searchResults: Game[];
   gameModeSelector: boolean;
   gameMode: string;
+  selectedCategory: 'all' | 'playing' | 'archived';
   setGameList: (newGameList: number) => void;
   setGameTime: (elapsedTime: number) => void;
   setGameState: (states: string) => void;
   setSearchResults: (results: Game[]) => void;
   setGameModeSelector: () => void;
   setGameMode: (mode: string) => void;
+  setSelectedCategory: (category: 'all' | 'playing' | 'archived') => void;
 }
 //柯里化函数
 const useGameStore = create<GameStore>()(
@@ -26,6 +28,7 @@ const useGameStore = create<GameStore>()(
       searchResults: [],
       gameModeSelector: false,
       gameMode: 'Normal',
+      selectedCategory: 'all',
 
       //action
       setGameList: (newGameList) => set({ gameId: newGameList }),
@@ -37,11 +40,15 @@ const useGameStore = create<GameStore>()(
           gameModeSelector: !state.gameModeSelector,
         })),
       setGameMode: (mode) => set({ gameMode: mode }),
+      setSelectedCategory: (category) => set({ selectedCategory: category }),
     }),
     //persist的配置项
     {
       name: 'gameMode',
-      partialize: (state) => ({ gameMode: state.gameMode }),
+      partialize: (state) => ({ 
+        gameMode: state.gameMode,
+        selectedCategory: state.selectedCategory,
+      }),
     },
   ),
 );

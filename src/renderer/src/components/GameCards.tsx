@@ -40,6 +40,9 @@ const GameCards = () => {
   const gameMode = useGameStore((state) => state.gameMode);
   //游戏状态
   const gameState = useGameStore((state) => state.gameState);
+  // 当前选择的分类 - 从全局状态获取
+  const selectedCategory = useGameStore((state) => state.selectedCategory);
+  const setSelectedCategory = useGameStore((state) => state.setSelectedCategory);
   // 分类菜单展开状态
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   // 控制分类菜单是否渲染在 DOM 中
@@ -53,6 +56,12 @@ const GameCards = () => {
     fetchGames();
     //当游戏全局状态ID改变时触发
   }, [getGameList]);
+  
+  // 当分类改变时重新获取游戏列表
+  useEffect(() => {
+    fetchGamesByCategory();
+  }, [selectedCategory]);
+
   // 初始获取主页数据 --
   const fetchGames = useCallback(async () => {
     //获取游戏数据+获取游戏封面图
@@ -60,12 +69,25 @@ const GameCards = () => {
     BannersRef.current = await window.api.getBanners();
     setGames(gameList);
   }, []);
+
+  // 根据分类获取游戏数据
+  const fetchGamesByCategory = useCallback(async () => {
+    BannersRef.current = await window.api.getBanners();
+    if (selectedCategory === 'all') {
+      const gameList = await window.api.getAllGames();
+      setGames(gameList);
+    } else {
+      const gameList = await window.api.getGamesByCategory(selectedCategory);
+      setGames(gameList);
+    }
+  }, [selectedCategory]);
+
   // 缓存停止计时函数
   const handleTimerStopped = useCallback(() => {
     setInfo(`游戏已关闭。`);
     setGameState('stop');
-    fetchGames();
-  }, [fetchGames]);
+    fetchGamesByCategory();
+  }, [fetchGamesByCategory]);
   //加载主页数据 --
   useEffect(() => {
     fetchGames();
@@ -123,7 +145,7 @@ const GameCards = () => {
     ) {
       await window.api.deleteGame(game.id);
       setInfo(`游戏${game.game_name}已删除。`);
-      fetchGames();
+      fetchGamesByCategory();
     }
   };
   //添加封面 --
@@ -151,7 +173,7 @@ const GameCards = () => {
         relativePath: result.relativePath,
       });
       setInfo(`${game.game_name}添加新封面图!`);
-      fetchGames();
+      fetchGamesByCategory();
     } catch (error: any) {
       setInfo(`添加封面失败`);
     }
@@ -219,6 +241,11 @@ const GameCards = () => {
     setIsCategoryOpen(!isCategoryOpen);
   };
 
+  // 处理分类选择
+  const handleCategoryChange = (category: 'all' | 'playing' | 'archived') => {
+    setSelectedCategory(category);
+  };
+
   return (
     <>
       <div className="relative flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed">
@@ -269,8 +296,10 @@ const GameCards = () => {
                 ref={(el) => {
                   if (el) categoryItemsRef.current[0] = el;
                 }}
-                onClick={() => {}}
-                className="rounded-md bg-white px-4 py-2 text-sm shadow-md transition-colors hover:bg-blue-50"
+                onClick={() => handleCategoryChange('playing')}
+                className={`rounded-md bg-white px-4 py-2 text-sm shadow-md transition-colors ${
+                  selectedCategory === 'playing' ? 'bg-blue-100 font-semibold' : 'hover:bg-blue-50'
+                }`}
                 style={{ opacity: 0 }}
               >
                 攻略中
@@ -279,8 +308,10 @@ const GameCards = () => {
                 ref={(el) => {
                   if (el) categoryItemsRef.current[1] = el;
                 }}
-                onClick={() => {}}
-                className="rounded-md bg-white px-4 py-2 text-sm shadow-md transition-colors hover:bg-blue-50"
+                onClick={() => handleCategoryChange('archived')}
+                className={`rounded-md bg-white px-4 py-2 text-sm shadow-md transition-colors ${
+                  selectedCategory === 'archived' ? 'bg-blue-100 font-semibold' : 'hover:bg-blue-50'
+                }`}
                 style={{ opacity: 0 }}
               >
                 已归档
@@ -289,8 +320,10 @@ const GameCards = () => {
                 ref={(el) => {
                   if (el) categoryItemsRef.current[2] = el;
                 }}
-                onClick={() => {}}
-                className="rounded-md bg-white px-4 py-2 text-sm shadow-md transition-colors hover:bg-blue-50"
+                onClick={() => handleCategoryChange('all')}
+                className={`rounded-md bg-white px-4 py-2 text-sm shadow-md transition-colors ${
+                  selectedCategory === 'all' ? 'bg-blue-100 font-semibold' : 'hover:bg-blue-50'
+                }`}
                 style={{ opacity: 0 }}
               >
                 全部游戏

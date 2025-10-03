@@ -6,7 +6,8 @@ import { Game, GameVersion } from '@renderer/types/Game';
 import gameSizeFormat from '@renderer/util/gameSizeFormat';
 import useInfoStore from '@renderer/store/infoStore';
 import { Button, Modal } from 'antd';
-
+import { TbSwords } from "react-icons/tb";
+import { FaBookBookmark } from "react-icons/fa6";
 export default function ModalContent({
   onClose,
   gameId,
@@ -319,31 +320,36 @@ export default function ModalContent({
               )}
             </div>
             {/* 设置游戏分类 */}
-            <div className="mt-4">
               <p className="py-2 text-lg">设置游戏分类</p>
               <div className="flex gap-2">
+                
                 <button
                   onClick={() => handleUpdateCategory('playing')}
-                  className={`flex-1 rounded-md px-3 py-2 text-sm transition-all ${
+                  className={`flex flex-1 flex-row rounded-md px-3 py-2 text-sm transition-all ${
                     currentCategory === 'playing'
-                      ? 'bg-blue-500 text-white font-semibold'
+                      ? 'bg-green-400 text-white '
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
+                  <div className='flex-center mr-4'>
+                    <TbSwords className='text-lg text-center' />
+                  </div>
                   攻略中
                 </button>
                 <button
                   onClick={() => handleUpdateCategory('archived')}
-                  className={`flex-1 rounded-md px-3 py-2 text-sm transition-all ${
+                  className={`flex flex-row flex-1 rounded-md px-3 py-2 text-sm transition-all ${
                     currentCategory === 'archived'
-                      ? 'bg-blue-500 text-white font-semibold'
+                      ? 'bg-blue-400 text-white '
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
+                  <div className='flex-center mr-4'>
+                    <FaBookBookmark className='text-lg text-center' />
+                  </div>
                   已归档
                 </button>
               </div>
-            </div>
           </div>
           {/* 版本管理 */}
           <div>

@@ -34,7 +34,7 @@ export class DatabaseManager {
         updated_at INTEGER DEFAULT (strftime('%s', 'now')),
         disk_size INTEGER DEFAULT 0,
         game_version TEXT NOT NULL DEFAULT '1.0',
-        category TEXT DEFAULT 'playing'
+        category TEXT DEFAULT 'all'
       );
       -- 画廊表
       CREATE TABLE IF NOT EXISTS game_gallery (

@@ -18,7 +18,7 @@ export default function ModalContent({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [size, setSize] = useState<number>(0);
-  const [currentCategory, setCurrentCategory] = useState<'playing' | 'archived'>('playing');
+  const [currentCategory, setCurrentCategory] = useState<'playing' | 'archived' | 'all'>('all');
 
   const [gameVersions, setGameVersions] = useState<GameVersion[]>([]);
 

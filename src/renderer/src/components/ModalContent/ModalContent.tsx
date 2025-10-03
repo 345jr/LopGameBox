@@ -284,8 +284,8 @@ export default function ModalContent({
       >
         <p className="mb-1 text-2xl font-semibold text-gray-800">配置区域</p>
         {/* 修改游戏名 */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
+        <div className="grid grid-cols-[3fr_2fr] gap-4">
+          <div className='grid-'>
             <div>
               <p className="py-2 text-lg">修改游戏名</p>
               <div className="relative">
@@ -302,7 +302,7 @@ export default function ModalContent({
             </div>
             {/* 重新扫描游戏大小 */}
             <div className="flex flex-row">
-              <p className="py-2 text-lg">重新计算游戏大小</p>
+              <p className="py-2 text-base whitespace-nowrap">重新计算存储空间</p>
               <VscArrowRight className="mx-2 mt-2.5 text-2xl" />
               <motion.button
                 initial={{ scale: 1 }}
@@ -314,8 +314,8 @@ export default function ModalContent({
               {/* 展示新的游戏大小 */}
               {size > 0 && (
                 <>
-                  <VscArrowRight className="mx-2 mt-2.5 text-2xl" />
-                  <p className="mt-2.5 ml-2 text-lg text-black">游戏大小:{gameSizeFormat(size)}</p>
+                  <VscArrowRight className="mx-2 mt-2.5 text-base" />
+                  <p className="mt-2.5 ml-2 text-base text-black whitespace-nowrap">游戏大小:{gameSizeFormat(size)}</p>
                 </>
               )}
             </div>
@@ -363,16 +363,16 @@ export default function ModalContent({
               </Button>
             </div>
             <div className="mt-4">
-              <p className="mb-2 text-lg font-semibold">版本列表:</p>
+              <p className="mb-2 text-lg text-center">版本列表</p>
               {gameVersions && gameVersions.length > 0 ? (
                 <div className="space-y-1">
                   {gameVersions.map((version) => (
                     <div
                       key={version.id}
-                      className="flex cursor-pointer items-center justify-between py-1 transition-colors hover:text-blue-600"
+                      className="flex cursor-pointer items-center justify-center py-1 transition-colors hover:text-blue-600"
                       onClick={() => handleVersionClick(version)}
                     >
-                      <span className="font-medium">版本 {version.version}</span>
+                      <span className="font-medium mr-2">版本 {version.version}</span>
                       <span className="text-sm text-gray-500">
                         {new Date(version.release_date).toLocaleDateString('zh-CN')}
                       </span>

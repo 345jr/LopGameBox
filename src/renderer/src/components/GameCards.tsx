@@ -247,9 +247,9 @@ const GameCards = () => {
           <Selector />
         </div>
         {/* 主动休息按钮 */}
-        {gameState === 'run' && (
+         {gameState === 'run' && (         
           <motion.div>
-            <div className="fixed top-20 right-0 z-30 rounded-l-2xl border border-gray-300 bg-white px-2 py-2 shadow-md">
+            <div className="fixed top-17 right-0 z-30 rounded-l-2xl border border-gray-300 bg-white px-2 py-2 shadow-md">
               <button
                 onClick={() => enterRestMode()}
                 className="flex cursor-pointer flex-row items-center"
@@ -272,7 +272,7 @@ const GameCards = () => {
           </div>
         </motion.div>
         {/* 游戏分类区域 */}
-        <div className="fixed right-4 top-20 z-50">
+        <div className="fixed right-4 top-32 z-50">
           {/* 主按钮 - 显示分类 */}
           <button
             ref={categoryBtnRef}

@@ -13,6 +13,8 @@ import Selector from './GameModeSelector/Selector';
 import { RestTimeContent } from './ModalContent/RestTimeContent';
 import Portal from './Portal';
 import { FaArrowUp, FaPersonWalkingArrowRight } from 'react-icons/fa6';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 
 const GameCards = () => {
   // #region 状态管理
@@ -38,6 +40,13 @@ const GameCards = () => {
   const gameMode = useGameStore((state) => state.gameMode);
   //游戏状态
   const gameState = useGameStore((state) => state.gameState);
+  // 分类菜单展开状态
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  // 控制分类菜单是否渲染在 DOM 中
+  const [shouldRenderCategories, setShouldRenderCategories] = useState(false);
+  // 分类按钮的引用
+  const categoryBtnRef = useRef<HTMLButtonElement>(null);
+  const categoryItemsRef = useRef<HTMLButtonElement[]>([]);
   // #endregion
 
   useEffect(() => {
@@ -166,6 +175,50 @@ const GameCards = () => {
   const enterRestMode = () => {
     window.api.setResting(true);
   };
+
+  // GSAP 动画控制
+  useGSAP(() => {
+    if (isCategoryOpen) {
+      // 展开动画 - 依次弹出
+      setShouldRenderCategories(true);
+      gsap.fromTo(
+        categoryItemsRef.current,
+        {
+          opacity: 0,
+          y: -20,
+          scale: 0.8,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.3,
+          stagger: 0.1, // 每个按钮延迟 0.1 秒
+          ease: 'back.out(1.7)',
+        }
+      );
+    } else if (shouldRenderCategories) {
+      // 收起动画 - 依次收起
+      gsap.to(categoryItemsRef.current, {
+        opacity: 0,
+        y: -20,
+        scale: 0.8,
+        duration: 0.2,
+        stagger: 0.05,
+        ease: 'power2.in',
+        onComplete: () => {
+          // 动画完成后再从 DOM 中移除
+          setShouldRenderCategories(false);
+        },
+      });
+    }
+  }, [isCategoryOpen, shouldRenderCategories]);
+
+  // 切换分类菜单展开状态
+  const toggleCategory = () => {
+    setIsCategoryOpen(!isCategoryOpen);
+  };
+
   return (
     <>
       <div className="relative flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed">
@@ -199,6 +252,53 @@ const GameCards = () => {
             </button>
           </div>
         </motion.div>
+        {/* 游戏分类区域 */}
+        <div className="fixed right-4 top-20 z-50">
+          {/* 主按钮 - 显示分类 */}
+          <button
+            ref={categoryBtnRef}
+            onClick={toggleCategory}
+            className="mb-2 w-full rounded-md bg-white px-4 py-2 text-sm shadow-md transition-all hover:bg-gray-50"
+          >
+            {isCategoryOpen ? '收起分类' : '显示分类'}
+          </button>
+          {/* 分类选项容器 */}
+          {shouldRenderCategories && (
+            <div className="flex flex-col gap-2">
+              <button
+                ref={(el) => {
+                  if (el) categoryItemsRef.current[0] = el;
+                }}
+                onClick={() => {}}
+                className="rounded-md bg-white px-4 py-2 text-sm shadow-md transition-colors hover:bg-blue-50"
+                style={{ opacity: 0 }}
+              >
+                攻略中
+              </button>
+              <button
+                ref={(el) => {
+                  if (el) categoryItemsRef.current[1] = el;
+                }}
+                onClick={() => {}}
+                className="rounded-md bg-white px-4 py-2 text-sm shadow-md transition-colors hover:bg-blue-50"
+                style={{ opacity: 0 }}
+              >
+                已归档
+              </button>
+              <button
+                ref={(el) => {
+                  if (el) categoryItemsRef.current[2] = el;
+                }}
+                onClick={() => {}}
+                className="rounded-md bg-white px-4 py-2 text-sm shadow-md transition-colors hover:bg-blue-50"
+                style={{ opacity: 0 }}
+              >
+                全部游戏
+              </button>
+            </div>
+          )}
+        </div>
+        {/* 休息模态框 */}
         {showRestTimeModal &&
           createPortal(
             <RestTimeContent onClose={() => setShowRestTimeModal(false)} />,

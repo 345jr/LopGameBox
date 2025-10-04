@@ -1,7 +1,7 @@
 import { Banners, Game } from '@renderer/types/Game';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { VscFileMedia, VscFolder, VscPlay, VscTrash, VscVm } from 'react-icons/vsc';
-
+import { VscFileMedia, VscFolder, VscPlay, VscTrash } from 'react-icons/vsc';
+import { GiAchievement } from "react-icons/gi";
 import useGameStore from '@renderer/store/GameStore';
 import useInfoStore from '@renderer/store/infoStore';
 import gameSizeFormat from '@renderer/util/gameSizeFormat';
@@ -435,12 +435,12 @@ const GameCards = () => {
                       initial={{ y: 0 }}
                       whileHover={{ y: -5 }}
                     >
-                      <VscVm className="iconBtn" />
+                      <VscFileMedia className="iconBtn" />
                     </motion.button>
-                    {/* 游戏图集 */}
+                    {/* 游戏图集与成就面板 */}
                     <motion.button initial={{ y: 0 }} whileHover={{ y: -5 }}>
                       <Link to={`/gallery/${game.id}`}>
-                        <VscFileMedia className="iconBtn" />
+                        <GiAchievement className="iconBtn" />
                       </Link>
                     </motion.button>                    
                     {/* 删除游戏记录 */}

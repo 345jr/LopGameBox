@@ -74,6 +74,22 @@ export class DatabaseManager {
       );
       -- 复合唯一索引，确保同一游戏的版本号唯一
       CREATE UNIQUE INDEX IF NOT EXISTS idx_game_versions_gameid_version ON game_versions (game_id, version);
+      
+      -- 游戏成就表：存储每个游戏的成就信息
+      CREATE TABLE IF NOT EXISTS game_achievements (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        game_id INTEGER NOT NULL,
+        achievement_name TEXT NOT NULL,
+        achievement_type TEXT NOT NULL,
+        description TEXT,
+        is_completed INTEGER DEFAULT 0 CHECK(is_completed IN (0, 1)),
+        created_at INTEGER DEFAULT (strftime('%s','now')),
+        completed_at INTEGER,
+        FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
+      );
+      -- 索引，加快按游戏ID和完成状态查询的速度
+      CREATE INDEX IF NOT EXISTS idx_game_achievements_game_id ON game_achievements (game_id);
+      CREATE INDEX IF NOT EXISTS idx_game_achievements_completed ON game_achievements (is_completed);
     `);
 
     // 检查并添加 game_mode 列

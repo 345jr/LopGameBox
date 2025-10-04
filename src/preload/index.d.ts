@@ -120,6 +120,38 @@ declare global {
         versionId: number,
         newDescription: string,
       ) => Promise<{ success: boolean; message: string }>;
+      
+      // ==================== 成就相关接口 ====================
+      // 创建成就
+      createAchievement: (
+        gameId: number,
+        achievementName: string,
+        achievementType: string,
+        description?: string,
+      ) => Promise<{
+        id: number;
+        gameId: number;
+        achievementName: string;
+        achievementType: string;
+        description?: string;
+        isCompleted: 0;
+      }>;
+      // 删除成就
+      deleteAchievement: (achievementId: number) => Promise<void>;
+      // 切换成就状态
+      toggleAchievementStatus: (achievementId: number, isCompleted: 0 | 1) => Promise<void>;
+      // 获取游戏所有成就
+      getGameAchievements: (gameId: number) => Promise<GameAchievement[]>;
+      // 获取已完成的成就
+      getCompletedAchievements: (gameId: number) => Promise<GameAchievement[]>;
+      // 获取未完成的成就
+      getUncompletedAchievements: (gameId: number) => Promise<GameAchievement[]>;
+      // 获取成就统计
+      getAchievementStats: (gameId: number) => Promise<{
+        total: number;
+        completed: number;
+        completionRate: number;
+      }>;
     };
   }
 }

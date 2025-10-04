@@ -66,3 +66,15 @@ export interface GameVersion {
   release_date: number;
   created_at: number;
 }
+
+//游戏成就信息
+export interface GameAchievement {
+  id: number;
+  game_id: number;
+  achievement_name: string;
+  achievement_type: string;
+  description: string | null;
+  is_completed: 0 | 1; // 0=未完成, 1=已完成
+  created_at: number;
+  completed_at: number | null;
+}

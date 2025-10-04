@@ -580,6 +580,78 @@ app.whenReady().then(() => {
       return { success: false, message: err?.message ?? String(err) };
     }
   });
+
+  // ==================== 成就相关 IPC 处理器 ====================
+  
+  // 创建成就
+  ipcMain.handle('db:createAchievement', async (_event, gameId: number, achievementName: string, achievementType: string, description?: string) => {
+    try {
+      return gameService.createAchievement(gameId, achievementName, achievementType, description);
+    } catch (err: any) {
+      console.error('创建成就失败:', err);
+      throw err;
+    }
+  });
+
+  // 删除成就
+  ipcMain.handle('db:deleteAchievement', async (_event, achievementId: number) => {
+    try {
+      gameService.deleteAchievement(achievementId);
+    } catch (err: any) {
+      console.error('删除成就失败:', err);
+      throw err;
+    }
+  });
+
+  // 切换成就状态
+  ipcMain.handle('db:toggleAchievementStatus', async (_event, achievementId: number, isCompleted: 0 | 1) => {
+    try {
+      gameService.toggleAchievementStatus(achievementId, isCompleted);
+    } catch (err: any) {
+      console.error('切换成就状态失败:', err);
+      throw err;
+    }
+  });
+
+  // 获取游戏所有成就
+  ipcMain.handle('db:getGameAchievements', async (_event, gameId: number) => {
+    try {
+      return gameService.getGameAchievements(gameId);
+    } catch (err: any) {
+      console.error('获取游戏成就失败:', err);
+      return [];
+    }
+  });
+
+  // 获取已完成的成就
+  ipcMain.handle('db:getCompletedAchievements', async (_event, gameId: number) => {
+    try {
+      return gameService.getCompletedAchievements(gameId);
+    } catch (err: any) {
+      console.error('获取已完成成就失败:', err);
+      return [];
+    }
+  });
+
+  // 获取未完成的成就
+  ipcMain.handle('db:getUncompletedAchievements', async (_event, gameId: number) => {
+    try {
+      return gameService.getUncompletedAchievements(gameId);
+    } catch (err: any) {
+      console.error('获取未完成成就失败:', err);
+      return [];
+    }
+  });
+
+  // 获取成就统计
+  ipcMain.handle('db:getAchievementStats', async (_event, gameId: number) => {
+    try {
+      return gameService.getAchievementStats(gameId);
+    } catch (err: any) {
+      console.error('获取成就统计失败:', err);
+      return { total: 0, completed: 0, completionRate: 0 };
+    }
+  });
   
   createWindow();
 

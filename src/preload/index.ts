@@ -105,6 +105,33 @@ const api = {
   // 更新版本描述
   updateVersionDescription: (versionId: number, newDescription: string) =>
     ipcRenderer.invoke('db:updateVersionDescription', versionId, newDescription),
+  
+  // ==================== 成就相关接口 ====================
+  // 创建成就
+  createAchievement: (
+    gameId: number,
+    achievementName: string,
+    achievementType: string,
+    description?: string,
+  ) => ipcRenderer.invoke('db:createAchievement', gameId, achievementName, achievementType, description),
+  // 删除成就
+  deleteAchievement: (achievementId: number) => 
+    ipcRenderer.invoke('db:deleteAchievement', achievementId),
+  // 切换成就状态 (0=未完成, 1=已完成)
+  toggleAchievementStatus: (achievementId: number, isCompleted: 0 | 1) => 
+    ipcRenderer.invoke('db:toggleAchievementStatus', achievementId, isCompleted),
+  // 获取游戏所有成就
+  getGameAchievements: (gameId: number) => 
+    ipcRenderer.invoke('db:getGameAchievements', gameId),
+  // 获取已完成的成就
+  getCompletedAchievements: (gameId: number) => 
+    ipcRenderer.invoke('db:getCompletedAchievements', gameId),
+  // 获取未完成的成就
+  getUncompletedAchievements: (gameId: number) => 
+    ipcRenderer.invoke('db:getUncompletedAchievements', gameId),
+  // 获取成就统计
+  getAchievementStats: (gameId: number) => 
+    ipcRenderer.invoke('db:getAchievementStats', gameId),
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

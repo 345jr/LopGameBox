@@ -186,4 +186,46 @@ export class GameService {
   public updateVersionDescription(versionId: number, newDescription: string) {
     return this.gameRepo.updateVersionDescription(versionId, newDescription);
   }
+
+  // ==================== 成就相关方法 ====================
+  
+  // 创建成就
+  public createAchievement(
+    gameId: number,
+    achievementName: string,
+    achievementType: string,
+    description?: string,
+  ) {
+    return this.galleryRepo.createAchievement(gameId, achievementName, achievementType, description);
+  }
+
+  // 删除成就
+  public deleteAchievement(achievementId: number) {
+    return this.galleryRepo.deleteAchievement(achievementId);
+  }
+
+  // 切换成就状态
+  public toggleAchievementStatus(achievementId: number, isCompleted: 0 | 1) {
+    return this.galleryRepo.toggleAchievementStatus(achievementId, isCompleted);
+  }
+
+  // 获取游戏所有成就
+  public getGameAchievements(gameId: number) {
+    return this.galleryRepo.getGameAchievements(gameId);
+  }
+
+  // 获取已完成的成就
+  public getCompletedAchievements(gameId: number) {
+    return this.galleryRepo.getCompletedAchievements(gameId);
+  }
+
+  // 获取未完成的成就
+  public getUncompletedAchievements(gameId: number) {
+    return this.galleryRepo.getUncompletedAchievements(gameId);
+  }
+
+  // 获取成就统计
+  public getAchievementStats(gameId: number) {
+    return this.galleryRepo.getAchievementStats(gameId);
+  }
 }

@@ -388,14 +388,14 @@ const GameCards = () => {
 
                     <div className="flex flex-row p-0.5 whitespace-nowrap justify-between">
                     <p className="text-white">上次启动:</p>
-                    <p className="text-white">
+                    <p className="text-white text-xs">
                       {game.last_launch_time ? formatTimeCalender(game.last_launch_time) : '暂无'}
                     </p>
                     </div>
 
                     <div className="flex flex-row p-0.5 whitespace-nowrap justify-between">
                     <p className="text-white">添加时间:</p>
-                    <p className="text-white">{formatTimeCalender(game.created_at)}</p>
+                    <p className="text-white text-xs">{formatTimeCalender(game.created_at)}</p>
                     </div>
 
                     <div className="flex flex-row p-0.5 justify-between">

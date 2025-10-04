@@ -427,15 +427,8 @@ const GameCards = () => {
                     >
                       <VscFolder className="iconBtn" />
                     </motion.button>
-
-                    {/* 删除游戏记录 */}
-                    <motion.button
-                      onClick={() => handleDeleteGame(game)}
-                      initial={{ y: 0 }}
-                      whileHover={{ y: -5 }}
-                    >
-                      <VscTrash className="iconBtn" />
-                    </motion.button>
+                    {/* 打开配置页面 */}
+                    <Portal gameId={game.id} updata={setGames} />
                     {/* 封面图修改 */}
                     <motion.button
                       onClick={() => handleAddBanner(game)}
@@ -449,9 +442,15 @@ const GameCards = () => {
                       <Link to={`/gallery/${game.id}`}>
                         <VscFileMedia className="iconBtn" />
                       </Link>
+                    </motion.button>                    
+                    {/* 删除游戏记录 */}
+                    <motion.button
+                      onClick={() => handleDeleteGame(game)}
+                      initial={{ y: 0 }}
+                      whileHover={{ y: -5 }}
+                    >
+                      <VscTrash className="iconBtn" />
                     </motion.button>
-                    {/* 打开配置页面 */}
-                    <Portal gameId={game.id} updata={setGames} />
                   </div>
                 </motion.div>
               </motion.div>

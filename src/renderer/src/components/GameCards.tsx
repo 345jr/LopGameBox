@@ -277,9 +277,10 @@ const GameCards = () => {
           <button
             ref={categoryBtnRef}
             onClick={toggleCategory}
-            className="mb-2 w-full rounded-md bg-white px-4 py-2 text-sm shadow-md transition-all hover:bg-gray-50"
+            className="mb-2 w-full rounded-md bg-white px-4 py-2 text-sm shadow-md transition-all hover:bg-blue-200 border-gray-500 border-2"
           >
-            {isCategoryOpen ? '收起分类' : '显示分类'}
+            {/* {isCategoryOpen ? '收起分类' : '显示分类'} */}
+            游戏分类
           </button>
           {/* 分类选项容器 */}
           {shouldRenderCategories && (
@@ -289,8 +290,10 @@ const GameCards = () => {
                   if (el) categoryItemsRef.current[0] = el;
                 }}
                 onClick={() => handleCategoryChange('playing')}
-                className={`rounded-md bg-white px-4 py-2 text-sm shadow-md transition-colors ${
-                  selectedCategory === 'playing' ? 'bg-blue-100 font-semibold' : 'hover:bg-blue-50'
+                className={`relative overflow-hidden rounded-md px-4 py-2 text-sm shadow-md transition-colors border-gray-500 border-2 ${
+                  selectedCategory === 'playing' 
+                    ? 'bg-blue-100 hover:bg-blue-200' 
+                    : 'bg-white hover:bg-blue-200'
                 }`}
                 style={{ opacity: 0 }}
               >
@@ -301,8 +304,10 @@ const GameCards = () => {
                   if (el) categoryItemsRef.current[1] = el;
                 }}
                 onClick={() => handleCategoryChange('archived')}
-                className={`rounded-md bg-white px-4 py-2 text-sm shadow-md transition-colors ${
-                  selectedCategory === 'archived' ? 'bg-blue-100 font-semibold' : 'hover:bg-blue-50'
+                className={`relative overflow-hidden rounded-md px-4 py-2 text-sm shadow-md transition-colors border-gray-500 border-2 ${
+                  selectedCategory === 'archived' 
+                    ? 'bg-blue-100 hover:bg-blue-200' 
+                    : 'bg-white hover:bg-blue-200'
                 }`}
                 style={{ opacity: 0 }}
               >
@@ -313,12 +318,14 @@ const GameCards = () => {
                   if (el) categoryItemsRef.current[2] = el;
                 }}
                 onClick={() => handleCategoryChange('all')}
-                className={`rounded-md bg-white px-4 py-2 text-sm shadow-md transition-colors ${
-                  selectedCategory === 'all' ? 'bg-blue-100 font-semibold' : 'hover:bg-blue-50'
+                className={`relative overflow-hidden rounded-md px-4 py-2 text-sm shadow-md transition-colors border-gray-500 border-2 ${
+                  selectedCategory === 'all' 
+                    ? 'bg-blue-100 hover:bg-blue-200' 
+                    : 'bg-white hover:bg-blue-200'
                 }`}
                 style={{ opacity: 0 }}
               >
-                全部游戏
+                全部
               </button>
             </div>
           )}

@@ -55,6 +55,38 @@ export class GalleryRepository {
     console.log(`删除成功`);
   }
 
+  /**
+   * 给快照添加/更新描述信息
+   * @param id 快照ID
+   * @param alt 描述文本
+   */
+  public updateSnapshotAlt(id: number, alt: string) {
+    const stmt = this.db.prepare('UPDATE game_gallery SET alt = ? WHERE id = ?');
+    stmt.run(alt, id);
+    console.log(`描述更新成功`);
+  }
+
+  /**
+   * 删除快照的描述信息
+   * @param id 快照ID
+   */
+  public deleteSnapshotAlt(id: number) {
+    const stmt = this.db.prepare('UPDATE game_gallery SET alt = NULL WHERE id = ?');
+    stmt.run(id);
+    console.log(`描述删除成功`);
+  }
+
+  /**
+   * 获取快照的描述信息
+   * @param id 快照ID
+   */
+  public getSnapshotAlt(id: number) {
+    const result: any = this.db
+      .prepare('SELECT alt FROM game_gallery WHERE id = ?')
+      .get(id);
+    return result?.alt || null;
+  }
+
   // ==================== 成就相关方法 ====================
   
   /**

@@ -33,6 +33,10 @@ const Gallery = () => {
     type: '自定义成就',
     description: '',
   });
+  const [showAltModal, setShowAltModal] = useState(false);
+  const [currentSnapshotId, setCurrentSnapshotId] = useState<number | null>(null);
+  const [altText, setAltText] = useState('');
+  const [isEditingAlt, setIsEditingAlt] = useState(false);
 
   //获取图集列表
   const fetchSnapshotList = async () => {
@@ -283,6 +287,68 @@ const Gallery = () => {
     const date = new Date(timestamp * 1000);
     return date.toLocaleDateString('zh-CN');
   };
+
+  // ==================== ALT描述相关功能 ====================
+
+  //打开ALT模态框
+  const openAltModal = async (snapshotId: number) => {
+    setCurrentSnapshotId(snapshotId);
+    try {
+      const alt = await window.api.getSnapshotAlt(snapshotId);
+      if (alt) {
+        setAltText(alt);
+        setIsEditingAlt(true);
+      } else {
+        setAltText('');
+        setIsEditingAlt(false);
+      }
+      setShowAltModal(true);
+    } catch (error) {
+      console.error('获取ALT描述失败:', error);
+    }
+  };
+
+  //关闭ALT模态框
+  const closeAltModal = () => {
+    setShowAltModal(false);
+    setCurrentSnapshotId(null);
+    setAltText('');
+    setIsEditingAlt(false);
+  };
+
+  //添加或更新ALT描述
+  const handleSaveAlt = async () => {
+    if (!currentSnapshotId || !altText.trim()) {
+      alert('请输入描述信息');
+      return;
+    }
+
+    try {
+      await window.api.updateSnapshotAlt(currentSnapshotId, altText.trim());
+      closeAltModal();
+      fetchSnapshotList();
+    } catch (error) {
+      console.error('保存ALT描述失败:', error);
+      alert('保存失败');
+    }
+  };
+
+  //删除ALT描述
+  const handleDeleteAlt = async () => {
+    if (!currentSnapshotId) return;
+
+    if (confirm('确定要删除这个描述吗?')) {
+      try {
+        await window.api.deleteSnapshotAlt(currentSnapshotId);
+        closeAltModal();
+        fetchSnapshotList();
+      } catch (error) {
+        console.error('删除ALT描述失败:', error);
+        alert('删除失败');
+      }
+    }
+  };
+
   return (
     <div className="grid grid-cols-5 gap-4 p-4">
       {/* 第一行：数据展示和交互按钮区域 - 占据全部5列 */}
@@ -327,13 +393,21 @@ const Gallery = () => {
         <Masonry columnsCount={2} gutter="10px">
           {snapshotList?.map((i) => {
             return (
-              <div key={i.game_id}>
+              <div key={i.id}>
                 <div className="group relative flex justify-end">
+                  {/* 删除按钮 */}
                   <button
                     onClick={() => delectSnapshot(i.id, i.relative_path)}
                     className="Tr_ani absolute top-2 right-2 z-10 cursor-pointer"
                   >
                     <FaRegCircleXmark className="text-2xl text-red-600" />
+                  </button>
+                  {/* ALT描述按钮 */}
+                  <button
+                    onClick={() => openAltModal(i.id)}
+                    className="Tr_ani absolute bottom-2 right-2 z-10 cursor-pointer rounded bg-blue-500 px-2 py-1 text-xs text-white opacity-0 transition group-hover:opacity-100 hover:bg-blue-600"
+                  >
+                    ALT
                   </button>
                   <img
                     src={`lop://` + i.relative_path.replace(/\\/g, '/')}
@@ -352,7 +426,6 @@ const Gallery = () => {
             <div className="text-center text-gray-500 mt-8">暂无图片</div>
             <div className="text-center text-gray-500 mt-8">快去游戏中记录精彩瞬间吧!</div>
           </>
-          
         )}
       </div>
 
@@ -569,6 +642,87 @@ const Gallery = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ALT描述模态框 */}
+      {showAltModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={closeAltModal}>
+          <div className="w-full max-w-lg rounded-lg bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            {isEditingAlt ? (
+              /* 编辑模式 - 箴言展示风格 */
+              <div className="relative">
+                {/* 描述文本区域 - 箴言样式 */}
+                <div className="border-l-4 border-amber-400 bg-gradient-to-r from-amber-50 to-white px-8 py-12">
+                  <p className="text-center font-serif text-lg leading-relaxed text-gray-700 italic">
+                    "{altText}"
+                  </p>
+                </div>
+                
+                {/* 底部操作区域 - 低调的图标按钮 */}
+                <div className="flex items-center justify-between border-t bg-gray-50 px-6 py-3">
+                  <button
+                    onClick={() => {
+                      setIsEditingAlt(false);
+                    }}
+                    className="text-sm text-gray-600 transition hover:text-blue-600 hover:underline cursor-pointer"
+                  >
+                    编辑内容
+                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={handleDeleteAlt}
+                      className="text-sm text-gray-500 transition hover:text-red-600 cursor-pointer"
+                      title="删除描述"
+                    >
+                      删除
+                    </button>
+                    <button
+                      onClick={closeAltModal}
+                      className="text-sm text-gray-500 transition hover:text-gray-700 cursor-pointer"
+                      title="关闭"
+                    >
+                      关闭
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* 添加/编辑输入模式 */
+              <div className="p-6">
+                <h3 className="mb-4 text-lg font-semibold text-gray-800">
+                  {altText ? '编辑描述' : '添加描述'}
+                </h3>
+                <textarea
+                  value={altText}
+                  onChange={(e) => setAltText(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 font-serif focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                  rows={4}
+                  placeholder="在此输入图片描述..."
+                  autoFocus
+                />
+                <div className="mt-4 flex justify-end gap-2">
+                  <button
+                    onClick={closeAltModal}
+                    className="cursor-pointer rounded px-4 py-2 text-sm text-gray-600 transition hover:bg-gray-100"
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await handleSaveAlt();
+                      if (altText.trim()) {
+                        setIsEditingAlt(true);
+                      }
+                    }}
+                    className="cursor-pointer rounded bg-amber-500 px-4 py-2 text-sm text-white transition hover:bg-amber-600"
+                  >
+                    保存
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

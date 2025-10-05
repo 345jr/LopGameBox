@@ -58,6 +58,18 @@ export class GameService {
   public delectSnapshot(id: number) {
     return this.galleryRepo.delectSnapshot(id);
   }
+  //更新快照描述
+  public updateSnapshotAlt(id: number, alt: string) {
+    return this.galleryRepo.updateSnapshotAlt(id, alt);
+  }
+  //删除快照描述
+  public deleteSnapshotAlt(id: number) {
+    return this.galleryRepo.deleteSnapshotAlt(id);
+  }
+  //获取快照描述
+  public getSnapshotAlt(id: number) {
+    return this.galleryRepo.getSnapshotAlt(id);
+  }
   //修改游戏名
   public modifyGameName(id: number, newName: string) {
     return this.gameRepo.modifyGameName(id, newName);

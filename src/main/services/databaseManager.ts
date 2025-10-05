@@ -44,6 +44,7 @@ export class DatabaseManager {
         image_type TEXT NOT NULL,
         created_at INTEGER DEFAULT (strftime('%s', 'now')),
         relative_path TEXT NOT NULL ,
+        alt TEXT, 
         FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
       );
       -- 游戏记录表

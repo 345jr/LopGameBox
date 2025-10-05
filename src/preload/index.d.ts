@@ -36,6 +36,9 @@ declare global {
         relativePath: string;
       }) => Promise<GameImage>;
       delectSnapshot: (id: number) => Promise<{ changes: number }>;
+      updateSnapshotAlt: (id: number, alt: string) => Promise<void>;
+      deleteSnapshotAlt: (id: number) => Promise<void>;
+      getSnapshotAlt: (id: number) => Promise<string | null>;
       modifyGameName: (id: number, newName: string) => Promise<void>;
       updateGameSize: (id: number, launch_path: string) => Promise<number>;
       updateGamePath: (gameId: number, newPath: string) => Promise<{ success: boolean; message: string }>;

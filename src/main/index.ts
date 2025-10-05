@@ -436,6 +436,31 @@ app.whenReady().then(() => {
       console.log(`删除记录发生错误:${error.message}`);
     }
   });
+  //更新快照描述
+  ipcMain.handle('db:updateSnapshotAlt', async (_event, id: number, alt: string) => {
+    try {
+      return gameService.updateSnapshotAlt(id, alt);
+    } catch (error: any) {
+      console.log(`更新快照描述发生错误:${error.message}`);
+    }
+  });
+  //删除快照描述
+  ipcMain.handle('db:deleteSnapshotAlt', async (_event, id: number) => {
+    try {
+      return gameService.deleteSnapshotAlt(id);
+    } catch (error: any) {
+      console.log(`删除快照描述发生错误:${error.message}`);
+    }
+  });
+  //获取快照描述
+  ipcMain.handle('db:getSnapshotAlt', async (_event, id: number) => {
+    try {
+      return gameService.getSnapshotAlt(id);
+    } catch (error: any) {
+      console.log(`获取快照描述发生错误:${error.message}`);
+      return null;
+    }
+  });
   //删除图片文件
   ipcMain.handle('op:delectImages', async (_event, relative_path) => {
     try {

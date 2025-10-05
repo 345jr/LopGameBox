@@ -44,6 +44,12 @@ const api = {
   addGameSnapshot: (gameImage: { gameId: number; imagePath: string; relativePath: string }) =>
     ipcRenderer.invoke('db:addSnapshot', gameImage),
   delectSnapshot: (id: number) => ipcRenderer.invoke('db:delectSnapshot', id),
+  updateSnapshotAlt: (id: number, alt: string) => 
+    ipcRenderer.invoke('db:updateSnapshotAlt', id, alt),
+  deleteSnapshotAlt: (id: number) => 
+    ipcRenderer.invoke('db:deleteSnapshotAlt', id),
+  getSnapshotAlt: (id: number) => 
+    ipcRenderer.invoke('db:getSnapshotAlt', id),
   modifyGameName: (id: number, newName: string) =>
     ipcRenderer.invoke('db:modifyGameName', id, newName),
   updateGameSize: (id: number, launch_path: string) =>

@@ -13,6 +13,7 @@ import Selector from './GameModeSelector/Selector';
 import { RestTimeContent } from './ModalContent/RestTimeContent';
 import Portal from './Portal';
 import { FaArrowUp, FaPersonWalkingArrowRight } from 'react-icons/fa6';
+import { FaGithub } from "react-icons/fa";
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 
@@ -260,6 +261,17 @@ const GameCards = () => {
             </div>
           </motion.div>
         )}
+        {/* GitHub 按钮 */}
+        <motion.div>
+          <div className="fixed left-4 bottom-8 z-50 rounded-2xl border border-gray-300/50 bg-white px-2 py-2 shadow-md">
+            <button
+              onClick={() => window.open('https://github.com/345jr/LopGameBox', '_blank')}
+              className="flex cursor-pointer flex-row items-center"
+            >
+              <FaGithub className="text-xl text-gray-700" />
+            </button>
+          </div>
+        </motion.div>
         {/* 回到顶部按钮 */}
         <motion.div>
           <div className="fixed right-4 bottom-8 z-50 rounded-2xl border border-gray-300/50 bg-white px-2 py-2 shadow-md">

@@ -1,4 +1,3 @@
-import { formatTimeToHours } from '@renderer/util/timeFormat';
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 // 饼图自定义提示框
@@ -55,12 +54,7 @@ const MyPieChart = ({ gameStatistics }) => {
   ];
   return (
     <>
-      <div className="flex flex-row">
-        <div className="flex flex-col">
-          <p>游戏总数:{gameStatistics.gameCount}</p>
-          <p>总游戏时间:{formatTimeToHours(gameStatistics.gamePlayTime)}</p>
-          <p>总游戏启动次数:{gameStatistics.launchCount}</p>
-        </div>
+      <div className="flex flex-row justify-center">
         {/* 不同模式的时长比例图 */}
         <div className="h-80 w-110">
           <ResponsiveContainer width="100%" height="100%">

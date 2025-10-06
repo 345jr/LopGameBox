@@ -5,7 +5,8 @@ import { GameStatistics } from '@renderer/types/Game';
 import { GameLog } from '@renderer/types/Game';
 import MyAreaChart from './MyAreaChart';
 import MyPieChart from './MyPieChart';
-import { getWeekRange } from '@renderer/util/timeFormat';
+import { getWeekRange, formatTimeToHours } from '@renderer/util/timeFormat';
+import gameSizeFormat from '@renderer/util/gameSizeFormat';
 
 const Dashboard = () => {
   const [gameStatistics, setGameStatistics] = useState<GameStatistics>({
@@ -19,6 +20,7 @@ const Dashboard = () => {
     fastHours: 0,
     afkHours: 0,
     infinityHours: 0,
+    totalDiskSize: 0,
   });
   const [weekGameLogsData, setWeekGameLogsData] = useState<GameLog[]>([]);
 
@@ -39,6 +41,10 @@ const Dashboard = () => {
     //获取4种模式下的游戏时长分布
     const { normalHours, fastHours, afkHours, infinityHours } = await window.api.getGameLogByMode();
 
+    //获取所有游戏数据，计算总存储占用
+    const allGames = await window.api.getAllGames();
+    const totalDiskSize = allGames.reduce((sum, game) => sum + (game.disk_size || 0), 0);
+
     //获取本周的时长分布
     // const weekGameLogs = await window.api.getGameLogByModeThisWeek();
     //获取上周的时长分布
@@ -55,6 +61,7 @@ const Dashboard = () => {
       fastHours: fastHours,
       afkHours: afkHours,
       infinityHours: infinityHours,
+      totalDiskSize: totalDiskSize,
     };
     setGameStatistics(StatisticsObject);
     setWeekGameLogsData(lastWeekGameLogs);
@@ -78,8 +85,36 @@ const Dashboard = () => {
 
   return (
     <>
-      <div className="text-center">统计面板</div>
-      <div className="mt-5 text-xl">
+      {/* <div className="text-center text-2xl font-bold mb-5">统计面板</div> */}
+      <div className="mb-4">
+        {/* 统计数据横排展示 */}
+        <div className="mb-5 mx-auto max-w-6xl rounded-lg  bg-white shadow-lg">
+          <div className="grid grid-cols-5 ">
+            <div className="px-6 py-4 text-center">
+              <p className="text-sm text-gray-500 mb-1">游戏总数</p>
+              <p className="text-2xl font-bold text-blue-600">{gameStatistics.gameCount}</p>
+            </div>
+            <div className="px-6 py-4 text-center">
+              <p className="text-sm text-gray-500 mb-1">总游戏时间</p>
+              <p className="text-2xl font-bold text-blue-600">{formatTimeToHours(gameStatistics.gamePlayTime)}</p>
+            </div>
+            <div className="px-6 py-4 text-center">
+              <p className="text-sm text-gray-500 mb-1">总启动次数</p>
+              <p className="text-2xl font-bold text-blue-600">{gameStatistics.launchCount}</p>
+            </div>
+            <div className="px-6 py-4 text-center">
+              <p className="text-sm text-gray-500 mb-1">总存储占用</p>
+              <p className="text-2xl font-bold text-blue-600">{gameSizeFormat(gameStatistics.totalDiskSize)}</p>
+            </div>
+            <div className="px-6 py-4 flex items-center justify-center">
+              <Link to={'/'}>
+                <button className="rounded-md bg-blue-500 px-6 py-2 text-white font-semibold shadow-md transition-all hover:bg-blue-600 active:scale-95">
+                  返回主页
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
         {/* 饼图数据看板 */}
         <MyPieChart gameStatistics={gameStatistics} />
         {/* 本周在不同模式下的游戏时间分布: */}
@@ -107,11 +142,6 @@ const Dashboard = () => {
         </div>
         {/* 周数据看板 */}
         <MyAreaChart gameStatistics={gameStatistics} weekGameLogsData={weekGameLogsData} />
-        <div className="mt-5 text-center">
-          <Link to={'/'}>
-            <button className="cursor-pointer">返回主页</button>
-          </Link>
-        </div>
       </div>
     </>
   );

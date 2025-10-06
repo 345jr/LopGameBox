@@ -138,6 +138,16 @@ const api = {
   // 获取成就统计
   getAchievementStats: (gameId: number) => 
     ipcRenderer.invoke('db:getAchievementStats', gameId),
+  
+  // ==================== 窗口控制接口 ====================
+  // 最小化窗口
+  minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
+  // 最大化/还原窗口
+  maximizeWindow: () => ipcRenderer.invoke('window:maximize'),
+  // 关闭窗口
+  closeWindow: () => ipcRenderer.invoke('window:close'),
+  // 检查窗口是否最大化
+  isWindowMaximized: () => ipcRenderer.invoke('window:isMaximized'),
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

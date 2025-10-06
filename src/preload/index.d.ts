@@ -155,6 +155,16 @@ declare global {
         completed: number;
         completionRate: number;
       }>;
+      
+      // ==================== 窗口控制接口 ====================
+      // 最小化窗口
+      minimizeWindow: () => Promise<void>;
+      // 最大化/还原窗口
+      maximizeWindow: () => Promise<void>;
+      // 关闭窗口
+      closeWindow: () => Promise<void>;
+      // 检查窗口是否最大化
+      isWindowMaximized: () => Promise<boolean>;
     };
   }
 }

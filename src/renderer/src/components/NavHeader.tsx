@@ -2,9 +2,9 @@ import { useGSAP } from '@gsap/react';
 import { motion, Variants } from 'framer-motion';
 import gsap from 'gsap';
 import { TextPlugin } from 'gsap/TextPlugin';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import { VscComment, VscTriangleDown } from 'react-icons/vsc';
+import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscTriangleDown } from 'react-icons/vsc';
 import { Link } from 'react-router-dom';
 
 import useGameStore from '@renderer/store/GameStore';
@@ -44,6 +44,8 @@ const NavHeader = () => {
   const setInfo = useInfoStore((state) => state.setInfo);
   //打字机效果
   const typewriterRef = useRef<HTMLParagraphElement>(null);
+  // 窗口是否最大化状态
+  const [isMaximized, setIsMaximized] = useState(false);
 
   //#endregion 状态管理
 
@@ -152,6 +154,31 @@ const NavHeader = () => {
     const gameList = await window.api.searchGames(keyword);
     searchResults(gameList);
   };
+  
+  // 窗口控制函数
+  const handleMinimize = () => {
+    window.api.minimizeWindow();
+  };
+
+  const handleMaximize = async () => {
+    await window.api.maximizeWindow();
+    const maximized = await window.api.isWindowMaximized();
+    setIsMaximized(maximized);
+  };
+
+  const handleClose = () => {
+    window.api.closeWindow();
+  };
+
+  // 初始化窗口最大化状态
+  useEffect(() => {
+    const checkMaximized = async () => {
+      const maximized = await window.api.isWindowMaximized();
+      setIsMaximized(maximized);
+    };
+    checkMaximized();
+  }, []);
+
   //模式选择器动画
   const logoAnimate: Variants = {
     initial: { rotate: 0 },
@@ -175,168 +202,210 @@ const NavHeader = () => {
   };
 
   return (
-    <div className="items-centers relative flex justify-start border-b-1 border-black">
-      <motion.img
-        src={logo}
-        alt="logo"
-        className="z-10 mr-5 w-12 cursor-pointer rounded-2xl"
-        variants={logoAnimate}
-        initial="initial"
-        animate={active ? 'active' : 'disabled'}
-        onClick={() => {
-          setActive(!active);
-          setGameModeSelector();
-        }}
-        onMouseEnter={() => {
-          setPosition({ x: -50, y: 20, rotate: 90 });
-        }}
-      />
+    <div className="relative border-b-1 border-black" style={{ display: 'grid', gridTemplateColumns: 'auto auto auto auto auto 1fr auto auto' }}>
+      {/* Logo 图标 - 固定宽度 */}
+      <motion.div 
+        className="flex items-center justify-center px-3"
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+      >
+        <motion.img
+          src={logo}
+          alt="logo"
+          className="w-12 cursor-pointer rounded-2xl"
+          variants={logoAnimate}
+          initial="initial"
+          animate={active ? 'active' : 'disabled'}
+          onClick={() => {
+            setActive(!active);
+            setGameModeSelector();
+          }}
+          onMouseEnter={() => {
+            setPosition({ x: -50, y: 20, rotate: 90 });
+          }}
+        />
+      </motion.div>
 
-      <div className="relative flex w-full flex-row">
-        {/* 动画指针 */}
+      {/* 添加游戏按钮 - 固定宽度 */}
+      <motion.div 
+        className="flex items-center justify-center relative"
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+      >
         <motion.div className="absolute bottom-9 left-8 z-50" animate={position}>
           <VscTriangleDown />
         </motion.div>
-        {/* 添加游戏 */}
         <motion.button
           onClick={handleAddGame}
-          className="flex-center cursor-pointer flex-row px-2 text-stone-900 hover:text-stone-600"
-          whileHover={{ scale: 1.3 }}
+          className="cursor-pointer px-4 text-stone-900 hover:text-stone-600"
+          whileHover={{ scale: 1.1 }}
           onMouseMove={() => {
-            setPosition({ x: 0, y: 0, rotate: 0 });
+            setPosition({ x: 10, y: 0, rotate: 0 });
           }}
         >
           添加游戏
         </motion.button>
+      </motion.div>
 
-        {/* 统计面板 */}
-
-        <motion.div className="mt-3" whileHover={{ scale: 1.3 }}>
-          <Link
-            to={'/dashboard'}
-            className="flex-center cursor-pointer flex-row px-2 text-stone-900 hover:text-stone-600"
-            onMouseMove={() => {
-              setPosition({ x: 80, y: 0, rotate: 0 });
-            }}
-          >
-            统计面板
-          </Link>
-        </motion.div>
-
-        {/* 更新记录 */}
-        <motion.div className="mt-3" whileHover={{ scale: 1.3 }}>
-          <Link
-            to={'/setting'}
-            className="flex-center cursor-pointer flex-row px-2 text-stone-900 hover:text-stone-600"
-            onMouseMove={() => {
-              setPosition({ x: 160, y: 0, rotate: 0 });
-            }}
-          >
-            设置中心
-          </Link>
-        </motion.div>
-        {/* 搜索区域 */}
-        <motion.div
-          className="relative flex flex-row"
-          onMouseEnter={() => {
-            setPosition({ x: 235, y: 20, rotate: -90 });
+      {/* 统计面板 - 固定宽度 */}
+      <motion.div 
+        className="flex items-center justify-center"
+        whileHover={{ scale: 1.1 }}
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+      >
+        <Link
+          to={'/dashboard'}
+          className="cursor-pointer px-4 text-stone-900 hover:text-stone-600"
+          onMouseMove={() => {
+            setPosition({ x: 105, y: 0, rotate: 0 });
           }}
         >
-          <div
-            className={`flex-center mt-2 ml-5 h-8 w-40 flex-col rounded-full border border-gray-300 bg-white shadow-sm`}
-          >
-            <input
-              type="text"
-              className={`w-25 text-gray-700 focus:outline-none`}
-              value={inputRef}
-              onChange={(e) => setInputRef(e.target.value)}
-            />
-          </div>
-          <button
-            onClick={() => handleSearch(inputRef)}
-            className="absolute top-3.5 right-1.5 cursor-pointer text-stone-900 hover:text-stone-600"
-          >
-            <FaSearch className="text-xl" />
-          </button>
-        </motion.div>
+          统计面板
+        </Link>
+      </motion.div>
 
-        {/* 状态通知 */}
-        <motion.div
-          className={`flex-row-v ml-5 text-center ${grab ? 'cursor-grabbing' : 'cursor-grab'}`}
-          onMouseEnter={() => setPosition({ x: 430, y: 20, rotate: -90 })}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          variants={divVariants}
-          whileHover="hover"
-          initial="initial"
+      {/* 设置中心 - 固定宽度 */}
+      <motion.div 
+        className="flex items-center justify-center"
+        whileHover={{ scale: 1.1 }}
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+      >
+        <Link
+          to={'/setting'}
+          className="cursor-pointer px-4 text-stone-900 hover:text-stone-600"
+          onMouseMove={() => {
+            setPosition({ x: 200, y: 0, rotate: 0 });
+          }}
         >
-          <div className="flex-row-v relative text-center">
-            <motion.div variants={iconVariants}>
-              <VscComment className="mr-5 text-2xl" />
-            </motion.div>
-            <p className="">{truncateString(info?.toString(), 14)}</p>
-            <motion.div
-              variants={pVariants}
-              className="absolute bottom-0 left-30 h-0.5 w-5 bg-black"
-            ></motion.div>
-          </div>
-        </motion.div>
-        {/* 游戏运行状态状态 */}
-        <div className="flex-col-v absolute top-0 right-0 h-full border-l-2 border-dashed border-l-black">
-          <div className="relative p-2">
-            {gameState === 'run' ? (
-              <>
-                {/* 文字翻转效果 */}
-                <div ref={flipperRef} className="relative transform-3d">
-                  {/* 文字正面 */}
-                  <p className="absolute text-xs backface-hidden">
-                    {formatTime(gameTime) && '游戏运行中'}
-                  </p>
-                  {/* 文字背面 */}
-                  <p
-                    className={`absolute left-3 rotate-y-180 bg-gradient-to-bl text-sm whitespace-nowrap backface-hidden ${
-                      gameModeColorMap[gameMode]
-                    } bg-clip-text text-transparent`}
-                  >
-                    {gameModeMap[gameMode] || '...'}
-                  </p>
-                </div>
-                <p className="mt-3.5">{formatTime(gameTime) || '...'}</p>
-                {/* 绿色闪烁灯 */}
-                <span className="absolute top-1.5 right-1.5 inline-flex h-3 w-3 animate-ping rounded-full bg-green-400 opacity-75"></span>
-                <span className="absolute top-2 right-2 inline-flex h-2 w-2 rounded-full bg-green-500"></span>
-              </>
-            ) : gameState === 'stop' ? (
-              <>
-                <p className="text-xs">{formatTime(gameTime) && '运行时间'}</p>
-                <p>
-                  {formatTime(gameTime) || '...'}
-                  <span className="absolute top-2 right-2 inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+          设置中心
+        </Link>
+      </motion.div>
+
+      {/* 搜索区域 - 固定宽度 */}
+      <motion.div
+        className="flex items-center justify-center relative px-3"
+        onMouseEnter={() => {
+          setPosition({ x: 250, y: 16, rotate: -90 });
+        }}
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+      >
+        <div className="flex items-center justify-center h-8 w-40 rounded-full border border-gray-300 bg-white shadow-sm">
+          <input
+            type="text"
+            className="w-25 text-gray-700 focus:outline-none bg-transparent"
+            value={inputRef}
+            onChange={(e) => setInputRef(e.target.value)}
+          />
+        </div>
+        <button
+          onClick={() => handleSearch(inputRef)}
+          className="absolute right-5 cursor-pointer text-stone-900 hover:text-stone-600"
+        >
+          <FaSearch className="text-xl" />
+        </button>
+      </motion.div>
+
+      {/* 可拖拽区域 - 自适应宽度 (1fr) */}
+      <div 
+        className="flex items-center justify-center min-w-0 p-1"
+      >
+        <div className='grow border-2 border-dashed rounded-lg  border-gray-400 p-3' 
+          style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
+          <p className="h-full text-xs text-gray-400 select-none whitespace-nowrap text-center">
+            拖拽区域
+          </p>
+        </div>
+      </div>
+
+      {/* 游戏运行状态 - 固定宽度 */}
+      <div 
+        className="flex items-center justify-center border-l-2 border-dashed border-l-black px-3"
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+      >
+        <div className="relative py-2">
+          {gameState === 'run' ? (
+            <>
+              {/* 文字翻转效果 */}
+              <div ref={flipperRef} className="relative transform-3d">
+                {/* 文字正面 */}
+                <p className="absolute text-xs backface-hidden whitespace-nowrap">
+                  {formatTime(gameTime) && '游戏运行中'}
                 </p>
-              </>
-            ) : (
-              <>
-                <p ref={typewriterRef} className="text-xs">
-                  暂无游戏运行
-                </p>
+                {/* 文字背面 */}
                 <p
-                  style={{
-                    backgroundSize: '200% 100%',
-                    backgroundPosition: '0% center',
-                  }}
-                  className={`GSAPanimate-modeText bg-gradient-to-bl ${
+                  className={`absolute left-3 rotate-y-180 bg-gradient-to-bl text-sm whitespace-nowrap backface-hidden ${
                     gameModeColorMap[gameMode]
                   } bg-clip-text text-transparent`}
                 >
                   {gameModeMap[gameMode] || '...'}
                 </p>
-              </>
-            )}
-          </div>
+              </div>
+              <p className="mt-3.5 whitespace-nowrap">{formatTime(gameTime) || '...'}</p>
+              {/* 绿色闪烁灯 */}
+              <span className="absolute top-1.5 right-1.5 inline-flex h-3 w-3 animate-ping rounded-full bg-green-400 opacity-75"></span>
+              <span className="absolute top-2 right-2 inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+            </>
+          ) : gameState === 'stop' ? (
+            <>
+              <p className="text-xs whitespace-nowrap">{formatTime(gameTime) && '运行时间'}</p>
+              <p className="whitespace-nowrap">
+                {formatTime(gameTime) || '...'}
+                <span className="absolute top-2 right-2 inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+              </p>
+            </>
+          ) : (
+            <>
+              <p ref={typewriterRef} className="text-xs whitespace-nowrap">
+                暂无游戏运行
+              </p>
+              <p
+                style={{
+                  backgroundSize: '200% 100%',
+                  backgroundPosition: '0% center',
+                }}
+                className={`GSAPanimate-modeText bg-gradient-to-bl whitespace-nowrap ${
+                  gameModeColorMap[gameMode]
+                } bg-clip-text text-transparent`}
+              >
+                {gameModeMap[gameMode] || '...'}
+              </p>
+            </>
+          )}
         </div>
+      </div>
+
+      {/* 窗口控制按钮区域 - 固定宽度 */}
+      <div 
+        className="flex items-center"
+        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+      >
+        {/* 最小化按钮 */}
+        <button
+          onClick={handleMinimize}
+          className="h-full px-4 hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center"
+          aria-label="最小化"
+        >
+          <VscChromeMinimize className="text-lg" />
+        </button>
+        {/* 最大化/还原按钮 */}
+        <button
+          onClick={handleMaximize}
+          className="h-full px-4 hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center"
+          aria-label={isMaximized ? '还原' : '最大化'}
+        >
+          {isMaximized ? (
+            <VscChromeRestore className="text-lg" />
+          ) : (
+            <VscChromeMaximize className="text-lg" />
+          )}
+        </button>
+        {/* 关闭按钮 */}
+        <button
+          onClick={handleClose}
+          className="h-full px-4 hover:bg-red-500 hover:text-white transition-colors duration-200 flex items-center justify-center"
+          aria-label="关闭"
+        >
+          <VscChromeClose className="text-lg" />
+        </button>
       </div>
     </div>
   );
-};
-
-export default NavHeader;
+};export default NavHeader;

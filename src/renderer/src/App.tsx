@@ -6,9 +6,9 @@ function App(): React.JSX.Element {
     <>
       <NavHeader />
       <div className="relative w-full">
-        <div className="absolute top-0 right-20 z-50 flex flex-col items-center">
+        {/* <div className="absolute top-0 right-20 z-50 flex flex-col items-center">
           <InfoBox />
-        </div>
+        </div> */}
         <div className="">
           <GameCards />
         </div>

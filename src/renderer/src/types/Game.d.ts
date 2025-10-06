@@ -46,6 +46,7 @@ export interface GameStatistics {
   fastHours: number;
   afkHours: number;
   infinityHours: number;
+  totalDiskSize: number;
 }
 //游戏周模式时长分布
 export interface GameLog {

@@ -63,6 +63,7 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
     },
+    frame: false
   });
 
   mainWindow.on('ready-to-show', () => {
@@ -526,6 +527,26 @@ app.whenReady().then(() => {
   ipcMain.handle('db:getGameLogByModeLastWeek', () => {
     return gameService.getGameLogByModeLastWeek();
   });
+
+  // 窗口控制
+  ipcMain.handle('window:minimize', () => {
+    mainWindow?.minimize();
+  });
+  ipcMain.handle('window:maximize', () => {
+    if (mainWindow?.isMaximized()) {
+      mainWindow?.unmaximize();
+    } else {
+      mainWindow?.maximize();
+    }
+  });
+  ipcMain.handle('window:close', () => {
+    mainWindow?.close();
+  });
+  ipcMain.handle('window:isMaximized', () => {
+    return mainWindow?.isMaximized();
+  });
+
+  createWindow();
   //备份数据库(本地)
   ipcMain.handle('db:backupDatabase', async () => {
     return gameService.backupDatabase();

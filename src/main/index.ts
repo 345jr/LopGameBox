@@ -140,8 +140,10 @@ app.whenReady().then(() => {
         return { success: false, message: '已有另一个应用在运行中。' };
       }
       try {
+        // 获取exe所在的目录作为工作目录
+        const exeDir = path.dirname(game.path);
         // 使用 spawn 启动进程
-        childProcess = spawn(game.path, [], { stdio: 'ignore' });
+        childProcess = spawn(game.path, [], { stdio: 'ignore', cwd: exeDir });
         // 设置当前的游戏模式
         gameMode = game.gameMode;
         //获取启动时的时间戳,用于游戏记录

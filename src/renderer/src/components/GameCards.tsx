@@ -16,6 +16,7 @@ import { FaArrowUp, FaPersonWalkingArrowRight } from 'react-icons/fa6';
 import { FaGithub } from "react-icons/fa";
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+import { toast } from 'react-hot-toast';
 
 const GameCards = () => {
   // #region 状态管理
@@ -77,7 +78,8 @@ const GameCards = () => {
 
   // 缓存停止计时函数
   const handleTimerStopped = useCallback(() => {
-    setInfo(`游戏已关闭。`);
+    // setInfo(`游戏已关闭。`);
+    toast.success(`游戏已关闭。`);
     setGameState('stop');
     fetchGamesByCategory();
   }, [fetchGamesByCategory]);
@@ -109,7 +111,8 @@ const GameCards = () => {
     window.api.onTimerUpdate(setGameTime);
     window.api.onTimerStopped(handleTimerStopped);
     if (GameState === 'run') {
-      setInfo(`已经有另一个游戏在运行中`);
+      // setInfo(`已经有另一个游戏在运行中`);
+      toast.error("已经有另一个游戏在运行中")
       return;
     }
 
@@ -121,7 +124,8 @@ const GameCards = () => {
 
     if (result.success) {
       setGameState('run');
-      setInfo(`启动!!! ${game.game_name}`);
+      // setInfo(`启动!!! ${game.game_name}`);
+      toast.success(`启动!${game.game_name}`);
     } else {
       setGameState('null');
     }
@@ -137,7 +141,8 @@ const GameCards = () => {
       `)
     ) {
       await window.api.deleteGame(game.id);
-      setInfo(`游戏${game.game_name}已删除。`);
+      // setInfo(`游戏${game.game_name}已删除。`);
+      toast.success(`${game.game_name}已删除。`);
       fetchGamesByCategory();
     }
   };
@@ -165,10 +170,12 @@ const GameCards = () => {
         imagePath: path,
         relativePath: result.relativePath,
       });
-      setInfo(`${game.game_name}添加新封面图!`);
+      // setInfo(`${game.game_name}添加新封面图!`);
+      toast.success(`添加成功`);
       fetchGamesByCategory();
     } catch (error: any) {
-      setInfo(`添加封面失败`);
+      // setInfo(`添加封面失败`);
+      toast.error(`添加封面失败`);
     }
   };
   //动画效果父 --

@@ -8,6 +8,7 @@ import useInfoStore from '@renderer/store/infoStore';
 import { Button, Modal } from 'antd';
 import { TbSwords } from "react-icons/tb";
 import { FaBookBookmark } from "react-icons/fa6";
+import toast from 'react-hot-toast';
 export default function ModalContent({
   onClose,
   gameId,
@@ -163,10 +164,11 @@ export default function ModalContent({
       const gameList = await window.api.getAllGames();
       updata(gameList);
       onClose();
-      setInfo(`游戏名已修改为: ${newName}`);
+      // setInfo(`游戏名已修改为: ${newName}`);
+      toast.success(`游戏名已修改为: ${newName}`);
     } else {
       onClose();
-      setInfo(`游戏名不能为空!`);
+      toast.error(`游戏名不能为空!`);
     }
   };
   //重新计算游戏大小
@@ -186,16 +188,18 @@ export default function ModalContent({
       const result = await window.api.updateGameCategory(gameId, category);
       if (result.success) {
         setCurrentCategory(category);
-        setInfo(`分类已更新为: ${category === 'playing' ? '攻略中' : '已归档'}`);
+        // setInfo(`分类已更新为: ${category === 'playing' ? '攻略中' : '已归档'}`);
+        toast.success(`分类已更新为: ${category === 'playing' ? '攻略中' : '已归档'}`);
         // 重新获取数据
         const newGameList = await window.api.getAllGames();
         updata(newGameList);
       } else {
-        setInfo(`更新失败: ${result.message}`);
+        // setInfo(`更新失败: ${result.message}`);
+        toast.error(`更新失败: ${result.message}`);
       }
     } catch (err: any) {
       console.error('更新游戏分类失败', err);
-      setInfo(`更新失败: ${err?.message ?? String(err)}`);
+      toast.error(`更新失败: ${err?.message ?? String(err)}`);
     }
   };
 
@@ -209,10 +213,9 @@ export default function ModalContent({
       const calculatedSize = await window.api.updateGameSize(gameId, newGamePath);
       setSize(calculatedSize);
       setShouldRecalculateSize(true);
-      setInfo('游戏大小计算完成');
+      toast.success('游戏大小计算完成');
     } catch (err: any) {
-      console.error('计算游戏大小失败', err);
-      setInfo(`计算失败: ${err?.message ?? String(err)}`);
+      toast.error(`计算失败: ${err?.message ?? String(err)}`);
     }
   };
 
@@ -234,7 +237,8 @@ export default function ModalContent({
       // 先更新游戏路径
       const pathUpdateResult = await window.api.updateGamePath(gameId, newGamePath);
       if (!pathUpdateResult.success) {
-        setInfo(`路径更新失败: ${pathUpdateResult.message}`);
+        // setInfo(`路径更新失败: ${pathUpdateResult.message}`);
+        toast.error(`路径更新失败: ${pathUpdateResult.message}`);
         setIsUpdating(false);
         return;
       }
@@ -261,11 +265,12 @@ export default function ModalContent({
       await loadVersions();
       const newGameList = await window.api.getAllGames();
       updata(newGameList);
-      setInfo(`已创建新版本 ${newVersion.version}，游戏路径已更新`);
+      // setInfo(`已创建新版本 ${newVersion.version}，游戏路径已更新`);
+      toast.success(`已创建新版本 ${newVersion.version}，游戏路径已更新`);
       setIsUpdateModalOpen(false);
     } catch (err: any) {
       console.error('更新版本失败', err);
-      setInfo(`更新失败: ${err?.message ?? String(err)}`);
+      toast.error(`更新失败: ${err?.message ?? String(err)}`);
     } finally {
       setIsUpdating(false);
     }

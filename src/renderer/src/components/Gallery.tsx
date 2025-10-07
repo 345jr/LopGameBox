@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { FaRegCircleXmark, FaPlus, FaCheck, FaTrophy } from 'react-icons/fa6';
 import Masonry from 'react-responsive-masonry';
+import toast from 'react-hot-toast';
 
 // 时长成就等级配置
 const TIME_ACHIEVEMENTS = [
@@ -189,7 +190,8 @@ const Gallery = () => {
     const nextLevel = currentLevel + 1;
 
     if (nextLevel > COMPLETION_ACHIEVEMENTS.length) {
-      alert('已达到最高等级!');
+      // alert('已达到最高等级!');
+      toast.success('已达到最高等级!');
       return;
     }
 

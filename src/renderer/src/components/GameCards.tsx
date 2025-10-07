@@ -17,6 +17,7 @@ import { FaGithub } from "react-icons/fa";
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { toast } from 'react-hot-toast';
+import { VscAttach } from "react-icons/vsc";
 
 const GameCards = () => {
   // #region 状态管理
@@ -296,9 +297,8 @@ const GameCards = () => {
           <button
             ref={categoryBtnRef}
             onClick={toggleCategory}
-            className="mb-2 w-full rounded-md bg-white px-4 py-2 text-sm shadow-md transition-all hover:bg-blue-200 border-gray-500 border-2"
+            className="cursor-pointer mb-2 w-full rounded-md bg-white px-4 py-2 text-sm shadow-md transition-all hover:bg-blue-200 border-gray-500 border-2"
           >
-            {/* {isCategoryOpen ? '收起分类' : '显示分类'} */}
             游戏分类
           </button>
           {/* 分类选项容器 */}
@@ -309,7 +309,7 @@ const GameCards = () => {
                   if (el) categoryItemsRef.current[0] = el;
                 }}
                 onClick={() => handleCategoryChange('playing')}
-                className={`relative overflow-hidden rounded-md px-4 py-2 text-sm shadow-md transition-colors border-gray-500 border-2 ${
+                className={`cursor-pointer relative overflow-hidden rounded-md px-4 py-2 text-sm shadow-md transition-colors border-gray-500 border-2 ${
                   selectedCategory === 'playing' 
                     ? 'bg-blue-100 hover:bg-blue-200' 
                     : 'bg-white hover:bg-blue-200'
@@ -323,7 +323,7 @@ const GameCards = () => {
                   if (el) categoryItemsRef.current[1] = el;
                 }}
                 onClick={() => handleCategoryChange('archived')}
-                className={`relative overflow-hidden rounded-md px-4 py-2 text-sm shadow-md transition-colors border-gray-500 border-2 ${
+                className={`cursor-pointer relative overflow-hidden rounded-md px-4 py-2 text-sm shadow-md transition-colors border-gray-500 border-2 ${
                   selectedCategory === 'archived' 
                     ? 'bg-blue-100 hover:bg-blue-200' 
                     : 'bg-white hover:bg-blue-200'
@@ -337,7 +337,7 @@ const GameCards = () => {
                   if (el) categoryItemsRef.current[2] = el;
                 }}
                 onClick={() => handleCategoryChange('all')}
-                className={`relative overflow-hidden rounded-md px-4 py-2 text-sm shadow-md transition-colors border-gray-500 border-2 ${
+                className={`cursor-pointer relative overflow-hidden rounded-md px-4 py-2 text-sm shadow-md transition-colors border-gray-500 border-2 ${
                   selectedCategory === 'all' 
                     ? 'bg-blue-100 hover:bg-blue-200' 
                     : 'bg-white hover:bg-blue-200'
@@ -437,7 +437,7 @@ const GameCards = () => {
 
                   {/* 操作区 */}
                   {/* 启动游戏 */}
-                  <div className="grid grid-cols-6 grid-rows-2 gap-1">
+                  <div className="grid grid-cols-7 grid-rows-1 gap-1">
                     <motion.button
                       onClick={() => handleRunGame(game)}
                       initial={{ y: 0 }}
@@ -469,6 +469,14 @@ const GameCards = () => {
                         <GiAchievement className="iconBtn" />
                       </Link>
                     </motion.button>                    
+                    {/* 外链管理 */}
+                    <motion.button
+                      onClick={() => handleDeleteGame(game)}
+                      initial={{ y: 0 }}
+                      whileHover={{ y: -5 }}
+                    >
+                      <VscAttach className="iconBtn" />
+                    </motion.button>
                     {/* 删除游戏记录 */}
                     <motion.button
                       onClick={() => handleDeleteGame(game)}

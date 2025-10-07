@@ -8,11 +8,13 @@ import LoginContent from '../ModalContent/LoginContent';
 import { getMe } from '@renderer/api';
 
 import type { UserData } from '@renderer/types/SettingCenter';
+import toast from 'react-hot-toast';
 
 const SettingPage = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [showUpdate, setShowUpdate] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const JwtToken = useUserStore((state) => state.JwtToken);
   const setJwtToken = useUserStore((state) => state.setJwtToken);
@@ -22,7 +24,8 @@ const SettingPage = () => {
     if (JwtToken) {
       // 获取用户信息
       fetchUserData();
-      console.log(`当前以登录.JWT : ${JwtToken}`);
+    } else {
+      setIsLoading(false);
     }
   }, [JwtToken]);
 
@@ -37,18 +40,18 @@ const SettingPage = () => {
     try {
       // 固定使用本地开发环境的上传地址，且必须已登录（有 JwtToken）
       if (!JwtToken) {
-        alert('请先登录后再进行云备份');
+        toast.error('请先登录后再进行云备份');
         return;
       }
       const uploadUrl = 'https://lopbox.lopop.top/upload';
       const result = await window.api.backupAndUpload(uploadUrl, JwtToken);
       if (result.success) {
-        alert(`备份并上传成功，路径: ${result.path}`);
+        toast.success(`备份并上传成功`);
       } else {
-        alert(`备份或上传失败: ${result.error}`);
+        toast.error(`备份或上传失败: ${result.error}`);
       }
     } catch (err) {
-      alert(`备份发生异常: ${String(err)}`);
+      toast.error(`备份发生异常: ${String(err)}`);
     }
   };
 
@@ -61,6 +64,8 @@ const SettingPage = () => {
       console.error('获取用户信息失败:', error);
       // 如果获取用户信息失败，可能token已过期，清除token
       setJwtToken('');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -69,7 +74,12 @@ const SettingPage = () => {
       {/* 用户配置 */}
       <div className="flex flex-row">
         {/* 用户信息区 */}
-        {userData ? (
+        {isLoading ? (
+          <div className="m-4 grid items-center gap-2">
+            <p className="whitespace-nowrap text-gray-600">加载中...</p>
+            <p className="text-xs text-blue-600">● 正在获取用户信息</p>
+          </div>
+        ) : userData ? (
           <div className="ml-4 grid w-45 grid-cols-3 grid-rows-2 items-center justify-center">
             {/* 用户画像 */}
             <div className="flex justify-center">

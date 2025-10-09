@@ -240,4 +240,32 @@ export class GameService {
   public getAchievementStats(gameId: number) {
     return this.galleryRepo.getAchievementStats(gameId);
   }
+
+  // ==================== 外链管理相关方法 ====================
+
+  // 添加游戏外链
+  public addGameLink(
+    gameId: number,
+    url: string,
+    title: string,
+    description: string,
+    icon: string,
+  ) {
+    return this.gameRepo.addGameLink(gameId, url, title, description, icon);
+  }
+
+  // 获取游戏外链列表
+  public getGameLinks(gameId: number) {
+    return this.gameRepo.getGameLinks(gameId);
+  }
+
+  // 删除游戏外链
+  public deleteGameLink(linkId: number) {
+    return this.gameRepo.deleteGameLink(linkId);
+  }
+
+  // 更新游戏外链
+  public updateGameLink(linkId: number, title: string, description: string) {
+    return this.gameRepo.updateGameLink(linkId, title, description);
+  }
 }

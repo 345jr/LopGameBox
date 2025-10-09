@@ -139,6 +139,30 @@ const api = {
   getAchievementStats: (gameId: number) => 
     ipcRenderer.invoke('db:getAchievementStats', gameId),
   
+  // ==================== 外链管理接口 ====================
+  // 添加游戏外链
+  addGameLink: (gameId: number, metadata: {
+    url: string;
+    title: string;
+    description: string;
+    favicon: string;
+  }) => ipcRenderer.invoke('db:addGameLink', {
+    gameId,
+    url: metadata.url,
+    title: metadata.title,
+    description: metadata.description,
+    icon: metadata.favicon,
+  }),
+  // 获取游戏外链列表
+  getGameLinks: (gameId: number) => 
+    ipcRenderer.invoke('db:getGameLinks', gameId),
+  // 删除游戏外链
+  deleteGameLink: (linkId: number) => 
+    ipcRenderer.invoke('db:deleteGameLink', linkId),
+  // 更新游戏外链
+  updateGameLink: (linkId: number, title: string, description: string) => 
+    ipcRenderer.invoke('db:updateGameLink', { linkId, title, description }),
+  
   // ==================== 窗口控制接口 ====================
   // 最小化窗口
   minimizeWindow: () => ipcRenderer.invoke('window:minimize'),

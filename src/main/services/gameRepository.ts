@@ -152,4 +152,70 @@ export class GameRepository {
     stmt.run(newDescription, versionId);
     console.log('update version description success');
   }
+
+  // ==================== 外链管理相关方法 ====================
+
+  /**
+   * 添加游戏外链
+   * @param gameId 游戏ID
+   * @param url 网页URL
+   * @param title 网页标题
+   * @param description 网页描述
+   * @param icon 网页图标
+   */
+  public addGameLink(
+    gameId: number,
+    url: string,
+    title: string,
+    description: string,
+    icon: string,
+  ) {
+    const stmt = this.db.prepare(`
+      INSERT INTO game_links (game_id, url, title, description, icon)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+    const info = stmt.run(gameId, url, title, description, icon);
+    return {
+      id: info.lastInsertRowid,
+      gameId,
+      url,
+      title,
+      description,
+      icon,
+    };
+  }
+
+  /**
+   * 获取游戏的所有外链
+   * @param gameId 游戏ID
+   */
+  public getGameLinks(gameId: number) {
+    return this.db
+      .prepare('SELECT * FROM game_links WHERE game_id = ? ORDER BY created_at DESC')
+      .all(gameId);
+  }
+
+  /**
+   * 删除游戏外链
+   * @param linkId 链接ID
+   */
+  public deleteGameLink(linkId: number) {
+    const stmt = this.db.prepare('DELETE FROM game_links WHERE id = ?');
+    return stmt.run(linkId);
+  }
+
+  /**
+   * 更新游戏外链
+   * @param linkId 链接ID
+   * @param title 网页标题
+   * @param description 网页描述
+   */
+  public updateGameLink(linkId: number, title: string, description: string) {
+    const stmt = this.db.prepare(`
+      UPDATE game_links 
+      SET title = ?, description = ?, updated_at = strftime('%s','now')
+      WHERE id = ?
+    `);
+    return stmt.run(title, description, linkId);
+  }
 }

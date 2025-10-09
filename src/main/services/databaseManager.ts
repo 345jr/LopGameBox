@@ -91,6 +91,23 @@ export class DatabaseManager {
       -- 索引，加快按游戏ID和完成状态查询的速度
       CREATE INDEX IF NOT EXISTS idx_game_achievements_game_id ON game_achievements (game_id);
       CREATE INDEX IF NOT EXISTS idx_game_achievements_completed ON game_achievements (is_completed);
+      
+      -- 游戏链接表：存储每个游戏的相关网页链接及元数据
+      CREATE TABLE IF NOT EXISTS game_links (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        game_id INTEGER NOT NULL,
+        url TEXT NOT NULL,
+        title TEXT,
+        description TEXT,
+        icon TEXT,
+        created_at INTEGER DEFAULT (strftime('%s','now')),
+        updated_at INTEGER DEFAULT (strftime('%s','now')),
+        FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
+      );
+      -- 复合唯一索引，确保同一游戏下URL唯一
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_game_links_gameid_url ON game_links (game_id, url);
+      -- 索引，加快按游戏ID查询的速度
+      CREATE INDEX IF NOT EXISTS idx_game_links_game_id ON game_links (game_id);
     `);
 
     // 检查并添加 game_mode 列

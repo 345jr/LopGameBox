@@ -11,6 +11,7 @@ import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import Selector from './GameModeSelector/Selector';
 import { RestTimeContent } from './ModalContent/RestTimeContent';
+import LinksContent from './ModalContent/LinksContent';
 import Portal from './Portal';
 import { FaArrowUp, FaPersonWalkingArrowRight } from 'react-icons/fa6';
 import { FaGithub } from "react-icons/fa";
@@ -27,6 +28,10 @@ const GameCards = () => {
   const BannersRef = useRef<Banners[]>(null);
   // 控制是否显示休息时间弹窗
   const [showRestTimeModal, setShowRestTimeModal] = useState(false);
+  // 控制是否显示外链管理弹窗
+  const [showLinksModal, setShowLinksModal] = useState(false);
+  // 当前选择的游戏ID(用于外链管理)
+  const [selectedGameId, setSelectedGameId] = useState<number | null>(null);
   // 获取当前游戏的全局状态ID
   const getGameList = useGameStore((state) => state.gameId);
   // 设置全局提示信息
@@ -355,6 +360,18 @@ const GameCards = () => {
             <RestTimeContent onClose={() => setShowRestTimeModal(false)} />,
             document.body,
           )}
+        {/* 外链管理模态框 */}
+        {showLinksModal && selectedGameId &&
+          createPortal(
+            <LinksContent 
+              gameId={selectedGameId}
+              onClose={() => {
+                setShowLinksModal(false);
+                setSelectedGameId(null);
+              }} 
+            />,
+            document.body,
+          )}
         {/*  暂用-休息调试 */}
         {/* <button onClick={() => setShowRestTimeModal(true)} className="text-white">
           休息时间调试
@@ -471,7 +488,10 @@ const GameCards = () => {
                     </motion.button>                    
                     {/* 外链管理 */}
                     <motion.button
-                      onClick={() => handleDeleteGame(game)}
+                      onClick={() => {
+                        setSelectedGameId(game.id);
+                        setShowLinksModal(true);
+                      }}
                       initial={{ y: 0 }}
                       whileHover={{ y: -5 }}
                     >

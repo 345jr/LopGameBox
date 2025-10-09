@@ -188,13 +188,11 @@ export default function ModalContent({
       const result = await window.api.updateGameCategory(gameId, category);
       if (result.success) {
         setCurrentCategory(category);
-        // setInfo(`分类已更新为: ${category === 'playing' ? '攻略中' : '已归档'}`);
         toast.success(`分类已更新为: ${category === 'playing' ? '攻略中' : '已归档'}`);
         // 重新获取数据
         const newGameList = await window.api.getAllGames();
         updata(newGameList);
       } else {
-        // setInfo(`更新失败: ${result.message}`);
         toast.error(`更新失败: ${result.message}`);
       }
     } catch (err: any) {
@@ -237,7 +235,6 @@ export default function ModalContent({
       // 先更新游戏路径
       const pathUpdateResult = await window.api.updateGamePath(gameId, newGamePath);
       if (!pathUpdateResult.success) {
-        // setInfo(`路径更新失败: ${pathUpdateResult.message}`);
         toast.error(`路径更新失败: ${pathUpdateResult.message}`);
         setIsUpdating(false);
         return;
@@ -265,7 +262,6 @@ export default function ModalContent({
       await loadVersions();
       const newGameList = await window.api.getAllGames();
       updata(newGameList);
-      // setInfo(`已创建新版本 ${newVersion.version}，游戏路径已更新`);
       toast.success(`已创建新版本 ${newVersion.version}，游戏路径已更新`);
       setIsUpdateModalOpen(false);
     } catch (err: any) {

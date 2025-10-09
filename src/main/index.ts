@@ -464,6 +464,49 @@ app.whenReady().then(() => {
       return null;
     }
   });
+
+  // ==================== 外链管理相关处理器 ====================
+  
+  //添加游戏外链
+  ipcMain.handle('db:addGameLink', async (_event, { gameId, url, title, description, icon }) => {
+    try {
+      return gameService.addGameLink(gameId, url, title, description, icon);
+    } catch (error: any) {
+      console.log(`添加游戏外链发生错误:${error.message}`);
+      throw error;
+    }
+  });
+
+  //获取游戏外链列表
+  ipcMain.handle('db:getGameLinks', async (_event, gameId: number) => {
+    try {
+      return gameService.getGameLinks(gameId);
+    } catch (error: any) {
+      console.log(`获取游戏外链列表发生错误:${error.message}`);
+      return [];
+    }
+  });
+
+  //删除游戏外链
+  ipcMain.handle('db:deleteGameLink', async (_event, linkId: number) => {
+    try {
+      return gameService.deleteGameLink(linkId);
+    } catch (error: any) {
+      console.log(`删除游戏外链发生错误:${error.message}`);
+      throw error;
+    }
+  });
+
+  //更新游戏外链
+  ipcMain.handle('db:updateGameLink', async (_event, { linkId, title, description }) => {
+    try {
+      return gameService.updateGameLink(linkId, title, description);
+    } catch (error: any) {
+      console.log(`更新游戏外链发生错误:${error.message}`);
+      throw error;
+    }
+  });
+
   //删除图片文件
   ipcMain.handle('op:delectImages', async (_event, relative_path) => {
     try {

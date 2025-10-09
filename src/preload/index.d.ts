@@ -156,6 +156,30 @@ declare global {
         completionRate: number;
       }>;
       
+      // ==================== 外链管理接口 ====================
+      // 添加游戏外链
+      addGameLink: (gameId: number, metadata: {
+        url: string;
+        title: string;
+        description: string;
+        favicon: string;
+      }) => Promise<any>;
+      // 获取游戏外链列表
+      getGameLinks: (gameId: number) => Promise<Array<{
+        id: number;
+        game_id: number;
+        url: string;
+        title: string;
+        description: string;
+        icon: string;
+        created_at: number;
+        updated_at: number;
+      }>>;
+      // 删除游戏外链
+      deleteGameLink: (linkId: number) => Promise<any>;
+      // 更新游戏外链
+      updateGameLink: (linkId: number, title: string, description: string) => Promise<any>;
+      
       // ==================== 窗口控制接口 ====================
       // 最小化窗口
       minimizeWindow: () => Promise<void>;

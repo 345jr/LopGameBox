@@ -14,7 +14,7 @@ import {
 // 自定义提示框组件
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
-    console.log(payload);
+    // console.log(payload);
     return (
       <div className="max-w-48 rounded border border-gray-300 bg-white p-2 text-sm shadow-md">
         <p className="mb-1 font-medium">{`${label}`}</p>

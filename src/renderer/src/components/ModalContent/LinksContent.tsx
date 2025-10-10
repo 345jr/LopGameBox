@@ -24,6 +24,12 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
   const [loading, setLoading] = useState(false);
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [fetchingLinks, setFetchingLinks] = useState(false);
+  
+  // 编辑模态框状态
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingLink, setEditingLink] = useState<LinkItem | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editUrl, setEditUrl] = useState('');
 
   // 获取元数据
   const handleFetchMetadata = async () => {
@@ -123,6 +129,55 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
     }
   };
 
+  // 打开编辑模态框
+  const handleOpenEdit = (link: LinkItem) => {
+    setEditingLink(link);
+    setEditTitle(link.title);
+    setEditUrl(link.url);
+    setShowEditModal(true);
+  };
+
+  // 关闭编辑模态框
+  const handleCloseEdit = () => {
+    setShowEditModal(false);
+    setEditingLink(null);
+    setEditTitle('');
+    setEditUrl('');
+  };
+
+  // 保存编辑
+  const handleSaveEdit = async () => {
+    if (!editingLink) return;
+
+    if (!editTitle.trim()) {
+      toast.error('请输入标题');
+      return;
+    }
+
+    if (!editUrl.trim()) {
+      toast.error('请输入URL');
+      return;
+    }
+
+    // URL验证
+    try {
+      new URL(editUrl);
+    } catch {
+      toast.error('请输入有效的URL');
+      return;
+    }
+
+    try {
+      await window.api.updateGameLink(editingLink.id, editTitle.trim(), editUrl.trim());
+      toast.success('更新成功');
+      handleCloseEdit();
+      fetchLinks();
+    } catch (error) {
+      console.error('更新链接失败:', error);
+      toast.error('更新链接失败');
+    }
+  };
+
   // 组件挂载时获取链接列表
   useEffect(() => {
     if (gameId) {
@@ -213,6 +268,27 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
                     </a>
                   </div>
 
+                  {/* 编辑按钮 */}
+                  <button
+                    onClick={() => handleOpenEdit(link)}
+                    className="flex-shrink-0 text-blue-500 transition hover:text-blue-700"
+                    title="编辑"
+                  >
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                  </button>
+
                   {/* 删除按钮 */}
                   <button
                     onClick={() => handleDeleteLink(link.id)}
@@ -249,6 +325,71 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
           </button>
         </div>
       </div>
+
+      {/* 编辑链接模态框 */}
+      {showEditModal && (
+        <div 
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50"
+          onClick={(e) => {
+            e.stopPropagation(); // 阻止事件冒泡到外层模态框
+            handleCloseEdit();
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+          >
+            <h2 className="mb-4 text-xl font-bold">编辑链接</h2>
+            
+            <div className="space-y-4">
+              {/* 标题输入 */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  标题
+                </label>
+                <input
+                  type="text"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  placeholder="输入标题"
+                  autoFocus
+                />
+              </div>
+
+              {/* URL输入 */}
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  链接地址
+                </label>
+                <input
+                  type="text"
+                  value={editUrl}
+                  onChange={(e) => setEditUrl(e.target.value)}
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  placeholder="输入URL"
+                />
+              </div>
+
+              {/* 按钮组 */}
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSaveEdit}
+                  className="flex-1 rounded-lg bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
+                >
+                  保存
+                </button>
+                <button
+                  onClick={handleCloseEdit}
+                  className="flex-1 rounded-lg bg-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-400"
+                >
+                  取消
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

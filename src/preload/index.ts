@@ -160,8 +160,8 @@ const api = {
   deleteGameLink: (linkId: number) => 
     ipcRenderer.invoke('db:deleteGameLink', linkId),
   // 更新游戏外链
-  updateGameLink: (linkId: number, title: string, description: string) => 
-    ipcRenderer.invoke('db:updateGameLink', { linkId, title, description }),
+  updateGameLink: (linkId: number, title: string, url: string) => 
+    ipcRenderer.invoke('db:updateGameLink', { linkId, title, url }),
   
   // ==================== 窗口控制接口 ====================
   // 最小化窗口

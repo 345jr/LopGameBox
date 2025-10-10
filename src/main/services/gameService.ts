@@ -265,7 +265,7 @@ export class GameService {
   }
 
   // 更新游戏外链
-  public updateGameLink(linkId: number, title: string, description: string) {
-    return this.gameRepo.updateGameLink(linkId, title, description);
+  public updateGameLink(linkId: number, title: string, url: string) {
+    return this.gameRepo.updateGameLink(linkId, title, url);
   }
 }

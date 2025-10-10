@@ -498,9 +498,9 @@ app.whenReady().then(() => {
   });
 
   //更新游戏外链
-  ipcMain.handle('db:updateGameLink', async (_event, { linkId, title, description }) => {
+  ipcMain.handle('db:updateGameLink', async (_event, { linkId, title, url }) => {
     try {
-      return gameService.updateGameLink(linkId, title, description);
+      return gameService.updateGameLink(linkId, title, url);
     } catch (error: any) {
       console.log(`更新游戏外链发生错误:${error.message}`);
       throw error;

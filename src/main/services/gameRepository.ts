@@ -208,14 +208,14 @@ export class GameRepository {
    * 更新游戏外链
    * @param linkId 链接ID
    * @param title 网页标题
-   * @param description 网页描述
+   * @param url 网页URL
    */
-  public updateGameLink(linkId: number, title: string, description: string) {
+  public updateGameLink(linkId: number, title: string, url: string) {
     const stmt = this.db.prepare(`
       UPDATE game_links 
-      SET title = ?, description = ?, updated_at = strftime('%s','now')
+      SET title = ?, url = ?, updated_at = strftime('%s','now')
       WHERE id = ?
     `);
-    return stmt.run(title, description, linkId);
+    return stmt.run(title, url, linkId);
   }
 }

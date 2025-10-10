@@ -178,7 +178,7 @@ declare global {
       // 删除游戏外链
       deleteGameLink: (linkId: number) => Promise<any>;
       // 更新游戏外链
-      updateGameLink: (linkId: number, title: string, description: string) => Promise<any>;
+      updateGameLink: (linkId: number, title: string, url: string) => Promise<any>;
       
       // ==================== 窗口控制接口 ====================
       // 最小化窗口

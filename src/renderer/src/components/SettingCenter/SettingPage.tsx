@@ -38,13 +38,14 @@ const SettingPage = () => {
   // 备份数据库处理函数
   const handleBackup = async () => {
     try {
-      // 固定使用本地开发环境的上传地址，且必须已登录（有 JwtToken）
       if (!JwtToken) {
         toast.error('请先登录后再进行云备份');
         return;
       }
       const uploadUrl = 'https://lopbox.lopop.top/upload';
       const result = await window.api.backupAndUpload(uploadUrl, JwtToken);
+      console.log(result)
+      console.log(`有结果了`)
       if (result.success) {
         toast.success(`备份并上传成功`);
       } else {

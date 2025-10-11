@@ -194,7 +194,7 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
         onClick={(e) => e.stopPropagation()}
         className="mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
       >
-        <h2 className="mb-4 text-xl font-bold">外链管理</h2>
+        <h2 className="mb-4 text-xl font-bold">链接管理</h2>
 
         {/* 添加链接区域 */}
         <div className="mb-6">

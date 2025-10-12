@@ -31,7 +31,6 @@ export class BackupService {
   public async uploadBackup(backupPath: string, uploadUrl: string, token?: string) {
     try {
       const data = await fsPromises.readFile(backupPath);
-      // node >=18 有全局 fetch；若没有可替换为 node-fetch
       const res = await fetch(uploadUrl, {
         method: 'POST',
         headers: {
@@ -39,7 +38,6 @@ export class BackupService {
           'X-Filename': path.basename(backupPath),
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        // convert Buffer to Uint8Array to satisfy fetch BodyInit typing in Node
         body: new Uint8Array(data),
       });
       if (!res.ok) {

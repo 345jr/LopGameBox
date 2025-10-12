@@ -37,23 +37,27 @@ const SettingPage = () => {
 
   // 备份数据库处理函数
   const handleBackup = async () => {
-    try {
-      if (!JwtToken) {
-        toast.error('请先登录后再进行云备份');
-        return;
-      }
-      const uploadUrl = 'https://lopbox.lopop.top/upload';
-      const result = await window.api.backupAndUpload(uploadUrl, JwtToken);
-      console.log(result)
-      console.log(`有结果了`)
-      if (result.success) {
-        toast.success(`备份并上传成功`);
-      } else {
-        toast.error(`备份或上传失败: ${result.error}`);
-      }
-    } catch (err) {
-      toast.error(`备份发生异常: ${String(err)}`);
+    if (!JwtToken) {
+      toast.error('请先登录后再进行云备份');
+      return;
     }
+
+    const uploadUrl = 'https://lopbox.lopop.top/upload';
+    
+    toast.promise(
+      window.api.backupAndUpload(uploadUrl, JwtToken).then((result) => {
+        if (result.success) {
+          return result;
+        } else {
+          throw new Error(result.error || '备份失败');
+        }
+      }),
+      {
+        loading: '正在备份并上传...',
+        success: '备份并上传成功！',
+        error: (err) => `备份失败: ${err.message || String(err)}`,
+      }
+    );
   };
 
   //从服务器获取用户信息

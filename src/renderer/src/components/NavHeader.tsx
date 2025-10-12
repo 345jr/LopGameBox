@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscTriangleDown } from 'react-icons/vsc';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 
 import useGameStore from '@renderer/store/GameStore';
 import useInfoStore from '@renderer/store/infoStore';
@@ -66,10 +67,12 @@ const NavHeader = () => {
         imagePath: 'null',
         relativePath: defaultPath,
       });
-      setInfo(`${defaultName} 已添加`);
+      toast.success(`${defaultName} 已添加`);
+      //添加游戏后刷新游戏列表
       setGameList(gameInitData.id);
     } catch (error: any) {
       console.log(`${error.message}`);
+      toast.error(`添加游戏失败: ${error.message}`);
     }
   };
 

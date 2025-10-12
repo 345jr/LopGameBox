@@ -34,8 +34,6 @@ const GameCards = () => {
   const [selectedGameId, setSelectedGameId] = useState<number | null>(null);
   // 获取当前游戏的全局状态ID
   const getGameList = useGameStore((state) => state.gameId);
-  // 设置全局提示信息
-  const setInfo = useInfoStore((state) => state.setInfo);
   // 更新游戏的计时信息
   const setGameTime = useGameStore((state) => state.setGameTime);
   // 获取当前游戏的运行状态
@@ -60,15 +58,10 @@ const GameCards = () => {
   const categoryItemsRef = useRef<HTMLButtonElement[]>([]);
   // #endregion
 
-  useEffect(() => {
-    fetchGamesByCategory(); // 改为使用分类查询,这样会读取持久化的 selectedCategory
-    //当游戏全局状态ID改变时触发
-  }, [getGameList]);
-  
-  // 当分类改变时重新获取游戏列表
+  // 当分类改变时重新获取游戏列表,添加新游戏时也会触发
   useEffect(() => {
     fetchGamesByCategory();
-  }, [selectedCategory]);
+  }, [getGameList, selectedCategory]);
 
   // 根据分类获取游戏数据
   const fetchGamesByCategory = useCallback(async () => {
@@ -84,14 +77,13 @@ const GameCards = () => {
 
   // 缓存停止计时函数
   const handleTimerStopped = useCallback(() => {
-    // setInfo(`游戏已关闭。`);
     toast.success(`游戏已关闭。`);
     setGameState('stop');
     fetchGamesByCategory();
   }, [fetchGamesByCategory]);
   //加载主页数据 --
   useEffect(() => {
-    fetchGamesByCategory(); // 改为使用分类查询
+    fetchGamesByCategory(); 
     //放置打开休息界面监听器
     window.api.onOpenRestTimeModal(() => {
       setShowRestTimeModal(true);
@@ -117,7 +109,6 @@ const GameCards = () => {
     window.api.onTimerUpdate(setGameTime);
     window.api.onTimerStopped(handleTimerStopped);
     if (GameState === 'run') {
-      // setInfo(`已经有另一个游戏在运行中`);
       toast.error("已经有另一个游戏在运行中")
       return;
     }
@@ -130,7 +121,6 @@ const GameCards = () => {
 
     if (result.success) {
       setGameState('run');
-      // setInfo(`启动!!! ${game.game_name}`);
       toast.success(`启动!${game.game_name}`);
     } else {
       setGameState('null');
@@ -139,7 +129,7 @@ const GameCards = () => {
   //删除游戏 --
   const handleDeleteGame = async (game: Game) => {
     if (GameState === 'run') {
-      setInfo(`不能删除正在运行的游戏！`);
+      toast.error("不能删除正在运行的游戏！");
       return;
     }
     if (
@@ -147,7 +137,6 @@ const GameCards = () => {
       `)
     ) {
       await window.api.deleteGame(game.id);
-      // setInfo(`游戏${game.game_name}已删除。`);
       toast.success(`${game.game_name}已删除。`);
       fetchGamesByCategory();
     }
@@ -176,11 +165,9 @@ const GameCards = () => {
         imagePath: path,
         relativePath: result.relativePath,
       });
-      // setInfo(`${game.game_name}添加新封面图!`);
       toast.success(`添加成功`);
       fetchGamesByCategory();
     } catch (error: any) {
-      // setInfo(`添加封面失败`);
       toast.error(`添加封面失败`);
     }
   };

@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import Selector from './GameModeSelector/Selector';
 import { RestTimeContent } from './ModalContent/RestTimeContent';
 import LinksContent from './ModalContent/LinksContent';
+import FolderManageContent from './ModalContent/FolderManageContent';
 import Portal from './Portal';
 import { FaArrowUp, FaPersonWalkingArrowRight } from 'react-icons/fa6';
 import { FaGithub } from "react-icons/fa";
@@ -30,8 +31,12 @@ const GameCards = () => {
   const [showRestTimeModal, setShowRestTimeModal] = useState(false);
   // 控制是否显示外链管理弹窗
   const [showLinksModal, setShowLinksModal] = useState(false);
+  // 控制是否显示文件管理弹窗
+  const [showFolderModal, setShowFolderModal] = useState(false);
   // 当前选择的游戏ID(用于外链管理)
   const [selectedGameId, setSelectedGameId] = useState<number | null>(null);
+  // 当前选择的游戏路径(用于文件管理)
+  const [selectedGamePath, setSelectedGamePath] = useState<string>('');
   // 获取当前游戏的全局状态ID
   const getGameList = useGameStore((state) => state.gameId);
   // 更新游戏的计时信息
@@ -99,6 +104,12 @@ const GameCards = () => {
       setGames(searchResults);
     }
   }, [searchResults]);
+  //打开文件管理模态框 --
+  const handleOpenFolderModal = (folderPath: string, gameId: number) => {
+    setSelectedGamePath(folderPath);
+    setSelectedGameId(gameId);
+    setShowFolderModal(true);
+  };
   //打开游戏文件夹 --
   const handleOpenGameFolder = async (folderPath: string) => {
     await window.api.openFolder(folderPath);
@@ -359,6 +370,20 @@ const GameCards = () => {
             />,
             document.body,
           )}
+        {/* 文件管理模态框 */}
+        {showFolderModal && selectedGameId &&
+          createPortal(
+            <FolderManageContent 
+              gamePath={selectedGamePath}
+              gameId={selectedGameId}
+              onOpenFolder={handleOpenGameFolder}
+              onClose={() => {
+                setShowFolderModal(false);
+                setSelectedGamePath('');
+              }} 
+            />,
+            document.body,
+          )}
         {/*  暂用-休息调试 */}
         {/* <button onClick={() => setShowRestTimeModal(true)} className="text-white">
           休息时间调试
@@ -453,7 +478,7 @@ const GameCards = () => {
                     <motion.button
                       initial={{ y: 0 }}
                       whileHover={{ y: -5 }}
-                      onClick={() => handleOpenGameFolder(game.launch_path)}
+                      onClick={() => handleOpenFolderModal(game.launch_path, game.id)}
                     >
                       <VscFolder className="iconBtn" />
                     </motion.button>

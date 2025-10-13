@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { VscFileMedia, VscFolder, VscPlay, VscTrash } from 'react-icons/vsc';
 import { GiAchievement } from "react-icons/gi";
 import useGameStore from '@renderer/store/GameStore';
-import useInfoStore from '@renderer/store/infoStore';
+// import useInfoStore from '@renderer/store/infoStore';
 import gameSizeFormat from '@renderer/util/gameSizeFormat';
 import { formatTime, formatTimeCalender } from '@renderer/util/timeFormat';
 import { motion, Variants } from 'motion/react';

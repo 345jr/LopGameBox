@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { fetchMetadata } from '../../api';
 
 interface LinkMetadata {
   title: string;
@@ -48,19 +49,7 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
 
     setLoading(true);
     try {
-      const response = await fetch('https://lopbox.lopop.top/metadata', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url }),
-      });
-
-      if (!response.ok) {
-        throw new Error('获取元数据失败');
-      }
-
-      const result = await response.json();
+      const result = await fetchMetadata(url);
 
       if (result.success && result.data) {
         const metadata: LinkMetadata = {
@@ -206,9 +195,9 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="输入网页URL (例: https://store.steampowered.com/...)"
+              placeholder="输入网页URL"
               className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   handleFetchMetadata();
                 }
@@ -217,7 +206,7 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
             <button
               onClick={handleFetchMetadata}
               disabled={loading}
-              className="rounded-lg bg-blue-500 px-6 py-2 text-white transition hover:bg-blue-600 disabled:bg-gray-400"
+              className="cursor-pointer rounded-lg bg-blue-500 px-6 py-2 text-white transition hover:bg-blue-600 disabled:bg-gray-400"
             >
               {loading ? '获取中...' : '添加'}
             </button>
@@ -271,7 +260,7 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
                   {/* 编辑按钮 */}
                   <button
                     onClick={() => handleOpenEdit(link)}
-                    className="flex-shrink-0 text-blue-500 transition hover:text-blue-700"
+                    className="cursor-pointer flex-shrink-0 text-blue-500 transition hover:text-blue-700"
                     title="编辑"
                   >
                     <svg
@@ -292,7 +281,7 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
                   {/* 删除按钮 */}
                   <button
                     onClick={() => handleDeleteLink(link.id)}
-                    className="flex-shrink-0 text-red-500 transition hover:text-red-700"
+                    className="cursor-pointer flex-shrink-0 text-red-500 transition hover:text-red-700"
                     title="删除"
                   >
                     <svg
@@ -319,7 +308,7 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
         <div className="flex justify-end">
           <button
             onClick={onClose}
-            className="rounded-lg bg-gray-300 px-6 py-2 text-gray-700 transition hover:bg-gray-400"
+            className="cursor-pointer rounded-lg bg-gray-300 px-6 py-2 text-gray-700 transition hover:bg-gray-400"
           >
             关闭
           </button>
@@ -375,13 +364,13 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
               <div className="flex gap-2">
                 <button
                   onClick={handleSaveEdit}
-                  className="flex-1 rounded-lg bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
+                  className="cursor-pointer flex-1 rounded-lg bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
                 >
                   保存
                 </button>
                 <button
                   onClick={handleCloseEdit}
-                  className="flex-1 rounded-lg bg-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-400"
+                  className="cursor-pointer flex-1 rounded-lg bg-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-400"
                 >
                   取消
                 </button>

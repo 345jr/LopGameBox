@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { checkUpdate, getVersionInfo } from '../../api';
 
 import type { UpdateInfo, VersionInfo } from '@renderer/types/SettingCenter';
 
@@ -7,26 +8,14 @@ const UpdateContent = ({ onClose }: { onClose: () => void }) => {
 
   // 当前版本
   const currentVersion = {
-    version: '0.0.2',
+    version: '0.0.5',
   };
   const [currentVersionInfo, setCurrentVersionInfo] = useState<VersionInfo | null>(null);
 
   //获取检查更新信息
   const fetchUpdateInfo = async () => {
     try {
-      const response = await fetch('https://lopbox.lopop.top/check-update', {
-        method: 'POST',
-        body: JSON.stringify({
-          version: currentVersion.version,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if (!response.ok) {
-        throw new Error('获取更新信息失败');
-      }
-      const data = await response.json();
+      const data = await checkUpdate(currentVersion.version);
       setUpdateInfo(data);
     } catch (error) {
       console.error('获取更新信息失败:', error);
@@ -35,16 +24,7 @@ const UpdateContent = ({ onClose }: { onClose: () => void }) => {
   //获取当前版本信息
   const fetchCurrentVersion = async () => {
     try {
-      const response = await fetch(
-        `https://lopbox.lopop.top/version/${encodeURIComponent(currentVersion.version)}`,
-        {
-          method: 'GET',
-        },
-      );
-      if (!response.ok) {
-        throw new Error('获取当前版本信息失败');
-      }
-      const data = await response.json();
+      const data = await getVersionInfo(currentVersion.version);
       setCurrentVersionInfo(data.version);
     } catch (error) {
       console.error('获取当前版本信息失败:', error);

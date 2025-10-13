@@ -51,5 +51,32 @@ export const register = async (username: string, password: string) => {
   });
 };
 
+// 获取网页元数据 (POST /metadata)
+export const fetchMetadata = async (url: string) => {
+  return apiRequest('/metadata', {
+    method: 'POST',
+    body: JSON.stringify({
+      url,
+    }),
+  });
+};
+
+// 检查更新 (POST /check-update)
+export const checkUpdate = async (version: string) => {
+  return apiRequest('/check-update', {
+    method: 'POST',
+    body: JSON.stringify({
+      version,
+    }),
+  });
+};
+
+// 获取版本信息 (GET /version/:version)
+export const getVersionInfo = async (version: string) => {
+  return apiRequest(`/version/${encodeURIComponent(version)}`, {
+    method: 'GET',
+  });
+};
+
 // 导出基础 URL 供其他地方使用
 export { BASE_URL };

@@ -108,6 +108,33 @@ export class DatabaseManager {
       CREATE UNIQUE INDEX IF NOT EXISTS idx_game_links_gameid_url ON game_links (game_id, url);
       -- 索引，加快按游戏ID查询的速度
       CREATE INDEX IF NOT EXISTS idx_game_links_game_id ON game_links (game_id);
+      
+      -- 游戏存档路径表：存储每个游戏的主存档文件夹路径
+      CREATE TABLE IF NOT EXISTS game_save_paths (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        game_id INTEGER NOT NULL UNIQUE,
+        save_path TEXT NOT NULL,
+        file_size INTEGER DEFAULT 0,
+        created_at INTEGER DEFAULT (strftime('%s','now')),
+        updated_at INTEGER DEFAULT (strftime('%s','now')),
+        FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
+      );
+      -- 索引，加快按游戏ID查询的速度
+      CREATE INDEX IF NOT EXISTS idx_game_save_paths_game_id ON game_save_paths (game_id);
+      
+      -- 游戏存档备份表：存储每个游戏的存档备份记录
+      CREATE TABLE IF NOT EXISTS game_save_backups (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        game_id INTEGER NOT NULL,
+        backup_name TEXT NOT NULL,
+        backup_path TEXT NOT NULL,
+        file_size INTEGER DEFAULT 0,
+        created_at INTEGER DEFAULT (strftime('%s','now')),
+        FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE
+      );
+      -- 索引，加快按游戏ID和创建时间查询的速度
+      CREATE INDEX IF NOT EXISTS idx_game_save_backups_game_id ON game_save_backups (game_id);
+      CREATE INDEX IF NOT EXISTS idx_game_save_backups_created_at ON game_save_backups (created_at);
     `);
 
     // 检查并添加 game_mode 列

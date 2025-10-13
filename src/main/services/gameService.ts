@@ -268,4 +268,31 @@ export class GameService {
   public updateGameLink(linkId: number, title: string, url: string) {
     return this.gameRepo.updateGameLink(linkId, title, url);
   }
+
+  // ==================== 存档管理相关方法 ====================
+
+  // 设置游戏主存档路径
+  public setGameSavePath(gameId: number, savePath: string, fileSize: number = 0) {
+    return this.gameRepo.setGameSavePath(gameId, savePath, fileSize);
+  }
+
+  // 获取游戏主存档路径
+  public getGameSavePath(gameId: number) {
+    return this.gameRepo.getGameSavePath(gameId);
+  }
+
+  // 更新游戏主存档路径
+  public updateGameSavePath(gameId: number, savePath: string) {
+    return this.gameRepo.updateGameSavePath(gameId, savePath);
+  }
+
+  // 更新主存档文件夹大小
+  public updateSavePathSize(gameId: number, fileSize: number) {
+    return this.gameRepo.updateSavePathSize(gameId, fileSize);
+  }
+
+  // 删除游戏主存档路径
+  public deleteGameSavePath(gameId: number) {
+    return this.gameRepo.deleteGameSavePath(gameId);
+  }
 }

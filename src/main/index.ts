@@ -743,6 +743,61 @@ app.whenReady().then(() => {
       return { total: 0, completed: 0, completionRate: 0 };
     }
   });
+
+  // ==================== 存档管理相关处理器 ====================
+  
+  // 设置游戏主存档路径
+  ipcMain.handle('db:setGameSavePath', async (_event, gameId: number, savePath: string, fileSize: number) => {
+    try {
+      return gameService.setGameSavePath(gameId, savePath, fileSize);
+    } catch (err: any) {
+      console.error('设置游戏主存档路径失败:', err);
+      throw err;
+    }
+  });
+
+  // 获取游戏主存档路径
+  ipcMain.handle('db:getGameSavePath', async (_event, gameId: number) => {
+    try {
+      return gameService.getGameSavePath(gameId);
+    } catch (err: any) {
+      console.error('获取游戏主存档路径失败:', err);
+      return null;
+    }
+  });
+
+  // 更新游戏主存档路径
+  ipcMain.handle('db:updateGameSavePath', async (_event, gameId: number, savePath: string) => {
+    try {
+      gameService.updateGameSavePath(gameId, savePath);
+      return { success: true, message: '存档路径更新成功' };
+    } catch (err: any) {
+      console.error('更新游戏主存档路径失败:', err);
+      return { success: false, message: err?.message ?? String(err) };
+    }
+  });
+
+  // 更新主存档文件夹大小
+  ipcMain.handle('db:updateSavePathSize', async (_event, gameId: number, fileSize: number) => {
+    try {
+      gameService.updateSavePathSize(gameId, fileSize);
+      return { success: true, message: '存档大小更新成功' };
+    } catch (err: any) {
+      console.error('更新主存档文件夹大小失败:', err);
+      return { success: false, message: err?.message ?? String(err) };
+    }
+  });
+
+  // 删除游戏主存档路径
+  ipcMain.handle('db:deleteGameSavePath', async (_event, gameId: number) => {
+    try {
+      gameService.deleteGameSavePath(gameId);
+      return { success: true, message: '存档路径删除成功' };
+    } catch (err: any) {
+      console.error('删除游戏主存档路径失败:', err);
+      return { success: false, message: err?.message ?? String(err) };
+    }
+  });
   
   createWindow();
 

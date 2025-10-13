@@ -218,4 +218,77 @@ export class GameRepository {
     `);
     return stmt.run(title, url, linkId);
   }
+
+  // ==================== 存档管理相关方法 ====================
+
+  /**
+   * 设置游戏主存档路径
+   * @param gameId 游戏ID
+   * @param savePath 存档文件夹路径
+   * @param fileSize 存档文件夹大小（字节）
+   */
+  public setGameSavePath(gameId: number, savePath: string, fileSize: number = 0) {
+    const stmt = this.db.prepare(`
+      INSERT INTO game_save_paths (game_id, save_path, file_size)
+      VALUES (?, ?, ?)
+      ON CONFLICT(game_id) DO UPDATE SET 
+        save_path = excluded.save_path,
+        file_size = excluded.file_size,
+        updated_at = strftime('%s','now')
+    `);
+    const info = stmt.run(gameId, savePath, fileSize);
+    return {
+      id: info.lastInsertRowid,
+      gameId,
+      savePath,
+      fileSize,
+    };
+  }
+
+  /**
+   * 获取游戏主存档路径
+   * @param gameId 游戏ID
+   */
+  public getGameSavePath(gameId: number) {
+    return this.db
+      .prepare('SELECT * FROM game_save_paths WHERE game_id = ?')
+      .get(gameId);
+  }
+
+  /**
+   * 更新游戏主存档路径
+   * @param gameId 游戏ID
+   * @param savePath 新的存档路径
+   */
+  public updateGameSavePath(gameId: number, savePath: string) {
+    const stmt = this.db.prepare(`
+      UPDATE game_save_paths 
+      SET save_path = ?, updated_at = strftime('%s','now')
+      WHERE game_id = ?
+    `);
+    return stmt.run(savePath, gameId);
+  }
+
+  /**
+   * 更新主存档文件夹大小
+   * @param gameId 游戏ID
+   * @param fileSize 文件夹大小（字节）
+   */
+  public updateSavePathSize(gameId: number, fileSize: number) {
+    const stmt = this.db.prepare(`
+      UPDATE game_save_paths 
+      SET file_size = ?, updated_at = strftime('%s','now')
+      WHERE game_id = ?
+    `);
+    return stmt.run(fileSize, gameId);
+  }
+
+  /**
+   * 删除游戏主存档路径
+   * @param gameId 游戏ID
+   */
+  public deleteGameSavePath(gameId: number) {
+    const stmt = this.db.prepare('DELETE FROM game_save_paths WHERE game_id = ?');
+    return stmt.run(gameId);
+  }
 }

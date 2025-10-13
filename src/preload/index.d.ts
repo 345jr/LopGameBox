@@ -180,6 +180,30 @@ declare global {
       // 更新游戏外链
       updateGameLink: (linkId: number, title: string, url: string) => Promise<any>;
       
+      // ==================== 存档管理接口 ====================
+      // 设置游戏主存档路径
+      setGameSavePath: (gameId: number, savePath: string, fileSize?: number) => Promise<{
+        id: number;
+        gameId: number;
+        savePath: string;
+        fileSize: number;
+      }>;
+      // 获取游戏主存档路径
+      getGameSavePath: (gameId: number) => Promise<{
+        id: number;
+        game_id: number;
+        save_path: string;
+        file_size: number;
+        created_at: number;
+        updated_at: number;
+      } | null>;
+      // 更新游戏主存档路径
+      updateGameSavePath: (gameId: number, savePath: string) => Promise<{ success: boolean; message: string }>;
+      // 更新主存档文件夹大小
+      updateSavePathSize: (gameId: number, fileSize: number) => Promise<{ success: boolean; message: string }>;
+      // 删除游戏主存档路径
+      deleteGameSavePath: (gameId: number) => Promise<{ success: boolean; message: string }>;
+      
       // ==================== 窗口控制接口 ====================
       // 最小化窗口
       minimizeWindow: () => Promise<void>;

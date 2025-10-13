@@ -163,6 +163,23 @@ const api = {
   updateGameLink: (linkId: number, title: string, url: string) => 
     ipcRenderer.invoke('db:updateGameLink', { linkId, title, url }),
   
+  // ==================== 存档管理接口 ====================
+  // 设置游戏主存档路径
+  setGameSavePath: (gameId: number, savePath: string, fileSize: number = 0) => 
+    ipcRenderer.invoke('db:setGameSavePath', gameId, savePath, fileSize),
+  // 获取游戏主存档路径
+  getGameSavePath: (gameId: number) => 
+    ipcRenderer.invoke('db:getGameSavePath', gameId),
+  // 更新游戏主存档路径
+  updateGameSavePath: (gameId: number, savePath: string) => 
+    ipcRenderer.invoke('db:updateGameSavePath', gameId, savePath),
+  // 更新主存档文件夹大小
+  updateSavePathSize: (gameId: number, fileSize: number) => 
+    ipcRenderer.invoke('db:updateSavePathSize', gameId, fileSize),
+  // 删除游戏主存档路径
+  deleteGameSavePath: (gameId: number) => 
+    ipcRenderer.invoke('db:deleteGameSavePath', gameId),
+  
   // ==================== 窗口控制接口 ====================
   // 最小化窗口
   minimizeWindow: () => ipcRenderer.invoke('window:minimize'),

@@ -28,15 +28,10 @@ const Selector = () => {
     //如果游戏真正运行 ，则视为热切换
     if (gameState === 'run') window.api.setGameMode(mode);
   };
-  //进入休息状态
-  const enterRestMode = () => {
-    window.api.setResting(true);
-  };
-
+  
   return (
     <>
       {/* 遮罩层防防点击 */}
-      {/* {gameModeSelector?null:<div className="absolute top-0 left-0 z-10 h-120 w-20 bg-red-500/50 opacity-0" />} */}
       <motion.div
         className="z-0 flex flex-col"
         variants={container}
@@ -84,16 +79,7 @@ const Selector = () => {
             </button>
           </div>
         </motion.div>
-        {/* 主动休息
-        {gameState === 'run' && (
-          <motion.div variants={item}>
-            <div className="flex-1 rounded-b-2xl bg-white px-2.5 py-7 border border-gray-300 shadow-md">
-              <button onClick={() => enterRestMode()} className="cursor-pointer">
-                <FaPersonWalkingArrowRight className="text-3xl text-gray-700" />
-              </button>
-            </div>
-          </motion.div>
-        )} */}
+        
       </motion.div>
     </>
   );

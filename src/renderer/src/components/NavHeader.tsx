@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 
 import useGameStore from '@renderer/store/GameStore';
-import useInfoStore from '@renderer/store/infoStore';
 import { formatTime } from '@renderer/util/timeFormat';
 import logo from '../assets/lopgame.png';
 
@@ -18,21 +17,13 @@ const NavHeader = () => {
   // 用于控制动画指针的位置和旋转角度
   const [position, setPosition] = useState({ x: 0, y: 0, rotate: 0 });
   // 搜索输入框的值
-  const [inputRef, setInputRef] = useState<string>('');
-  // 用于标识鼠标是否处于抓取状态
-  const [grab, setGrab] = useState<boolean>(false);
-  // 存储全局信息状态
-  const info = useInfoStore((state) => state.info);
+  const [inputRef, setInputRef] = useState<string>('');  
   // 用于设置游戏列表
   const setGameList = useGameStore((state) => state.setGameList);
   // 游戏运行的时间
   const gameTime = useGameStore((state) => state.gameTime);
   // 游戏当前的运行状态（run stop null）
   const gameState = useGameStore((state) => state.gameState);
-  // 开启信息显示(下方小框)
-  const onInfo = useInfoStore((state) => state.onInfo);
-  // 关闭信息显示(下方小框)
-  const offInfo = useInfoStore((state) => state.offInfo);
   // 设置搜索结果
   const searchResults = useGameStore((state) => state.setSearchResults);
   // 控制 Logo 动画的激活状态
@@ -41,8 +32,6 @@ const NavHeader = () => {
   const setGameModeSelector = useGameStore((state) => state.setGameModeSelector);
   // 当前游戏模式
   const gameMode = useGameStore((state) => state.gameMode);
-  //获取添加信息
-  const setInfo = useInfoStore((state) => state.setInfo);
   //打字机效果
   const typewriterRef = useRef<HTMLParagraphElement>(null);
   // 窗口是否最大化状态
@@ -78,25 +67,6 @@ const NavHeader = () => {
 
   //#region 动画配置
 
-  const divVariants = {
-    initial: {},
-    hover: {},
-  };
-  const pVariants = {
-    initial: {
-      scaleX: 0,
-    },
-    hover: {
-      scaleX: 10,
-      transition: { duration: 0.3 },
-    },
-  };
-  const iconVariants = {
-    initial: { rotate: 0 },
-    hover: {
-      rotate: 15,
-    },
-  };
   gsap.registerPlugin(TextPlugin);
   //打字机效果
   useGSAP(() => {
@@ -134,24 +104,6 @@ const NavHeader = () => {
   );
   //#endregion
 
-  //处理字符串
-  function truncateString(str: string | undefined, maxLength: number): string {
-    if (!str) return '「暂无信息」';
-    if (str.length <= maxLength) {
-      return str;
-    }
-    return str.slice(0, maxLength) + '...';
-  }
-  // 处理鼠标按下事件
-  const handleMouseDown = () => {
-    setGrab(true);
-    onInfo();
-  };
-  // 处理鼠标抬起事件
-  const handleMouseUp = () => {
-    setGrab(false);
-    offInfo();
-  };
   // 处理模糊查询
   const handleSearch = async (keyword: string) => {
     const gameList = await window.api.searchGames(keyword);

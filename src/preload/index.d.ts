@@ -206,6 +206,29 @@ declare global {
       // 删除游戏主存档路径
       deleteGameSavePath: (gameId: number) => Promise<{ success: boolean; message: string }>;
       
+      // ==================== 存档备份接口 ====================
+      // 创建存档备份
+      createSaveBackup: (gameId: number) => Promise<{ 
+        success: boolean; 
+        message: string;
+        backupId?: number;
+        backupName?: string;
+        fileSize?: number;
+      }>;
+      // 获取存档备份列表
+      getSaveBackups: (gameId: number) => Promise<Array<{
+        id: number;
+        game_id: number;
+        backup_name: string;
+        backup_path: string;
+        file_size: number;
+        created_at: number;
+      }>>;
+      // 恢复存档备份
+      restoreSaveBackup: (backupId: number, gameId: number) => Promise<{ success: boolean; message: string }>;
+      // 删除存档备份
+      deleteSaveBackup: (backupId: number) => Promise<{ success: boolean; message: string }>;
+
       // ==================== 窗口控制接口 ====================
       // 最小化窗口
       minimizeWindow: () => Promise<void>;

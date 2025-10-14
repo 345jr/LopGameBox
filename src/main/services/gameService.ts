@@ -295,4 +295,26 @@ export class GameService {
   public deleteGameSavePath(gameId: number) {
     return this.gameRepo.deleteGameSavePath(gameId);
   }
+
+  // ==================== 存档备份相关方法 ====================
+
+  // 创建存档备份
+  public createSaveBackup(gameId: number, backupName: string, backupPath: string, fileSize: number) {
+    return this.gameRepo.createSaveBackup(gameId, backupName, backupPath, fileSize);
+  }
+
+  // 获取游戏的所有备份列表
+  public getSaveBackups(gameId: number) {
+    return this.gameRepo.getSaveBackups(gameId);
+  }
+
+  // 获取单个备份信息
+  public getSaveBackup(backupId: number) {
+    return this.gameRepo.getSaveBackup(backupId);
+  }
+
+  // 删除存档备份
+  public deleteSaveBackup(backupId: number) {
+    return this.gameRepo.deleteSaveBackup(backupId);
+  }
 }

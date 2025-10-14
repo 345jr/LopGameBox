@@ -14,6 +14,7 @@ import { GameLogsRepository } from './services/gameLogsRepository';
 import { BackupService } from './services/backup';
 import { getSize, getFolderSize } from './util/diskSize';
 import { getDelectPath } from './util/path';
+import { copyDirectory } from './util/fileOperations';
 
 // 变量区
 // 主窗口
@@ -815,6 +816,143 @@ app.whenReady().then(() => {
       return { success: true, message: '存档路径删除成功' };
     } catch (err: any) {
       console.error('删除游戏主存档路径失败:', err);
+      return { success: false, message: err?.message ?? String(err) };
+    }
+  });
+
+  // ==================== 存档备份相关 ====================
+
+  // 创建存档备份
+  ipcMain.handle('db:createSaveBackup', async (_event, gameId: number) => {
+    try {
+      // 1. 获取主存档路径
+      const savePathInfo = gameService.getGameSavePath(gameId) as any;
+      if (!savePathInfo) {
+        throw new Error('未找到游戏存档路径');
+      }
+
+      // 2. 生成备份文件名和路径
+      const timestamp = Date.now();
+      const backupName = `存档备份-${new Date(timestamp).toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }).replace(/\//g, '-').replace(/:/g, '-').replace(/\s/g, '_')}`;
+      
+      // 备份文件夹路径（保存在应用程序根目录的 saveBackups 文件夹下）
+      const backupsDir = app.isPackaged
+        ? path.join(path.dirname(app.getPath('exe')), 'saveBackups') // 生产环境：exe所在目录
+        : path.join(process.cwd(), 'saveBackups'); // 开发环境：项目根目录
+      await fs.mkdir(backupsDir, { recursive: true });
+
+      // 3. 复制存档文件夹到备份位置
+      const backupDir = path.join(backupsDir, String(timestamp));
+      await copyDirectory(savePathInfo.save_path, backupDir);
+
+      // 4. 计算备份大小
+      const fileSize = await getFolderSize(backupDir);
+
+      // 5. 保存备份记录到数据库（直接使用 gameId）
+      const result = gameService.createSaveBackup(
+        gameId,
+        backupName,
+        backupDir,
+        fileSize
+      );
+
+      return { 
+        success: true, 
+        message: '备份创建成功',
+        backupId: result.id,
+        backupName,
+        fileSize
+      };
+    } catch (err: any) {
+      console.error('创建存档备份失败:', err);
+      return { success: false, message: err?.message ?? String(err) };
+    }
+  });
+
+  // 获取存档备份列表
+  ipcMain.handle('db:getSaveBackups', async (_event, gameId: number) => {
+    try {
+      const backups = gameService.getSaveBackups(gameId);
+      return backups;
+    } catch (err: any) {
+      console.error('获取备份列表失败:', err);
+      return [];
+    }
+  });
+
+  // 恢复存档备份
+  ipcMain.handle('db:restoreSaveBackup', async (_event, backupId: number, gameId: number) => {
+    try {
+      // 1. 获取备份信息
+      const backup = gameService.getSaveBackup(backupId) as any;
+      if (!backup) {
+        throw new Error('备份不存在');
+      }
+
+      // 2. 获取主存档路径
+      const savePathInfo = gameService.getGameSavePath(gameId) as any;
+      if (!savePathInfo) {
+        throw new Error('未找到游戏存档路径');
+      }
+
+      // 3. 删除当前存档（先备份当前存档）
+      const tempBackupDir = path.join(app.getPath('temp'), `save_temp_${Date.now()}`);
+      await copyDirectory(savePathInfo.save_path, tempBackupDir);
+
+      try {
+        // 清空当前存档目录
+        await fs.rm(savePathInfo.save_path, { recursive: true, force: true });
+        await fs.mkdir(savePathInfo.save_path, { recursive: true });
+
+        // 4. 复制备份到存档位置
+        await copyDirectory(backup.backup_path, savePathInfo.save_path);
+
+        // 5. 删除临时备份
+        await fs.rm(tempBackupDir, { recursive: true, force: true });
+
+        // 6. 更新存档大小
+        const newSize = await getFolderSize(savePathInfo.save_path);
+        gameService.updateSavePathSize(gameId, newSize);
+
+        return { success: true, message: '备份恢复成功' };
+      } catch (restoreErr) {
+        // 恢复失败，尝试还原原存档
+        await fs.rm(savePathInfo.save_path, { recursive: true, force: true });
+        await copyDirectory(tempBackupDir, savePathInfo.save_path);
+        await fs.rm(tempBackupDir, { recursive: true, force: true });
+        throw restoreErr;
+      }
+    } catch (err: any) {
+      console.error('恢复存档备份失败:', err);
+      return { success: false, message: err?.message ?? String(err) };
+    }
+  });
+
+  // 删除存档备份
+  ipcMain.handle('db:deleteSaveBackup', async (_event, backupId: number) => {
+    try {
+      // 1. 获取备份信息
+      const backup = gameService.getSaveBackup(backupId) as any;
+      if (!backup) {
+        throw new Error('备份不存在');
+      }
+
+      // 2. 删除备份文件
+      await fs.rm(backup.backup_path, { recursive: true, force: true });
+
+      // 3. 删除数据库记录
+      gameService.deleteSaveBackup(backupId);
+
+      return { success: true, message: '备份删除成功' };
+    } catch (err: any) {
+      console.error('删除存档备份失败:', err);
       return { success: false, message: err?.message ?? String(err) };
     }
   });

@@ -291,4 +291,51 @@ export class GameRepository {
     const stmt = this.db.prepare('DELETE FROM game_save_paths WHERE game_id = ?');
     return stmt.run(gameId);
   }
+
+  /**
+   * 创建存档备份
+   * @param gameId 游戏ID
+   * @param backupName 备份名称
+   * @param backupPath 备份文件路径
+   * @param fileSize 备份文件大小
+   */
+  public createSaveBackup(gameId: number, backupName: string, backupPath: string, fileSize: number) {
+    const stmt = this.db.prepare(`
+      INSERT INTO game_save_backups (game_id, backup_name, backup_path, file_size)
+      VALUES (?, ?, ?, ?)
+    `);
+    const info = stmt.run(gameId, backupName, backupPath, fileSize);
+    return { id: info.lastInsertRowid };
+  }
+
+  /**
+   * 获取游戏的所有备份列表
+   * @param gameId 游戏ID
+   */
+  public getSaveBackups(gameId: number) {
+    const stmt = this.db.prepare(`
+      SELECT * FROM game_save_backups
+      WHERE game_id = ?
+      ORDER BY created_at DESC
+    `);
+    return stmt.all(gameId);
+  }
+
+  /**
+   * 获取单个备份信息
+   * @param backupId 备份ID
+   */
+  public getSaveBackup(backupId: number) {
+    const stmt = this.db.prepare('SELECT * FROM game_save_backups WHERE id = ?');
+    return stmt.get(backupId);
+  }
+
+  /**
+   * 删除存档备份
+   * @param backupId 备份ID
+   */
+  public deleteSaveBackup(backupId: number) {
+    const stmt = this.db.prepare('DELETE FROM game_save_backups WHERE id = ?');
+    return stmt.run(backupId);
+  }
 }

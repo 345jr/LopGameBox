@@ -38,8 +38,8 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
         setSavePath(result.save_path);
         setSaveFileSize(result.file_size);
         setSavePathSet(true);
-        // 暂时不加载备份列表,等备份功能实现后再启用
-        // loadBackups(result.id);
+        // 加载备份列表
+        await loadBackups();
       }
     } catch (error) {
       console.error('检查存档路径失败:', error);
@@ -47,10 +47,13 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
   };
 
   // 加载备份列表
-  const loadBackups = async (saveId: number) => {
-    // TODO: 调用API加载备份列表
-    // const backupList = await window.api.getSaveBackups(saveId);
-    // setBackups(backupList);
+  const loadBackups = async () => {
+    try {
+      const backupList = await window.api.getSaveBackups(gameId);
+      setBackups(backupList);
+    } catch (error) {
+      console.error('加载备份列表失败:', error);
+    }
   };
 
   // 打开游戏文件夹
@@ -119,13 +122,23 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
 
   // 创建备份
   const handleCreateBackup = async () => {
+    if (!savePath) {
+      toast.error('请先设置存档路径');
+      return;
+    }
+
     setLoading(true);
     try {
-      // TODO: 调用API创建备份
-      // await window.api.createSaveBackup(gameId);
-      // await loadBackups(saveId);
-      toast.success('备份创建成功');
+      const result = await window.api.createSaveBackup(gameId);
+      if (result.success) {
+        toast.success(result.message);
+        // 重新加载备份列表
+        await loadBackups();
+      } else {
+        toast.error(result.message);
+      }
     } catch (error) {
+      console.error('创建备份失败:', error);
       toast.error('备份创建失败');
     } finally {
       setLoading(false);
@@ -137,10 +150,19 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
     if (!confirm('确定要恢复此备份吗?当前存档将被覆盖!')) return;
     
     try {
-      // TODO: 调用API恢复备份
-      // await window.api.restoreSaveBackup(backupId);
-      toast.success('备份恢复成功');
+      const loadingToast = toast.loading('正在恢复备份...');
+      const result = await window.api.restoreSaveBackup(backupId, gameId);
+      toast.dismiss(loadingToast);
+      
+      if (result.success) {
+        toast.success(result.message);
+        // 刷新存档信息
+        await checkSavePath();
+      } else {
+        toast.error(result.message);
+      }
     } catch (error) {
+      console.error('恢复备份失败:', error);
       toast.error('备份恢复失败');
     }
   };
@@ -150,11 +172,16 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
     if (!confirm('确定要删除此备份吗?')) return;
     
     try {
-      // TODO: 调用API删除备份
-      // await window.api.deleteSaveBackup(backupId);
-      // setBackups(backups.filter(b => b.id !== backupId));
-      toast.success('备份删除成功');
+      const result = await window.api.deleteSaveBackup(backupId);
+      if (result.success) {
+        toast.success(result.message);
+        // 从列表中移除已删除的备份
+        setBackups(backups.filter(b => b.id !== backupId));
+      } else {
+        toast.error(result.message);
+      }
     } catch (error) {
+      console.error('删除备份失败:', error);
       toast.error('备份删除失败');
     }
   };
@@ -279,7 +306,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
                     {loading ? '创建中...' : '创建备份'}
                   </button>
                   <button
-                    onClick={() => checkSavePath()}
+                    onClick={loadBackups}
                     className="cursor-pointer rounded-lg bg-gray-200 px-4 py-2 text-gray-700 transition hover:bg-gray-300"
                     title="刷新备份列表"
                   >

@@ -183,6 +183,20 @@ const api = {
   deleteGameSavePath: (gameId: number) => 
     ipcRenderer.invoke('db:deleteGameSavePath', gameId),
   
+  // ==================== 存档备份接口 ====================
+  // 创建存档备份
+  createSaveBackup: (gameId: number) => 
+    ipcRenderer.invoke('db:createSaveBackup', gameId),
+  // 获取存档备份列表
+  getSaveBackups: (gameId: number) => 
+    ipcRenderer.invoke('db:getSaveBackups', gameId),
+  // 恢复存档备份
+  restoreSaveBackup: (backupId: number, gameId: number) => 
+    ipcRenderer.invoke('db:restoreSaveBackup', backupId, gameId),
+  // 删除存档备份
+  deleteSaveBackup: (backupId: number) => 
+    ipcRenderer.invoke('db:deleteSaveBackup', backupId),
+
   // ==================== 窗口控制接口 ====================
   // 最小化窗口
   minimizeWindow: () => ipcRenderer.invoke('window:minimize'),

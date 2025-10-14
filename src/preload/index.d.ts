@@ -4,6 +4,7 @@ declare global {
     electron: ElectronAPI;
     api: {
       openFile: () => Promise<string>;
+      selectFolder: () => Promise<string | null>;
       executeFile: (game: {
         id: number;
         path: string;
@@ -41,6 +42,7 @@ declare global {
       getSnapshotAlt: (id: number) => Promise<string | null>;
       modifyGameName: (id: number, newName: string) => Promise<void>;
       updateGameSize: (id: number, launch_path: string) => Promise<number>;
+      getFolderSize: (folderPath: string) => Promise<number>;
       updateGamePath: (gameId: number, newPath: string) => Promise<{ success: boolean; message: string }>;
       updateGameCategory: (gameId: number, category: string) => Promise<{ success: boolean; message: string }>;
       searchGames: (keyword: string) => Promise<Game[]>;

@@ -12,7 +12,7 @@ import { GameRepository } from './services/gameRepository';
 import { GalleryRepository } from './services/galleryRepository';
 import { GameLogsRepository } from './services/gameLogsRepository';
 import { BackupService } from './services/backup';
-import { getSize } from './util/diskSize';
+import { getSize, getFolderSize } from './util/diskSize';
 import { getDelectPath } from './util/path';
 
 // 变量区
@@ -130,6 +130,16 @@ app.whenReady().then(() => {
     });
     if (!canceled) {
       return filePaths[0]; // 返回用户选择的第一个文件路径
+    }
+    return null; // 如果用户取消了选择，返回 null
+  });
+  //打开文件夹选择器
+  ipcMain.handle('dialog:openFolder', async () => {
+    const { canceled, filePaths } = await dialog.showOpenDialog({
+      properties: ['openDirectory'], // 指定只选择文件夹
+    });
+    if (!canceled) {
+      return filePaths[0]; // 返回用户选择的文件夹路径
     }
     return null; // 如果用户取消了选择，返回 null
   });
@@ -374,6 +384,16 @@ app.whenReady().then(() => {
       return disk_size;
     } catch (error: any) {
       console.log(`获取游戏大小发生错误:${error.message}`);
+      return 0;
+    }
+  });
+  //获取文件夹大小（直接计算文件夹本身）
+  ipcMain.handle('util:getFolderSize', async (_event, folderPath: string) => {
+    try {
+      const folderSize = await getFolderSize(folderPath);
+      return folderSize;
+    } catch (error: any) {
+      console.log(`获取文件夹大小发生错误:${error.message}`);
       return 0;
     }
   });

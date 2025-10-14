@@ -3,6 +3,7 @@ import { electronAPI } from '@electron-toolkit/preload';
 // Custom APIs for renderer
 const api = {
   openFile: (): Promise<string | null> => ipcRenderer.invoke('dialog:openFile'),
+  selectFolder: (): Promise<string | null> => ipcRenderer.invoke('dialog:openFolder'),
   executeFile: (game: {
     id: number;
     path: string;
@@ -54,6 +55,8 @@ const api = {
     ipcRenderer.invoke('db:modifyGameName', id, newName),
   updateGameSize: (id: number, launch_path: string) =>
     ipcRenderer.invoke('db:updateGameSize', id, launch_path),
+  getFolderSize: (folderPath: string) =>
+    ipcRenderer.invoke('util:getFolderSize', folderPath),
   updateGamePath: (gameId: number, newPath: string) =>
     ipcRenderer.invoke('db:updateGamePath', gameId, newPath),
   updateGameCategory: (gameId: number, category: string) =>

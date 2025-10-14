@@ -21,6 +21,7 @@ interface FolderManageContentProps {
 const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: FolderManageContentProps) => {
   const [savePath, setSavePath] = useState<string>('');
   const [savePathSet, setSavePathSet] = useState(false);
+  const [saveFileSize, setSaveFileSize] = useState<number>(0);
   const [backups, setBackups] = useState<SaveBackup[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -31,13 +32,18 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
 
   // 检查存档路径
   const checkSavePath = async () => {
-    // TODO: 调用API检查是否已设置存档路径
-    // const result = await window.api.getGameSavePath(gameId);
-    // if (result) {
-    //   setSavePath(result.save_path);
-    //   setSavePathSet(true);
-    //   loadBackups(result.id);
-    // }
+    try {
+      const result = await window.api.getGameSavePath(gameId);
+      if (result) {
+        setSavePath(result.save_path);
+        setSaveFileSize(result.file_size);
+        setSavePathSet(true);
+        // 暂时不加载备份列表,等备份功能实现后再启用
+        // loadBackups(result.id);
+      }
+    } catch (error) {
+      console.error('检查存档路径失败:', error);
+    }
   };
 
   // 加载备份列表
@@ -54,21 +60,60 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
 
   // 设置存档文件夹
   const handleSetSavePath = async () => {
-    // TODO: 调用系统文件选择器
-    // const path = await window.api.selectFolder();
-    // if (path) {
-    //   await window.api.setGameSavePath(gameId, path);
-    //   setSavePath(path);
-    //   setSavePathSet(true);
-    //   toast.success('存档路径设置成功');
-    // }
-    toast.success('功能开发中...');
+    try {
+      // 调用系统文件夹选择器
+      const selectedPath = await window.api.selectFolder();
+      if (selectedPath) {
+        // 显示加载提示
+        const loadingToast = toast.loading('正在计算存档大小...');
+        
+        // 计算存档文件夹大小（直接计算文件夹本身）
+        const fileSize = await window.api.getFolderSize(selectedPath);
+        
+        // 保存存档路径到数据库
+        await window.api.setGameSavePath(gameId, selectedPath, fileSize);
+        
+        setSavePath(selectedPath);
+        setSaveFileSize(fileSize);
+        setSavePathSet(true);
+        
+        toast.dismiss(loadingToast);
+        toast.success('存档路径设置成功');
+      }
+    } catch (error) {
+      console.error('设置存档路径失败:', error);
+      toast.error('设置存档路径失败');
+    }
   };
 
   // 打开存档文件夹
   const handleOpenSaveFolder = () => {
     if (savePath) {
       onOpenFolder(savePath);
+    }
+  };
+
+  // 刷新存档大小
+  const handleRefreshSaveSize = async () => {
+    if (!savePath) return;
+    
+    try {
+      const loadingToast = toast.loading('正在重新计算存档大小...');
+      
+      // 重新计算存档文件夹大小（直接计算文件夹本身）
+      const fileSize = await window.api.getFolderSize(savePath);
+      
+      // 更新数据库中的大小
+      await window.api.updateSavePathSize(gameId, fileSize);
+      
+      toast.dismiss(loadingToast);
+      toast.success('存档大小已更新');
+      
+      // 重新加载存档信息
+      await checkSavePath();
+    } catch (error) {
+      console.error('刷新存档大小失败:', error);
+      toast.error('刷新存档大小失败');
     }
   };
 
@@ -185,21 +230,42 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
             ) : (
               /* 已设置存档路径 */
               <div>
-                {/* 存档路径显示 */}
-                <div className="mb-4 flex items-center justify-between rounded-lg bg-gray-50 p-3">
-                  <div className="flex-1 overflow-hidden">
-                    <p className="text-xs text-gray-500">存档路径</p>
-                    <p className="truncate text-sm font-medium text-gray-700" title={savePath}>
-                      {savePath}
-                    </p>
+                {/* 存档路径和大小显示 */}
+                <div className="mb-4 rounded-lg bg-gray-50 p-3">
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="flex-1 overflow-hidden">
+                      <p className="text-xs text-gray-500">存档路径</p>
+                      <p className="truncate text-sm font-medium text-gray-700" title={savePath}>
+                        {savePath}
+                      </p>
+                      <p className="mt-1 text-xs text-gray-500">
+                        大小: {formatSize(saveFileSize)}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleSetSavePath}
+                        className="cursor-pointer rounded-lg bg-green-100 p-2 text-green-600 transition hover:bg-green-200"
+                        title="重新设置存档路径"
+                      >
+                        <VscFolder className="text-xl" />
+                      </button>
+                      <button
+                        onClick={handleRefreshSaveSize}
+                        className="cursor-pointer rounded-lg bg-gray-200 p-2 text-gray-600 transition hover:bg-gray-300"
+                        title="刷新存档大小"
+                      >
+                        <VscRefresh className="text-xl" />
+                      </button>
+                      <button
+                        onClick={handleOpenSaveFolder}
+                        className="cursor-pointer rounded-lg bg-blue-100 p-2 text-blue-600 transition hover:bg-blue-200"
+                        title="打开存档文件夹"
+                      >
+                        <VscFolderOpened className="text-xl" />
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    onClick={handleOpenSaveFolder}
-                    className="ml-2 cursor-pointer rounded-lg bg-blue-100 p-2 text-blue-600 transition hover:bg-blue-200"
-                    title="打开存档文件夹"
-                  >
-                    <VscFolderOpened className="text-xl" />
-                  </button>
                 </div>
 
                 {/* 备份操作按钮 */}

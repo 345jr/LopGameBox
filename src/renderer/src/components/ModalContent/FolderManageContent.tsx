@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { VscFolder, VscFolderOpened, VscSave, VscTrash, VscRefresh } from 'react-icons/vsc';
+import { VscFolder, VscFolderOpened, VscSave, VscTrash, VscRefresh, VscClose } from 'react-icons/vsc';
+import { GoGitPullRequest,GoGitBranch,GoDotFill,GoDot } from "react-icons/go";
 import { FiDownload } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
@@ -216,32 +217,126 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
         className="mx-4 w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-lg bg-white shadow-xl flex flex-col"
       >
         {/* 标题栏 */}
-        <div className="border-b border-gray-200 px-6 py-4">
+        <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-bold">文件管理</h2>
+          <button
+            onClick={onClose}
+            className="cursor-pointer rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+            title="关闭"
+          >
+            <VscClose className="text-2xl" />
+          </button>
         </div>
 
         {/* 内容区域 - 可滚动 */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
-          {/* 打开游戏文件夹 */}
-          <div className="mb-4">
-            <button
-              onClick={handleOpenGameFolder}
-              className="flex w-full cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-blue-500 hover:bg-blue-50 hover:shadow-md"
-            >
-              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100">
-                <VscFolder className="text-2xl text-blue-600" />
-              </div>
-              <div className="flex-1 text-left">
-                <h3 className="font-semibold text-gray-900">打开游戏文件夹</h3>
-                <p className="text-sm text-gray-500">查看游戏文件目录</p>
-              </div>
-            </button>
-          </div>
+          {/* 快捷操作按钮 */}
+          {!savePathSet ? (
+            /* 未设置存档时 - 只显示打开游戏文件夹 */
+            <div className="mb-4">
+              <button
+                onClick={handleOpenGameFolder}
+                className="w-full flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
+              >
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                  <VscFolder className="text-2xl text-gray-700" />
+                </div>
+                <div className="flex-1 text-left">
+                  <h3 className="font-semibold text-gray-900">打开游戏文件夹</h3>
+                  <p className="text-sm text-gray-500">查看游戏文件目录</p>
+                </div>
+              </button>
+            </div>
+          ) : (
+            /* 已设置存档时 - 显示所有按钮 */
+            <div className="mb-4 space-y-4">
+              {/* 第一排 - 2个文件夹按钮各占一半 */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* 打开游戏文件夹 */}
+                <button
+                  onClick={handleOpenGameFolder}
+                  className="flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
+                >
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                    <VscFolder className="text-2xl text-gray-700" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <h3 className="font-semibold text-gray-900">打开游戏文件夹</h3>
+                    <p className="text-sm text-gray-500">查看游戏文件目录</p>
+                  </div>
+                </button>
 
+                {/* 打开存档文件夹 */}
+                <button
+                  onClick={handleOpenSaveFolder}
+                  className="flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
+                >
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                    <VscFolderOpened className="text-2xl text-gray-700" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <h3 className="font-semibold text-gray-900">打开存档文件夹</h3>
+                    <p className="text-sm text-gray-500">查看存档文件</p>
+                  </div>
+                </button>
+              </div>
+
+              {/* 第二排 - 3个操作按钮平均分配 */}
+              <div className="grid grid-cols-3 gap-4">
+                {/* 重新设置存档路径 */}
+                <button
+                  onClick={handleSetSavePath}
+                  className="flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
+                >
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                    <GoGitBranch className="text-2xl text-gray-700" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <h3 className="font-semibold text-gray-900">重新设置存档</h3>
+                    <p className="text-sm text-gray-500">更改存档位置</p>
+                  </div>
+                </button>
+
+                {/* 刷新存档大小 */}
+                <button
+                  onClick={handleRefreshSaveSize}
+                  className="flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
+                >
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                    <VscRefresh className="text-2xl text-gray-700" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <h3 className="font-semibold text-gray-900">刷新存档大小</h3>
+                    <p className="text-sm text-gray-500">重新计算大小</p>
+                  </div>
+                </button>
+
+                {/* 创建备份 */}
+                <button
+                  onClick={handleCreateBackup}
+                  disabled={loading}
+                  className="flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-200 disabled:hover:bg-white"
+                >
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                    <FiDownload className="text-2xl text-gray-700" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <h3 className="font-semibold text-gray-900">
+                      {loading ? '创建中...' : '创建备份'}
+                    </h3>
+                    <p className="text-sm text-gray-500">备份当前存档</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+          <h3 className="mb-4 text-lg font-semibold text-gray-900">存档管理</h3>
           {/* 存档管理区域 */}
           <div className="rounded-lg border border-gray-200 p-4">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">存档管理</h3>
-
+              <div className='flex flex-row items-center gap-2'>
+                <h3 className="mb-4 text-base font-semibold text-gray-900">主存档</h3>
+                <GoDotFill className="mb-4 text-lg" />
+              </div>
             {!savePathSet ? (
               /* 未设置存档路径 */
               <div className="flex flex-col items-center justify-center py-8">
@@ -249,7 +344,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
                 <p className="mb-4 text-gray-500">还未设置存档文件夹</p>
                 <button
                   onClick={handleSetSavePath}
-                  className="cursor-pointer rounded-lg bg-green-500 px-6 py-2 text-white transition hover:bg-green-600"
+                  className="cursor-pointer rounded-lg bg-gray-800 px-6 py-2 text-white transition hover:bg-gray-700"
                 >
                   设置存档文件夹
                 </button>
@@ -258,65 +353,29 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
               /* 已设置存档路径 */
               <div>
                 {/* 存档路径和大小显示 */}
-                <div className="mb-4 rounded-lg bg-gray-50 p-3">
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex-1 overflow-hidden">
-                      <p className="text-xs text-gray-500">存档路径</p>
-                      <p className="truncate text-sm font-medium text-gray-700" title={savePath}>
-                        {savePath}
-                      </p>
-                      <p className="mt-1 text-xs text-gray-500">
-                        大小: {formatSize(saveFileSize)}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={handleSetSavePath}
-                        className="cursor-pointer rounded-lg bg-green-100 p-2 text-green-600 transition hover:bg-green-200"
-                        title="重新设置存档路径"
-                      >
-                        <VscFolder className="text-xl" />
-                      </button>
-                      <button
-                        onClick={handleRefreshSaveSize}
-                        className="cursor-pointer rounded-lg bg-gray-200 p-2 text-gray-600 transition hover:bg-gray-300"
-                        title="刷新存档大小"
-                      >
-                        <VscRefresh className="text-xl" />
-                      </button>
-                      <button
-                        onClick={handleOpenSaveFolder}
-                        className="cursor-pointer rounded-lg bg-blue-100 p-2 text-blue-600 transition hover:bg-blue-200"
-                        title="打开存档文件夹"
-                      >
-                        <VscFolderOpened className="text-xl" />
-                      </button>
-                    </div>
+                <div className="mb-4 flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 transition hover:border-gray-300 hover:shadow-sm">
+                  {/* 存档图标 */}
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                    <VscSave className="text-xl text-gray-700" />
                   </div>
-                </div>
 
-                {/* 备份操作按钮 */}
-                <div className="mb-4 flex gap-2">
-                  <button
-                    onClick={handleCreateBackup}
-                    disabled={loading}
-                    className="flex cursor-pointer flex-1 items-center justify-center gap-2 rounded-lg bg-green-500 px-4 py-2 text-white transition hover:bg-green-600 disabled:bg-gray-400"
-                  >
-                    <FiDownload className="text-lg" />
-                    {loading ? '创建中...' : '创建备份'}
-                  </button>
-                  <button
-                    onClick={loadBackups}
-                    className="cursor-pointer rounded-lg bg-gray-200 px-4 py-2 text-gray-700 transition hover:bg-gray-300"
-                    title="刷新备份列表"
-                  >
-                    <VscRefresh className="text-lg" />
-                  </button>
+                  {/* 存档信息 */}
+                  <div className="flex-1 overflow-hidden">
+                    <p className="truncate text-xs text-gray-500" title={savePath}>
+                      {savePath}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      大小: {formatSize(saveFileSize)}
+                    </p>
+                  </div>
                 </div>
 
                 {/* 备份列表 */}
                 <div>
-                  <h4 className="mb-2 text-sm font-semibold text-gray-700">备份列表</h4>
+                  <div className='flex flex-row items-center gap-2'>
+                    <h4 className="mb-4 text-base font-semibold text-gray-900">备份存档</h4>
+                    <GoDot className="mb-4 text-lg" />
+                  </div>
                   {backups.length === 0 ? (
                     <div className="rounded-lg bg-gray-50 p-6 text-center text-gray-400">
                       暂无备份,创建第一个备份吧!
@@ -329,8 +388,8 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
                           className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 transition hover:border-gray-300 hover:shadow-sm"
                         >
                           {/* 备份图标 */}
-                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-green-100">
-                            <VscSave className="text-xl text-green-600" />
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                            <VscSave className="text-xl text-gray-700" />
                           </div>
 
                           {/* 备份信息 */}
@@ -347,14 +406,14 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
                           <div className="flex gap-1">
                             <button
                               onClick={() => handleRestoreBackup(backup.id)}
-                              className="cursor-pointer rounded-lg bg-blue-100 p-2 text-blue-600 transition hover:bg-blue-200"
+                              className="cursor-pointer rounded-lg bg-gray-100 p-2 text-gray-700 transition hover:bg-gray-200"
                               title="覆盖当前存档"
                             >
-                              <VscRefresh className="text-lg" />
+                              <GoGitPullRequest className="text-lg" />
                             </button>
                             <button
                               onClick={() => handleDeleteBackup(backup.id)}
-                              className="cursor-pointer rounded-lg bg-red-100 p-2 text-red-600 transition hover:bg-red-200"
+                              className="cursor-pointer rounded-lg bg-gray-100 p-2 text-gray-700 transition hover:bg-gray-200"
                               title="删除备份"
                             >
                               <VscTrash className="text-lg" />
@@ -367,18 +426,6 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
                 </div>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* 底部按钮区域 */}
-        <div className="border-t border-gray-200 px-6 py-4">
-          <div className="flex justify-end">
-            <button
-              onClick={onClose}
-              className="cursor-pointer rounded-lg bg-gray-300 px-6 py-2 text-gray-700 transition hover:bg-gray-400"
-            >
-              关闭
-            </button>
           </div>
         </div>
       </div>

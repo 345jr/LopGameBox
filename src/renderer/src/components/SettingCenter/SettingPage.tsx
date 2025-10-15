@@ -169,6 +169,11 @@ const SettingPage = () => {
         <Link to="/setting/practice">代码练习</Link>
         <Link to="/setting/info">关于这款软件</Link>
       </div> */}
+      <div className="text-red-500">
+        <Link to={'/404'}>
+          404跳转测试
+        </Link>
+      </div>
       <div className="mt-10 text-center">
         <Link to="/">返回主页</Link>
       </div>

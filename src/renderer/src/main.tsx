@@ -2,7 +2,7 @@ import './assets/main.css';
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createHashRouter, RouterProvider } from 'react-router-dom';
 import Gallery from './components/Gallery';
 import Update from './components/SettingCenter/Update';
 import Dashboard from './components/Dashboard/Dashboard';
@@ -10,10 +10,14 @@ import SettingPage from './components/SettingCenter/SettingPage';
 import Practice from './components/SettingCenter/Practice';
 import Layout from './components/Layout';
 import App from './App';
+import ErrorPage from './components/ErrorPage';
+import NotFound from './components/NotFound';
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     element: <Layout />,
+    // 全局错误处理组件：在 route loader/action/element 出错时会显示
+    errorElement: <ErrorPage />,
     children: [
       { path: '/', element: <App /> },
       //图集
@@ -26,6 +30,8 @@ const router = createBrowserRouter([
       { path: '/setting/update', element: <Update /> },
       //测试代码专用
       { path: '/setting/practice', element: <Practice /> },
+      // 捕获未匹配路由（404）
+      { path: '*', element: <NotFound /> },
     ]
   }
 ]);

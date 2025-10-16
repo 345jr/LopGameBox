@@ -605,6 +605,8 @@ app.whenReady().then(() => {
   });
   ipcMain.handle('window:close', () => {
     mainWindow?.close();
+    // 关闭窗口后退出应用程序
+    app.quit();
   });
   ipcMain.handle('window:isMaximized', () => {
     return mainWindow?.isMaximized();

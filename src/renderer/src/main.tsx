@@ -16,7 +16,7 @@ import NotFound from './components/NotFound';
 const router = createHashRouter([
   {
     element: <Layout />,
-    // 全局错误处理组件：在 route loader/action/element 出错时会显示
+    // 全局错误处理组件
     errorElement: <ErrorPage />,
     children: [
       { path: '/', element: <App /> },

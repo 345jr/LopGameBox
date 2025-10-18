@@ -238,6 +238,22 @@ declare global {
       closeWindow: () => Promise<void>;
       // 检查窗口是否最大化
       isWindowMaximized: () => Promise<boolean>;
+
+      // ==================== 截图功能接口 ====================
+      // 启用 F12 截图快捷键
+      enableScreenshotShortcut: () => Promise<{ success: boolean; message: string }>;
+      // 禁用 F12 截图快捷键
+      disableScreenshotShortcut: () => Promise<{ success: boolean; message: string }>;
+      // 获取截图快捷键状态
+      getScreenshotShortcutStatus: () => Promise<{ enabled: boolean }>;
+      // 监听截图成功事件
+      onScreenshotSuccess: (callback: (data: { path: string; filename: string }) => void) => void;
+      // 监听截图失败事件
+      onScreenshotError: (callback: (data: { error: string }) => void) => void;
+      // 移除截图成功监听
+      offScreenshotSuccess: () => void;
+      // 移除截图失败监听
+      offScreenshotError: () => void;
     };
   }
 }

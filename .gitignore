@@ -6,6 +6,7 @@ out
 *.log*
 # 封面图以及游戏图集
 public/*
+screenshots/*
 # 杂物
 src/main/misc/*
 package-lock.json

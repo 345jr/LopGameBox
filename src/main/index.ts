@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, dialog, protocol, net, Notification } from 'electron';
+import { app, shell, BrowserWindow, ipcMain, dialog, protocol, net, Notification, globalShortcut } from 'electron';
 import path, { join } from 'path';
 import url from 'node:url';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
@@ -41,6 +41,8 @@ let modeToggleLog: boolean = false;
 let modeToggle: string[] = new Array(2).fill('');
 //是否记录?
 let isLoged = false;
+//截图快捷键是否启用
+let screenshotShortcutEnabled: boolean = false;
 
 //创建 数据库操控实例
 const gameService = new GameService(
@@ -82,6 +84,63 @@ function createWindow(): void {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'), {});
+  }
+}
+
+// 截图功能处理函数
+async function handleScreenshot(): Promise<void> {
+  if (!mainWindow) return;
+
+  try {
+    // 使用原生截图功能
+    const screenshot = await mainWindow.webContents.capturePage();
+    
+    // 生成文件名（包含时间戳）
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const filename = `screenshot-${timestamp}.png`;
+    
+    // 确定保存路径
+    const screenshotDir = app.isPackaged
+      ? path.join(path.dirname(app.getPath('exe')), 'screenshots')
+      : path.join(process.cwd(), 'screenshots');
+    
+    await fs.mkdir(screenshotDir, { recursive: true });
+    const filepath = path.join(screenshotDir, filename);
+    
+    // 保存截图
+    await fs.writeFile(filepath, screenshot.toPNG());
+    
+    // 通知前端截图成功
+    mainWindow?.webContents.send('screenshot:success', { path: filepath, filename });
+    
+    console.log(`Screenshot saved: ${filepath}`);
+  } catch (error) {
+    console.error('Screenshot failed:', error);
+    mainWindow?.webContents.send('screenshot:error', { error: String(error) });
+  }
+}
+
+// 注册 F12 快捷键
+function registerScreenshotShortcut(): void {
+  try {
+    globalShortcut.register('F12', () => {
+      handleScreenshot();
+    });
+    screenshotShortcutEnabled = true;
+    console.log('Screenshot shortcut (F12) registered');
+  } catch (error) {
+    console.error('Failed to register shortcut:', error);
+  }
+}
+
+// 注销 F12 快捷键
+function unregisterScreenshotShortcut(): void {
+  try {
+    globalShortcut.unregister('F12');
+    screenshotShortcutEnabled = false;
+    console.log('Screenshot shortcut (F12) unregistered');
+  } catch (error) {
+    console.error('Failed to unregister shortcut:', error);
   }
 }
 
@@ -612,6 +671,34 @@ app.whenReady().then(() => {
     return mainWindow?.isMaximized();
   });
 
+  // ==================== 截图快捷键控制 ====================
+  
+  // 启用截图快捷键 (F12)
+  ipcMain.handle('screenshot:enableShortcut', () => {
+    if (!screenshotShortcutEnabled) {
+      registerScreenshotShortcut();
+    }
+    return { success: true, message: '截图快捷键已启用' };
+  });
+
+  // 禁用截图快捷键 (F12)
+  ipcMain.handle('screenshot:disableShortcut', () => {
+    if (screenshotShortcutEnabled) {
+      unregisterScreenshotShortcut();
+    }
+    return { success: true, message: '截图快捷键已禁用' };
+  });
+
+  // 获取截图快捷键状态
+  ipcMain.handle('screenshot:getShortcutStatus', () => {
+    return { enabled: screenshotShortcutEnabled };
+  });
+
+  // 手动触发截图（不需要快捷键）
+  ipcMain.handle('screenshot:take', async () => {
+    await handleScreenshot();
+  });
+
   createWindow();
   //备份数据库(本地)
   ipcMain.handle('db:backupDatabase', async () => {
@@ -958,8 +1045,6 @@ app.whenReady().then(() => {
       return { success: false, message: err?.message ?? String(err) };
     }
   });
-  
-  createWindow();
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

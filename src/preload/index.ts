@@ -206,6 +206,34 @@ const api = {
   closeWindow: () => ipcRenderer.invoke('window:close'),
   // 检查窗口是否最大化
   isWindowMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+
+  // ==================== 截图功能接口 ====================
+  // 启用 F12 截图快捷键
+  enableScreenshotShortcut: () => ipcRenderer.invoke('screenshot:enableShortcut'),
+  // 禁用 F12 截图快捷键
+  disableScreenshotShortcut: () => ipcRenderer.invoke('screenshot:disableShortcut'),
+  // 获取截图快捷键状态
+  getScreenshotShortcutStatus: () => ipcRenderer.invoke('screenshot:getShortcutStatus'),
+  // 监听截图成功事件
+  onScreenshotSuccess: (callback: (data: { path: string; filename: string }) => void) => {
+    ipcRenderer.on('screenshot:success', (_event, data) => {
+      callback(data);
+    });
+  },
+  // 监听截图失败事件
+  onScreenshotError: (callback: (data: { error: string }) => void) => {
+    ipcRenderer.on('screenshot:error', (_event, data) => {
+      callback(data);
+    });
+  },
+  // 移除截图成功监听
+  offScreenshotSuccess: () => {
+    ipcRenderer.removeAllListeners('screenshot:success');
+  },
+  // 移除截图失败监听
+  offScreenshotError: () => {
+    ipcRenderer.removeAllListeners('screenshot:error');
+  },
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -15,6 +15,7 @@ const SettingPage = () => {
   const [showUpdate, setShowUpdate] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [screenshotEnabled, setScreenshotEnabled] = useState(false);
 
   const JwtToken = useUserStore((state) => state.JwtToken);
   const setJwtToken = useUserStore((state) => state.setJwtToken);
@@ -27,12 +28,55 @@ const SettingPage = () => {
     } else {
       setIsLoading(false);
     }
+
+    // 初始化截图快捷键状态
+    const initScreenshotStatus = async () => {
+      try {
+        const status = await window.api.getScreenshotShortcutStatus();
+        setScreenshotEnabled(status.enabled);
+      } catch (error) {
+        console.error('获取截图快捷键状态失败:', error);
+      }
+    };
+    initScreenshotStatus();
+
+    // 监听截图事件
+    window.api.onScreenshotSuccess((data) => {
+      toast.success(`截图已保存: ${data.filename}`);
+    });
+
+    window.api.onScreenshotError((data) => {
+      toast.error(`截图失败: ${data.error}`);
+    });
+
+    // 清理监听器
+    return () => {
+      window.api.offScreenshotSuccess();
+      window.api.offScreenshotError();
+    };
   }, [JwtToken]);
 
   // 退出登录
   const handleLogout = () => {
     setJwtToken('');
     setUserData(null);
+  };
+
+  // 截图快捷键开关处理
+  const handleScreenshotToggle = async () => {
+    try {
+      if (screenshotEnabled) {
+        await window.api.disableScreenshotShortcut();
+        setScreenshotEnabled(false);
+        toast.success('截图快捷键已禁用');
+      } else {
+        await window.api.enableScreenshotShortcut();
+        setScreenshotEnabled(true);
+        toast.success('截图快捷键已启用（按 F12 截图）');
+      }
+    } catch (error) {
+      toast.error(`操作失败: ${error}`);
+    }
   };
 
   // 备份数据库处理函数
@@ -151,8 +195,15 @@ const SettingPage = () => {
           <button className="w-full rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white">
             绑定Steam
           </button>
-          <button className="w-full rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white">
-            应用设置
+          <button
+            onClick={handleScreenshotToggle}
+            className={`w-full rounded px-4 py-2 transition-colors ${
+              screenshotEnabled
+                ? 'bg-red-400 text-white hover:bg-red-600'
+                : 'bg-gray-300 text-black hover:bg-gray-500 hover:text-white'
+            }`}
+          >
+            {screenshotEnabled ? '禁用截图快捷键' : '启用截图快捷键'}
           </button>
         </div>
       </div>
@@ -163,12 +214,6 @@ const SettingPage = () => {
       {/* 检查更新模态框 */}
       {showUpdate &&
         createPortal(<UpdateContent onClose={() => setShowUpdate(false)} />, document.body)}
-
-      {/* <div className="grid grid-rows-3 gap-4">
-        <Link to="/setting/update">更新记录</Link>
-        <Link to="/setting/practice">代码练习</Link>
-        <Link to="/setting/info">关于这款软件</Link>
-      </div> */}
       <div className="text-red-500">
         <Link to={'/404'}>
           404跳转测试

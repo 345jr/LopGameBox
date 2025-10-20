@@ -19,7 +19,7 @@ import { FaGithub } from "react-icons/fa";
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { toast } from 'react-hot-toast';
-import { VscAttach } from "react-icons/vsc";
+import { VscAttach, VscAdd } from "react-icons/vsc";
 
 const GameCards = () => {
   // #region 状态管理
@@ -54,6 +54,8 @@ const GameCards = () => {
   // 当前选择的分类 - 从全局状态获取
   const selectedCategory = useGameStore((state) => state.selectedCategory);
   const setSelectedCategory = useGameStore((state) => state.setSelectedCategory);
+  // 用于刷新游戏列表
+  const setGameList = useGameStore((state) => state.setGameList);
   // 分类菜单展开状态
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   // 控制分类菜单是否渲染在 DOM 中
@@ -150,6 +152,31 @@ const GameCards = () => {
       await window.api.deleteGame(game.id);
       toast.success(`${game.game_name}已删除。`);
       fetchGamesByCategory();
+    }
+  };
+  //添加游戏 --
+  const handleAddGame = async () => {
+    const path = await window.api.openFile();
+    if (!path) return;
+    const defaultName = path.split('\\').pop()?.replace('.exe', '') || '新游戏';
+    const defaultPath = `banner\\default.jpg`;
+    try {
+      const gameInitData = await window.api.addGame({
+        gameName: defaultName,
+        launchPath: path,
+      });
+      // 添加默认封面图
+      await window.api.addBanner({
+        gameId: gameInitData.id,
+        imagePath: 'null',
+        relativePath: defaultPath,
+      });
+      toast.success(`${defaultName} 已添加`);
+      //添加游戏后刷新游戏列表
+      setGameList(gameInitData.id);
+    } catch (error: any) {
+      console.log(`${error.message}`);
+      toast.error(`添加游戏失败: ${error.message}`);
     }
   };
   //添加封面 --
@@ -296,6 +323,15 @@ const GameCards = () => {
         </motion.div>
         {/* 游戏分类区域 */}
         <div className="fixed right-4 top-32 z-50">
+          {/* 添加游戏按钮 */}
+          <motion.button
+            onClick={handleAddGame}
+            className="cursor-pointer mb-2 w-full rounded-md bg-white px-4 py-2 text-sm shadow-md transition-all hover:bg-blue-200 border-gray-500 border-2 flex items-center justify-center gap-2"
+            whileHover={{ scale: 1.05 }}
+          >
+            <VscAdd className="text-lg" />
+            <span>添加游戏</span>
+          </motion.button>
           {/* 主按钮 - 显示分类 */}
           <button
             ref={categoryBtnRef}

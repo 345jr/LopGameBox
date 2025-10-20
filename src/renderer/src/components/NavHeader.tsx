@@ -5,8 +5,7 @@ import { TextPlugin } from 'gsap/TextPlugin';
 import { useEffect, useRef, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscTriangleDown } from 'react-icons/vsc';
-import { Link } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
+import { Link, useNavigate } from 'react-router-dom';
 
 import useGameStore from '@renderer/store/GameStore';
 import { formatTime } from '@renderer/util/timeFormat';
@@ -18,8 +17,6 @@ const NavHeader = () => {
   const [position, setPosition] = useState({ x: 0, y: 0, rotate: 0 });
   // 搜索输入框的值
   const [inputRef, setInputRef] = useState<string>('');  
-  // 用于设置游戏列表
-  const setGameList = useGameStore((state) => state.setGameList);
   // 游戏运行的时间
   const gameTime = useGameStore((state) => state.gameTime);
   // 游戏当前的运行状态（run stop null）
@@ -36,33 +33,14 @@ const NavHeader = () => {
   const typewriterRef = useRef<HTMLParagraphElement>(null);
   // 窗口是否最大化状态
   const [isMaximized, setIsMaximized] = useState(false);
+  // 用于导航回到主页
+  const navigate = useNavigate();
 
   //#endregion 状态管理
 
-  //添加游戏
-  const handleAddGame = async () => {
-    const path = await window.api.openFile();
-    if (!path) return;
-    const defaultName = path.split('\\').pop()?.replace('.exe', '') || '新游戏';
-    const defaultPath = `banner\\default.jpg`;
-    try {
-      const gameInitData = await window.api.addGame({
-        gameName: defaultName,
-        launchPath: path,
-      });
-      // 添加默认封面图
-      await window.api.addBanner({
-        gameId: gameInitData.id,
-        imagePath: 'null',
-        relativePath: defaultPath,
-      });
-      toast.success(`${defaultName} 已添加`);
-      //添加游戏后刷新游戏列表
-      setGameList(gameInitData.id);
-    } catch (error: any) {
-      console.log(`${error.message}`);
-      toast.error(`添加游戏失败: ${error.message}`);
-    }
+  //返回到主页
+  const handleBackToHome = () => {
+    navigate('/');
   };
 
   //#region 动画配置
@@ -189,14 +167,14 @@ const NavHeader = () => {
           <VscTriangleDown />
         </motion.div>
         <motion.button
-          onClick={handleAddGame}
+          onClick={handleBackToHome}
           className="cursor-pointer px-4 text-stone-900 hover:text-stone-600"
           whileHover={{ scale: 1.1 }}
           onMouseMove={() => {
             setPosition({ x: 10, y: 0, rotate: 0 });
           }}
         >
-          添加游戏
+          游戏列表
         </motion.button>
       </motion.div>
 

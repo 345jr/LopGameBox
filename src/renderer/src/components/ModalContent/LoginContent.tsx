@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import useUserStore from '@renderer/store/UserStore';
 import { login, register } from '@renderer/api';
+import toast from 'react-hot-toast';
 
 const LoginContent = ({ onClose }: { onClose: () => void }) => {
-  const [isLogin, setIsLogin] = useState(true); // 切换登录/注册
+  const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    confirmPassword: '', // 仅注册时使用
+    confirmPassword: '', 
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const setJwtToken = useUserStore((state) => state.setJwtToken);
 
@@ -21,56 +21,75 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
       ...prev,
       [name]: value,
     }));
-    setError(''); // 清除错误信息
   };
 
   // 登录处理
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
 
-    try {
-      const data = await login(formData.username, formData.password);
-      setJwtToken(data.token);
-      onClose(); // 登录成功后关闭模态框
-    } catch (error) {
-      setError(error instanceof Error ? error.message : '登录失败，请检查用户名和密码');
-    } finally {
+    toast.promise(
+      (async () => {
+        const data = await login(formData.username, formData.password);
+        setJwtToken(data.token);
+        return data;
+      })(),
+      {
+        loading: '正在登录...',
+        success: '登录成功！',
+        error: (err) => {
+          const message = err instanceof Error ? err.message : '登录失败';
+          return `登录失败: ${message}`;
+        },
+      }
+    ).finally(() => {
       setLoading(false);
-    }
+    }).then(() => {
+      // 只在成功时关闭
+      onClose();
+    }).catch(() => {
+      // 错误时不关闭，让用户重试
+    });
   };
 
   // 注册处理
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
 
     // 验证密码确认
     if (formData.password !== formData.confirmPassword) {
-      setError('两次输入的密码不一致');
-      setLoading(false);
+      toast.error('两次输入的密码不一致');
       return;
     }
 
-    try {
-      const data = await register(formData.username, formData.password);
-      // 注册成功后自动登录
-      if (data.token) {
-        setJwtToken(data.token);
-        onClose();
-      } else {
-        // 如果没有返回token，提示用户去登录
-        setError('注册成功，请登录');
-        setIsLogin(true);
-        setFormData({ username: '', password: '', confirmPassword: '' });
+    setLoading(true);
+
+    toast.promise(
+      (async () => {
+        const data = await register(formData.username, formData.password);
+        // 注册成功后自动登录
+        if (data.token) {
+          setJwtToken(data.token);
+        }
+        return data;
+      })(),
+      {
+        loading: '正在注册...',
+        success: (data) => {
+          if (data.token) {
+            setTimeout(() => onClose(), 500); // 延迟关闭，让toast显示完整
+            return '注册成功！已自动登录';
+          }
+          return '注册成功，请登录';
+        },
+        error: (err) => {
+          const message = err instanceof Error ? err.message : '注册失败';
+          return `注册失败: ${message}`;
+        },
       }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : '注册失败，用户名可能已存在');
-    } finally {
+    ).finally(() => {
       setLoading(false);
-    }
+    });
   };
 
   return (
@@ -79,13 +98,11 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
         onClick={(e) => e.stopPropagation()}
         className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-2xl"
       >
-        {/* 标题和切换按钮 */}
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-bold text-gray-800">{isLogin ? '登录' : '注册'}</h2>
           <button
             onClick={() => {
               setIsLogin(!isLogin);
-              setError('');
               setFormData({ username: '', password: '', confirmPassword: '' });
             }}
             className="text-sm text-blue-600 transition-colors hover:text-blue-800"
@@ -93,14 +110,6 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
             {isLogin ? '没有账号？注册' : '已有账号？登录'}
           </button>
         </div>
-
-        {/* 错误信息 */}
-        {error && (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
-
         {/* 表单 */}
         <form onSubmit={isLogin ? handleLogin : handleRegister} className="space-y-4">
           <div>

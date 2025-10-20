@@ -64,18 +64,28 @@ const SettingPage = () => {
 
   // 截图快捷键开关处理
   const handleScreenshotToggle = async () => {
-    try {
-      if (screenshotEnabled) {
-        await window.api.disableScreenshotShortcut();
-        setScreenshotEnabled(false);
-        toast.success('截图快捷键已禁用');
-      } else {
-        await window.api.enableScreenshotShortcut();
-        setScreenshotEnabled(true);
-        toast.success('截图快捷键已启用（按 F12 截图）');
-      }
-    } catch (error) {
-      toast.error(`操作失败: ${error}`);
+    if (screenshotEnabled) {
+      toast.promise(
+        window.api.disableScreenshotShortcut().then(() => {
+          setScreenshotEnabled(false);
+        }),
+        {
+          loading: '正在禁用截图快捷键...',
+          success: '截图快捷键已禁用',
+          error: (err) => `禁用失败: ${err.message || String(err)}`,
+        }
+      );
+    } else {
+      toast.promise(
+        window.api.enableScreenshotShortcut().then(() => {
+          setScreenshotEnabled(true);
+        }),
+        {
+          loading: '正在启用截图快捷键...',
+          success: '截图快捷键已启用（按 F12 截图）',
+          error: (err) => `启用失败: ${err.message || String(err)}`,
+        }
+      );
     }
   };
 

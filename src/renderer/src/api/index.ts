@@ -12,11 +12,15 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
     },
   });
 
+  const data = await response.json();
+
   if (!response.ok) {
-    throw new Error(`网络错误: ${response.status}`);
+    // 优先使用后端返回的 message 或 error 字段，否则使用状态码
+    const errorMessage = data?.message || data?.error || data?.msg || `HTTP ${response.status}`;
+    throw new Error(errorMessage);
   }
 
-  return response.json();
+  return data;
 };
 
 // 获取用户信息 (GET /me)

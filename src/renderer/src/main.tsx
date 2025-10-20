@@ -15,6 +15,7 @@ import NotFound from './components/NotFound';
 
 const router = createHashRouter([
   {
+    //全局组件
     element: <Layout />,
     // 全局错误处理组件
     errorElement: <ErrorPage />,

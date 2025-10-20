@@ -55,10 +55,6 @@ const NotFound: React.FC = () => {
             {copied ? '已复制路径' : '复制完整 URL'}
           </button>
         </div>
-
-        <div className="mt-4 text-xs text-slate-500">
-          如果这是应用内部链接，请检查应用的路由配置；如需帮助，请将上述路径粘贴到 issue 中。
-        </div>
       </div>
     </div>
   );

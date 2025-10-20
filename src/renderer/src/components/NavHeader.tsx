@@ -157,7 +157,7 @@ const NavHeader = () => {
   };
 
   return (
-    <div className="relative border-b-1 border-black" style={{ display: 'grid', gridTemplateColumns: 'auto auto auto auto auto 1fr auto auto' }}>
+    <div className="relative border-b-2 border-black" style={{ display: 'grid', gridTemplateColumns: 'auto auto auto auto auto 1fr auto auto' }}>
       {/* Logo 图标 - 固定宽度 */}
       <motion.div 
         className="flex items-center justify-center px-3"

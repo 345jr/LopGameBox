@@ -1,34 +1,16 @@
-# lopgamebox
+# LopopGameBox
 
-An Electron application with React and TypeScript
+---
 
-## Recommended IDE Setup
+LopopGameBox
+一个简单且实用的游戏管理器
+功能介绍
+1.基本的游戏管理操作 ，添加，删除 ，搜索 ，分类。。。
+2.基本的游戏数据统计 ，游戏时长 ，启动次数。。。
+3.游戏快照管理
+4.云端备份统计数据
+5.游戏模式选择和游玩休息提醒
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+## 效果展示
 
-## Project Setup
-
-### Install
-
-```bash
-$ npm install
-```
-
-### Development
-
-```bash
-$ npm run dev
-```
-
-### Build
-
-```bash
-# For windows
-$ npm run build:win
-
-# For macOS
-$ npm run build:mac
-
-# For Linux
-$ npm run build:linux
-```
+![效果展示](https://image.lopop.top/github/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-10-20%20103759.png)

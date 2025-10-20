@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-
 import { GameStatistics } from '@renderer/types/Game';
 import { GameLog } from '@renderer/types/Game';
 import MyAreaChart from './MyAreaChart';
@@ -88,7 +86,7 @@ const Dashboard = () => {
       <div className="mb-4">
         {/* 统计数据横排展示 */}
         <div className="mb-5 mx-auto max-w-6xl rounded-lg  bg-white shadow-lg">
-          <div className="grid grid-cols-5 ">
+          <div className="grid grid-cols-4 ">
             <div className="px-6 py-4 text-center">
               <p className="text-sm text-gray-500 mb-1">游戏总数</p>
               <p className="text-2xl font-bold text-blue-600">{gameStatistics.gameCount}</p>
@@ -104,13 +102,6 @@ const Dashboard = () => {
             <div className="px-6 py-4 text-center">
               <p className="text-sm text-gray-500 mb-1">总存储占用</p>
               <p className="text-2xl font-bold text-blue-600">{gameSizeFormat(gameStatistics.totalDiskSize)}</p>
-            </div>
-            <div className="px-6 py-4 flex items-center justify-center">
-              <Link to={'/'}>
-                <button className="rounded-md bg-blue-500 px-6 py-2 text-white font-semibold shadow-md transition-all hover:bg-blue-600 active:scale-95">
-                  返回主页
-                </button>
-              </Link>
             </div>
           </div>
         </div>

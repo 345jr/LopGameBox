@@ -9,7 +9,6 @@ import { getMe } from '@renderer/api';
 
 import type { UserData } from '@renderer/types/SettingCenter';
 import toast from 'react-hot-toast';
-import NavHeader from '../NavHeader';
 
 const SettingPage = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -121,7 +120,6 @@ const SettingPage = () => {
 
   return (
     <>
-      {/* <NavHeader /> */}
       {/* 用户配置 */}
       <div className="flex flex-row">
         {/* 用户信息区 */}

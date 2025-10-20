@@ -7,7 +7,6 @@ import MyAreaChart from './MyAreaChart';
 import MyPieChart from './MyPieChart';
 import { getWeekRange, formatTimeToHours } from '@renderer/util/timeFormat';
 import gameSizeFormat from '@renderer/util/gameSizeFormat';
-import NavHeader from '../NavHeader';
 
 const Dashboard = () => {
   const [gameStatistics, setGameStatistics] = useState<GameStatistics>({
@@ -86,7 +85,6 @@ const Dashboard = () => {
 
   return (
     <>
-      {/* <NavHeader /> */}
       <div className="mb-4">
         {/* 统计数据横排展示 */}
         <div className="mb-5 mx-auto max-w-6xl rounded-lg  bg-white shadow-lg">

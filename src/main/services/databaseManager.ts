@@ -2,19 +2,37 @@ import Database from 'better-sqlite3';
 import type { Database as DatabaseType } from 'better-sqlite3';
 import path from 'path';
 import { app } from 'electron';
+import * as fs from 'fs';
 
 export class DatabaseManager {
   private static dbInstance: DatabaseType;
+  
   //获取数据库实例
   public static getInstance(): DatabaseType {
     if (!this.dbInstance) {
-      // 在生产环境和开发环境下选择不同的数据库路径
+      // 根据环境选择数据库路径
       const dbPath = app.isPackaged
-        ? path.join(path.dirname(app.getPath('exe')), 'db/gameData.db')
-        : path.join(process.cwd(), 'db/gameData.db');
+        ? path.join(app.getPath('userData'), 'gameData.db')  // 生产环境：用户数据目录
+        : path.join(process.cwd(), 'db/gameData.db');        // 开发环境：项目目录
+      
+      console.log('数据库路径:', dbPath);
+      
+      // 生产环境下，确保数据库目录存在
+      if (app.isPackaged) {
+        const dbDir = path.dirname(dbPath);
+        if (!fs.existsSync(dbDir)) {
+          fs.mkdirSync(dbDir, { recursive: true });
+          console.log('创建数据库目录:', dbDir);
+        }
+      }
+      
+      // 创建或打开数据库
       this.dbInstance = new Database(dbPath);
+      
       //打开外键约束
       this.dbInstance.pragma('foreign_keys = ON');
+      
+      // 初始化数据库结构
       this.initSchema();
     }
     return this.dbInstance;

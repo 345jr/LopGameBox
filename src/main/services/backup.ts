@@ -9,17 +9,25 @@ export class BackupService {
 
   // 备份数据库（最小实现，等待完成并返回路径）
   public async backupDatabase(): Promise<string> {
-    const baseDir = app.isPackaged ? path.dirname(app.getPath('exe')) : process.cwd();
-    const backupDir = path.join(baseDir, 'db', 'backups');
-    // 确保目录存在
+    // 根据环境选择备份目录
+    const baseDir = app.isPackaged 
+      ? app.getPath('userData')  // 生产环境：用户数据目录
+      : path.join(process.cwd(), 'db');  // 开发环境：项目的 db 目录
+    
+    const backupDir = path.join(baseDir, 'backups');
+    
+    // 确保备份目录存在
     try {
       fs.mkdirSync(backupDir, { recursive: true });
     } catch (err) {
       console.log('创建备份目录失败:', err);
     }
+    
     const backupPath = path.join(backupDir, `backup-${Date.now()}.db`);
+    
     try {
       await (this.db as any).backup(backupPath);
+      console.log('数据库备份成功:', backupPath);
       return backupPath;
     } catch (err) {
       console.error('数据库备份失败:', err);

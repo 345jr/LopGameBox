@@ -1,6 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { fetchMetadata } from '../../api';
+import {
+  useFetchMetadata,
+  useGameLinks,
+  useAddGameLink,
+  useUpdateGameLink,
+  useDeleteGameLink,
+} from '../../api';
 
 interface LinkMetadata {
   title: string;
@@ -22,15 +28,25 @@ interface LinkItem {
 
 const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number }) => {
   const [url, setUrl] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [links, setLinks] = useState<LinkItem[]>([]);
-  const [fetchingLinks, setFetchingLinks] = useState(false);
+  const [metadataUrl, setMetadataUrl] = useState('');
   
   // 编辑模态框状态
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingLink, setEditingLink] = useState<LinkItem | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editUrl, setEditUrl] = useState('');
+
+  // 使用 TanStack Query hooks
+  const { data: links = [], isLoading: fetchingLinks } = useGameLinks(gameId);
+  const addLinkMutation = useAddGameLink();
+  const updateLinkMutation = useUpdateGameLink();
+  const deleteLinkMutation = useDeleteGameLink();
+
+  // 条件性获取元数据（只在需要时触发）
+  const {
+    refetch: fetchMetadataQuery,
+    isFetching: fetchingMetadata,
+  } = useFetchMetadata(metadataUrl, false); // enabled: false，手动触发
 
   // 获取元数据
   const handleFetchMetadata = async () => {
@@ -47,75 +63,57 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
       return;
     }
 
-    setLoading(true);
-    try {
-      const result = await fetchMetadata(url);
+    // 设置 URL 并触发查询
+    setMetadataUrl(url);
 
-      if (result.success && result.data) {
-        const metadata: LinkMetadata = {
-          title: result.data.title || result.data.ogTitle || '无标题',
-          description: result.data.description || result.data.ogDescription || '',
-          favicon: result.data.favicon || '',
-          url: result.data.url || url,
-        };
+    toast.promise(
+      (async () => {
+        // 手动触发元数据查询
+        const { data: result } = await fetchMetadataQuery();
 
-        // 调用后端API保存链接
-        await saveLinkToDatabase(metadata);
-        
-        // 清空输入框
-        setUrl('');
-        
-        // 重新获取链接列表
-        fetchLinks();
-      } else {
-        toast.error(result.message || '获取元数据失败');
+        if (result?.success && result?.data) {
+          const metadata: LinkMetadata = {
+            title: result.data.title || result.data.ogTitle || '无标题',
+            description: result.data.description || result.data.ogDescription || '',
+            favicon: result.data.favicon || '',
+            url: result.data.url || url,
+          };
+
+          // 保存链接
+          await addLinkMutation.mutateAsync({
+            gameId,
+            metadata,
+          });
+
+          // 清空输入框
+          setUrl('');
+          setMetadataUrl('');
+
+          return metadata;
+        } else {
+          throw new Error(result?.message || '获取元数据失败');
+        }
+      })(),
+      {
+        loading: '正在添加链接...',
+        success: '链接添加成功！',
+        error: (err) => `添加失败: ${err instanceof Error ? err.message : '未知错误'}`,
       }
-    } catch (error) {
-      console.error('获取元数据失败:', error);
-      toast.error(error instanceof Error ? error.message : '获取元数据失败');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 保存链接到数据库
-  const saveLinkToDatabase = async (metadata: LinkMetadata) => {
-    try {
-      await window.api.addGameLink(gameId, metadata);
-      toast.success('链接添加成功');
-    } catch (error) {
-      console.error('保存链接失败:', error);
-      toast.error('保存链接失败');
-      throw error;
-    }
-  };
-
-  // 获取游戏的所有链接
-  const fetchLinks = async () => {
-    setFetchingLinks(true);
-    try {
-      const data = await window.api.getGameLinks(gameId);
-      setLinks(data);
-    } catch (error) {
-      console.error('获取链接列表失败:', error);
-      toast.error('获取链接列表失败');
-    } finally {
-      setFetchingLinks(false);
-    }
+    );
   };
 
   // 删除链接
   const handleDeleteLink = async (linkId: number) => {
     if (!confirm('确定要删除这个链接吗?')) return;
 
-    try {
-      await window.api.deleteGameLink(linkId);
-      toast.success('删除成功');
-      fetchLinks();
-    } catch (error) {
-      console.error('删除链接失败:', error);
-      toast.error('删除链接失败');
-    }
+    toast.promise(
+      deleteLinkMutation.mutateAsync({ linkId, gameId }),
+      {
+        loading: '正在删除...',
+        success: '删除成功！',
+        error: (err) => `删除失败: ${err instanceof Error ? err.message : '未知错误'}`,
+      }
+    );
   };
 
   // 打开编辑模态框
@@ -156,23 +154,23 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
       return;
     }
 
-    try {
-      await window.api.updateGameLink(editingLink.id, editTitle.trim(), editUrl.trim());
-      toast.success('更新成功');
-      handleCloseEdit();
-      fetchLinks();
-    } catch (error) {
-      console.error('更新链接失败:', error);
-      toast.error('更新链接失败');
-    }
+    toast.promise(
+      updateLinkMutation.mutateAsync({
+        linkId: editingLink.id,
+        title: editTitle.trim(),
+        url: editUrl.trim(),
+        gameId,
+      }),
+      {
+        loading: '正在更新...',
+        success: () => {
+          handleCloseEdit();
+          return '更新成功！';
+        },
+        error: (err) => `更新失败: ${err instanceof Error ? err.message : '未知错误'}`,
+      }
+    );
   };
-
-  // 组件挂载时获取链接列表
-  useEffect(() => {
-    if (gameId) {
-      fetchLinks();
-    }
-  }, [gameId]);
 
   return (
     <div 
@@ -205,10 +203,10 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
             />
             <button
               onClick={handleFetchMetadata}
-              disabled={loading}
+              disabled={addLinkMutation.isPending || fetchingMetadata}
               className="cursor-pointer rounded-lg bg-blue-500 px-6 py-2 text-white transition hover:bg-blue-600 disabled:bg-gray-400"
             >
-              {loading ? '获取中...' : '添加'}
+              {addLinkMutation.isPending || fetchingMetadata ? '添加中...' : '添加'}
             </button>
           </div>
         </div>

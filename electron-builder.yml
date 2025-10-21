@@ -1,5 +1,6 @@
-appId: com.electron.app
-productName: lopgamebox
+appId: com.lopgamebox.app
+productName: LopGameBox
+copyright: Copyright © 2025 LopGameBox
 directories:
   buildResources: build
 files:
@@ -13,6 +14,15 @@ asarUnpack:
   - resources/**
 win:
   executableName: lopgamebox
+  icon: build/icon.ico
+  legalTrademarks: Copyright © 2025 LopGameBox
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
 nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}

@@ -4,6 +4,7 @@ out
 .DS_Store
 .eslintcache
 *.log*
+build-default/
 # 封面图以及游戏图集
 public/*
 screenshots/*

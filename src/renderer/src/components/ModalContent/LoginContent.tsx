@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import useUserStore from '@renderer/store/UserStore';
-import { login, register } from '@renderer/api';
+import { useLogin, useRegister } from '@renderer/api';
 import toast from 'react-hot-toast';
 
 const LoginContent = ({ onClose }: { onClose: () => void }) => {
@@ -10,9 +10,14 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
     password: '',
     confirmPassword: '', 
   });
-  const [loading, setLoading] = useState(false);
 
   const setJwtToken = useUserStore((state) => state.setJwtToken);
+
+  // 使用 TanStack Query mutations
+  const loginMutation = useLogin();
+  const registerMutation = useRegister();
+
+  const loading = loginMutation.isPending || registerMutation.isPending;
 
   // 处理输入变化
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,30 +31,25 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
   // 登录处理
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
     toast.promise(
-      (async () => {
-        const data = await login(formData.username, formData.password);
-        setJwtToken(data.token);
-        return data;
-      })(),
+      loginMutation.mutateAsync({
+        username: formData.username,
+        password: formData.password,
+      }),
       {
         loading: '正在登录...',
-        success: '登录成功！',
+        success: (data) => {
+          setJwtToken(data.token);
+          onClose();
+          return '登录成功！';
+        },
         error: (err) => {
           const message = err instanceof Error ? err.message : '登录失败';
           return `登录失败: ${message}`;
         },
       }
-    ).finally(() => {
-      setLoading(false);
-    }).then(() => {
-      // 只在成功时关闭
-      onClose();
-    }).catch(() => {
-      // 错误时不关闭，让用户重试
-    });
+    );
   };
 
   // 注册处理
@@ -62,22 +62,17 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
       return;
     }
 
-    setLoading(true);
-
     toast.promise(
-      (async () => {
-        const data = await register(formData.username, formData.password);
-        // 注册成功后自动登录
-        if (data.token) {
-          setJwtToken(data.token);
-        }
-        return data;
-      })(),
+      registerMutation.mutateAsync({
+        username: formData.username,
+        password: formData.password,
+      }),
       {
         loading: '正在注册...',
         success: (data) => {
           if (data.token) {
-            setTimeout(() => onClose(), 500); // 延迟关闭，让toast显示完整
+            setJwtToken(data.token);
+            setTimeout(() => onClose(), 500);
             return '注册成功！已自动登录';
           }
           return '注册成功，请登录';
@@ -87,9 +82,7 @@ const LoginContent = ({ onClose }: { onClose: () => void }) => {
           return `注册失败: ${message}`;
         },
       }
-    ).finally(() => {
-      setLoading(false);
-    });
+    );
   };
 
   return (

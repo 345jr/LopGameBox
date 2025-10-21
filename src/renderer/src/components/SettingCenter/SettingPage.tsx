@@ -5,31 +5,39 @@ import DefaultAvatar from '../../assets/lopgame.png';
 import { createPortal } from 'react-dom';
 import UpdateContent from '../ModalContent/UpdateContent';
 import LoginContent from '../ModalContent/LoginContent';
-import { getMe } from '@renderer/api';
+import { useGetMe, useLogout } from '@renderer/api';
 
-import type { UserData } from '@renderer/types/SettingCenter';
 import toast from 'react-hot-toast';
 
 const SettingPage = () => {
-  const [userData, setUserData] = useState<UserData | null>(null);
   const [showUpdate, setShowUpdate] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [screenshotEnabled, setScreenshotEnabled] = useState(false);
 
   const JwtToken = useUserStore((state) => state.JwtToken);
   const setJwtToken = useUserStore((state) => state.setJwtToken);
 
-  useEffect(() => {
-    //有JwtToken就不用再次登录
-    if (JwtToken) {
-      // 获取用户信息
-      fetchUserData();
-    } else {
-      setIsLoading(false);
-    }
+  // 使用 TanStack Query 获取用户数据
+  const {
+    data: userData,
+    isLoading,
+    error,
+  } = useGetMe(JwtToken, !!JwtToken);
 
-    // 初始化截图快捷键状态
+  // 获取 logout 函数
+  const clearUserCache = useLogout();
+
+  // 处理获取用户信息失败的情况
+  useEffect(() => {
+    if (error && JwtToken) {
+      console.error('获取用户信息失败:', error);
+      // 如果获取用户信息失败，可能token已过期，清除token
+      setJwtToken('');
+      toast.error('登录已过期，请重新登录');
+    }
+  }, [error, JwtToken, setJwtToken]);
+
+  useEffect(() => {
     const initScreenshotStatus = async () => {
       try {
         const status = await window.api.getScreenshotShortcutStatus();
@@ -59,7 +67,7 @@ const SettingPage = () => {
   // 退出登录
   const handleLogout = () => {
     setJwtToken('');
-    setUserData(null);
+    clearUserCache(); // 清除用户缓存
   };
 
   // 截图快捷键开关处理
@@ -112,20 +120,6 @@ const SettingPage = () => {
         error: (err) => `备份失败: ${err.message || String(err)}`,
       }
     );
-  };
-
-  //从服务器获取用户信息
-  const fetchUserData = async () => {
-    try {
-      const data = await getMe(JwtToken);
-      setUserData(data);
-    } catch (error) {
-      console.error('获取用户信息失败:', error);
-      // 如果获取用户信息失败，可能token已过期，清除token
-      setJwtToken('');
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   return (

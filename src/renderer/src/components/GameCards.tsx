@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { VscFileMedia, VscFolder, VscPlay, VscTrash } from 'react-icons/vsc';
 import { GiAchievement } from "react-icons/gi";
 import useGameStore from '@renderer/store/GameStore';
-// import useInfoStore from '@renderer/store/infoStore';
 import gameSizeFormat from '@renderer/util/gameSizeFormat';
 import { formatTime, formatTimeCalender } from '@renderer/util/timeFormat';
 import { motion, Variants } from 'motion/react';
@@ -20,6 +19,8 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { toast } from 'react-hot-toast';
 import { VscAttach, VscAdd } from "react-icons/vsc";
+
+import EmptyBox from '../assets/emptyBox.png';
 
 const GameCards = () => {
   // #region 状态管理
@@ -66,9 +67,9 @@ const GameCards = () => {
   // #endregion
 
   // 当分类改变时重新获取游戏列表,添加新游戏时也会触发
-  useEffect(() => {
-    fetchGamesByCategory();
-  }, [getGameList, selectedCategory]);
+  // useEffect(() => {
+  //   fetchGamesByCategory();
+  // }, [getGameList, selectedCategory]);
 
   // 根据分类获取游戏数据
   const fetchGamesByCategory = useCallback(async () => {
@@ -89,17 +90,17 @@ const GameCards = () => {
     fetchGamesByCategory();
   }, [fetchGamesByCategory]);
   //加载主页数据 --
-  useEffect(() => {
-    fetchGamesByCategory(); 
-    //放置打开休息界面监听器
-    window.api.onOpenRestTimeModal(() => {
-      setShowRestTimeModal(true);
-    });
-    //退出主页时移除监听器
-    return () => {
-      window.api.offOpenRestTimeModal();
-    };
-  }, [fetchGamesByCategory]);
+  // useEffect(() => {
+  //   fetchGamesByCategory(); 
+  //   //放置打开休息界面监听器
+  //   window.api.onOpenRestTimeModal(() => {
+  //     setShowRestTimeModal(true);
+  //   });
+  //   //退出主页时移除监听器
+  //   return () => {
+  //     window.api.offOpenRestTimeModal();
+  //   };
+  // }, [fetchGamesByCategory]);
   //重载模糊查询数据 --
   useEffect(() => {
     if (searchResults.length > 0) {
@@ -280,6 +281,15 @@ const GameCards = () => {
   return (
     <>
       <div className="relative flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed">
+        {/* 空列表提示 */}
+        {games.length === 0 && (
+          <div className="flex-center mt-32 flex-col items-center justify-center gap-4">
+            <div className="rounded-full bg-white/60 p-4 shadow-md">
+              <img src={EmptyBox} alt="empty" className="h-32 w-32 object-contain" />
+            </div>
+            <p className="text-white text-2xl mt-5">仓库为空 , 快去添加游戏吧！</p>
+          </div>
+        )}
         {/* 游戏模式选择器 */}
         {/* 简易遮罩 */}
         <div className="fixed top-1/2 left-0 w-40 -translate-y-1/2">

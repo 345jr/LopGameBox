@@ -28,6 +28,7 @@
     "@tanstack/react-query": "^5.90.5",
     "antd": "^5.27.4",
     "better-sqlite3": "^12.2.0",
+    "dayjs": "^1.11.18",
     "gsap": "^3.13.0",
     "motion": "^12.23.12",
     "react-hot-toast": "^2.6.0",

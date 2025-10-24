@@ -67,9 +67,9 @@ const GameCards = () => {
   // #endregion
 
   // 当分类改变时重新获取游戏列表,添加新游戏时也会触发
-  // useEffect(() => {
-  //   fetchGamesByCategory();
-  // }, [getGameList, selectedCategory]);
+  useEffect(() => {
+    fetchGamesByCategory();
+  }, [getGameList, selectedCategory]);
 
   // 根据分类获取游戏数据
   const fetchGamesByCategory = useCallback(async () => {
@@ -90,17 +90,17 @@ const GameCards = () => {
     fetchGamesByCategory();
   }, [fetchGamesByCategory]);
   //加载主页数据 --
-  // useEffect(() => {
-  //   fetchGamesByCategory(); 
-  //   //放置打开休息界面监听器
-  //   window.api.onOpenRestTimeModal(() => {
-  //     setShowRestTimeModal(true);
-  //   });
-  //   //退出主页时移除监听器
-  //   return () => {
-  //     window.api.offOpenRestTimeModal();
-  //   };
-  // }, [fetchGamesByCategory]);
+  useEffect(() => {
+    fetchGamesByCategory(); 
+    //放置打开休息界面监听器
+    window.api.onOpenRestTimeModal(() => {
+      setShowRestTimeModal(true);
+    });
+    //退出主页时移除监听器
+    return () => {
+      window.api.offOpenRestTimeModal();
+    };
+  }, [fetchGamesByCategory]);
   //重载模糊查询数据 --
   useEffect(() => {
     if (searchResults.length > 0) {

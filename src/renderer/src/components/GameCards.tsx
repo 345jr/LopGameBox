@@ -14,7 +14,7 @@ import LinksContent from './ModalContent/LinksContent';
 import FolderManageContent from './ModalContent/FolderManageContent';
 import Portal from './Portal';
 import { FaArrowUp, FaPersonWalkingArrowRight } from 'react-icons/fa6';
-import { FaGithub } from "react-icons/fa";
+import { FaGithub, FaList } from "react-icons/fa";
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { toast } from 'react-hot-toast';
@@ -343,13 +343,15 @@ const GameCards = () => {
             <span>添加游戏</span>
           </motion.button>
           {/* 主按钮 - 显示分类 */}
-          <button
+          <motion.button
             ref={categoryBtnRef}
             onClick={toggleCategory}
-            className="cursor-pointer mb-2 w-full rounded-md bg-white px-4 py-2 text-sm shadow-md transition-all hover:bg-blue-200 border-gray-500 border-2"
+            className="cursor-pointer mb-2 w-full rounded-md bg-white px-4 py-2 text-sm shadow-md transition-all hover:bg-blue-200 border-gray-500 border-2 flex items-center justify-center gap-2"
+            whileHover={{ scale: 1.03 }}
           >
-            游戏分类
-          </button>
+            <FaList className="text-lg" />
+            <span>游戏分类</span>
+          </motion.button>
           {/* 分类选项容器 */}
           {shouldRenderCategories && (
             <div className="flex flex-col gap-2">

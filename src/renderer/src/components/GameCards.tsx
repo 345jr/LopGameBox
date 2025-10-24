@@ -4,7 +4,7 @@ import { VscFileMedia, VscFolder, VscPlay, VscTrash } from 'react-icons/vsc';
 import { GiAchievement } from "react-icons/gi";
 import useGameStore from '@renderer/store/GameStore';
 import gameSizeFormat from '@renderer/util/gameSizeFormat';
-import { formatTime, formatTimeCalender } from '@renderer/util/timeFormat';
+import { formatTime, formatTimeCalender, formatRelativeTime } from '@renderer/util/timeFormat';
 import { motion, Variants } from 'motion/react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
@@ -490,7 +490,7 @@ const GameCards = () => {
                     <div className="flex flex-row p-0.5 whitespace-nowrap justify-between">
                     <p className="text-white">上次启动:</p>
                     <p className="text-white text-xs">
-                      {game.last_launch_time ? formatTimeCalender(game.last_launch_time) : '暂无'}
+                      {formatRelativeTime(game.last_launch_time)}
                     </p>
                     </div>
 

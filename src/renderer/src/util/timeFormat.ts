@@ -42,3 +42,15 @@ export const getWeekRange = (isNowWeek: boolean): string => {
   const fmt = (d: dayjs.Dayjs) => d.format('YYYY年M月D日');
   return `${fmt(start)} - ${fmt(end)}`;
 };
+
+// 相对时间: 返回 "x天前"，如果超过30天则返回 "x月前"
+export function formatRelativeTime(seconds: number | null | undefined): string {
+  if (seconds === null || seconds === undefined) return '暂无';
+  const then = dayjs(seconds * 1000);
+  const now = dayjs();
+  const days = now.diff(then, 'day');
+  if (days <= 0) return '今天';
+  if (days <= 30) return `${days}天前`;
+  const months = now.diff(then, 'month');
+  return `${months}月前`;
+}

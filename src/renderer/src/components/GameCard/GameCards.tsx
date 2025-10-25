@@ -1,16 +1,14 @@
 import { Banners, Game } from '@renderer/types/Game';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import GameCardActions from './GameCardActions';
+import GameCardActions from './Action';
+import GameCardData from './CardData';
 import useGameStore from '@renderer/store/GameStore';
-import gameSizeFormat from '@renderer/util/gameSizeFormat';
-import { formatTime, formatTimeCalender, formatRelativeTime } from '@renderer/util/timeFormat';
 import { motion, Variants } from 'motion/react';
 import { createPortal } from 'react-dom';
 import Selector from '../GameModeSelector/Selector';
 import { RestTimeContent } from '../ModalContent/RestTimeContent';
 import LinksContent from '../ModalContent/LinksContent';
 import FolderManageContent from '../ModalContent/FolderManageContent';
-import Portal from '../Portal';
 import { FaArrowUp, FaPersonWalkingArrowRight } from 'react-icons/fa6';
 import { FaGithub, FaList } from "react-icons/fa";
 import { useGSAP } from '@gsap/react';
@@ -470,48 +468,9 @@ const GameCards = () => {
                   variants={gameItems}
                   className="absolute top-0 right-0 z-20 h-70 w-60 rounded-l-[20px] rounded-r-2xl border-r-2 border-white bg-stone-800/75 p-5"
                 >
-                    <div className="flex flex-row p-0.5  justify-between">
-                    <p className="text-white whitespace-nowrap">游戏名称:</p>
-                      <p
-                        className={`text-white ${
-                          game.game_name.length > 7 ? 'text-xs' : 'text-base'
-                        }   max-w-[140px]`}
-                        title={game.game_name}
-                      >
-                        {game.game_name}
-                      </p>
-                    </div> 
-
-                    <div className="flex flex-row p-0.5 justify-between">
-                    <p className="text-white">游戏时长:</p>
-                    <p className="text-white">{formatTime(game.total_play_time)}</p>
-                    </div>
-
-                    <div className="flex flex-row p-0.5 whitespace-nowrap justify-between">
-                    <p className="text-white">上次启动:</p>
-                    <p className="text-white text-xs">
-                      {formatRelativeTime(game.last_launch_time)}
-                    </p>
-                    </div>
-
-                    <div className="flex flex-row p-0.5 whitespace-nowrap justify-between">
-                    <p className="text-white">添加时间:</p>
-                    <p className="text-white text-xs">{formatTimeCalender(game.created_at)}</p>
-                    </div>
-
-                    <div className="flex flex-row p-0.5 justify-between">
-                    <p className="text-white">启动次数:</p>
-                    <p className="text-white">{game.launch_count}</p>
-                    </div>
-
-                    <div className="flex flex-row mb-4 p-0.5 justify-between">
-                    <p className="text-white">空间占用大小:</p>
-                    <p className="text-white">{gameSizeFormat(game.disk_size)}</p>
-                    </div>
-                  <div className="m-4 h-0.5 w-40 bg-white"></div>
-
+                  {/* 数据区*/}
+                  <GameCardData game={game} />
                   {/*操作区*/}
-                  <div className="motion-actions">
                     <GameCardActions
                       game={game}
                       onRun={handleRunGame}
@@ -524,7 +483,6 @@ const GameCards = () => {
                       }}
                       onUpdateGames={setGames}
                     />                    
-                  </div>
                 </motion.div>
               </motion.div>
               {/* 一个阻挡的块，防止触发隐藏的动画元素 */}

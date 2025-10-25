@@ -1,5 +1,5 @@
-import { Banners, Game } from '@renderer/types/Game';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Banners } from '@renderer/types/Game';
+import { useEffect, useRef, useState } from 'react';
 import GameCardActions from './Action';
 import GameCardData from './CardData';
 import useGameStore from '@renderer/store/GameStore';
@@ -56,14 +56,15 @@ const GameCards = () => {
 
   //搜索结果 > 分类游戏 > 游戏列表
   const List = searchResults ? searchResults  : categoryResults ? categoryResults : gameListData;
+  
   // 全部刷新
-
   const refetch = () => {
     refetchGameList();
     refetchBannerList();
     if (keyword) refetchSearchResults();
     if (selectedCategory) refetchCategoryResults();
   };
+  
   useEffect(() => {
     //放置打开休息界面监听器
     window.api.onOpenRestTimeModal(() => {

@@ -14,7 +14,7 @@ export function formatTime(elapsedSeconds: number): string {
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
 
-// 日期格式化: 接受秒为单位的时间戳
+// 日期格式化: 接受秒为单位的时间戳 unix时间戳
 export function formatTimeCalender(seconds: number): string {
   return dayjs(seconds * 1000).format('YYYY年M月D日');
 }

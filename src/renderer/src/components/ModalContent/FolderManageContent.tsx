@@ -4,6 +4,9 @@ import { GoGitPullRequest,GoGitBranch,GoDotFill,GoDot } from "react-icons/go";
 import { FiDownload } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
+import  formatFileSize  from '@renderer/util/gameSizeFormat';
+import { formatTimeCalender } from '@renderer/util/timeFormat';
+
 interface SaveBackup {
   id: number;
   backup_name: string;
@@ -43,6 +46,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
       }
     } catch (error) {
       console.error('检查存档路径失败:', error);
+      toast.error('无法获取存档路径信息');
     }
   };
 
@@ -53,6 +57,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
       setBackups(backupList);
     } catch (error) {
       console.error('加载备份列表失败:', error);
+      toast.error('无法加载备份列表');
     }
   };
 
@@ -194,26 +199,6 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
       console.error('删除备份失败:', error);
       toast.error('备份删除失败');
     }
-  };
-
-  // 格式化文件大小
-  const formatSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
-    if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
-    return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
-  };
-
-  // 格式化时间
-  const formatTime = (timestamp: number) => {
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleString('zh-CN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   return (
@@ -374,7 +359,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
                       {savePath}
                     </p>
                     <p className="text-xs text-gray-500">
-                      大小: {formatSize(saveFileSize)}
+                      大小: {formatFileSize(saveFileSize)}
                     </p>
                   </div>
                 </div>
@@ -407,7 +392,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
                               {backup.backup_name}
                             </p>
                             <p className="text-xs text-gray-500">
-                              {formatTime(backup.created_at)} · {formatSize(backup.file_size)}
+                              {formatTimeCalender(backup.created_at)} · {formatFileSize(backup.file_size)}
                             </p>
                           </div>
 

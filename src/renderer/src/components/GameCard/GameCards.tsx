@@ -95,10 +95,6 @@ const GameCards = () => {
     setSelectedGameId(gameId);
     setShowFolderModal(true);
   };
-  // 打开游戏文件夹 
-  const handleOpenGameFolder = async (folderPath: string) => {
-    await window.api.openFolder(folderPath);
-  };
   //添加游戏 --
   const handleAddGame = async () => {
     const path = await window.api.openFile();
@@ -338,7 +334,6 @@ const GameCards = () => {
             <FolderManageContent 
               gamePath={selectedGamePath}
               gameId={selectedGameId}
-              onOpenFolder={handleOpenGameFolder}
               onClose={() => {
                 setShowFolderModal(false);
                 setSelectedGamePath('');

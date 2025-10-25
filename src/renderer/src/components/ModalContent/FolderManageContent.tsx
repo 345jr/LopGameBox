@@ -16,10 +16,9 @@ interface FolderManageContentProps {
   onClose: () => void;
   gamePath: string;
   gameId: number;
-  onOpenFolder: (path: string) => void;
 }
 
-const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: FolderManageContentProps) => {
+const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentProps) => {
   const [savePath, setSavePath] = useState<string>('');
   const [savePathSet, setSavePathSet] = useState(false);
   const [saveFileSize, setSaveFileSize] = useState<number>(0);
@@ -58,8 +57,13 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
   };
 
   // 打开游戏文件夹
-  const handleOpenGameFolder = () => {
-    onOpenFolder(gamePath);
+  const handleOpenGameFolder = async () => {
+    try {
+      await window.api.openFolder(gamePath);
+    } catch (error) {
+      console.error('打开游戏文件夹失败:', error);
+      toast.error('无法打开游戏文件夹');
+    }
   };
 
   // 设置存档文件夹
@@ -93,7 +97,12 @@ const FolderManageContent = ({ onClose, gamePath, gameId, onOpenFolder }: Folder
   // 打开存档文件夹
   const handleOpenSaveFolder = () => {
     if (savePath) {
-      onOpenFolder(savePath);
+      try {
+        window.api.openFolder(savePath);
+      } catch (error) {
+        console.error('打开存档文件夹失败:', error);
+        toast.error('无法打开存档文件夹');
+      }
     }
   };
 

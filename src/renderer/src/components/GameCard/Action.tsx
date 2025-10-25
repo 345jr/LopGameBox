@@ -27,7 +27,6 @@ const GameCardActions: FC<Props> = ({ game, onOpenLinks, onOpenFolderModal,  onR
     window.api.onTimerStopped(() => {
       toast.success(`游戏已关闭。`);
       setGameState('stop');
-      // fetchGamesByCategory();
       onRefresh();
     });
     if (GameState === 'run') {
@@ -60,7 +59,6 @@ const GameCardActions: FC<Props> = ({ game, onOpenLinks, onOpenFolderModal,  onR
     ) {
       await window.api.deleteGame(game.id);
       toast.success(`${game.game_name}已删除。`);
-      // fetchGamesByCategory();
       onRefresh();
     }
   };
@@ -86,17 +84,12 @@ const GameCardActions: FC<Props> = ({ game, onOpenLinks, onOpenFolderModal,  onR
         relativePath: result.relativePath,
       });
       toast.success('封面图替换成功');
-      // fetchGamesByCategory();
       onRefresh();
     } catch (error: any) {
       toast.error('封面图替换失败');
     }
   };
-  // 刷新游戏列表
-  // const fetchGamesByCategory = async () => {
-  //   const gameList = await window.api.getAllGames();
-  //   onUpdateGames(gameList);
-  // };
+  
   return (
     <>
       <div className="grid grid-cols-7 grid-rows-1 gap-1">

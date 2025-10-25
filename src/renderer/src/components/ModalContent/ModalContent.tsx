@@ -161,10 +161,10 @@ export default function ModalContent({
       // 调用修改游戏名的API
       await window.api.modifyGameName(gameId, newName);
       onRefresh();
-      onClose();
+      // onClose();
       toast.success(`游戏名已修改为: ${newName}`);
     } else {
-      onClose();
+      // onClose();
       toast.error(`游戏名不能为空!`);
     }
   };

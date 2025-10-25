@@ -1,4 +1,4 @@
-import { useCheckUpdate, useGetVersionInfo } from '../../api/originAPI';
+import { useCheckUpdate, useGetVersionInfo } from "@renderer/api/queries";
 
 const UpdateContent = ({ onClose }: { onClose: () => void }) => {
   // 当前版本

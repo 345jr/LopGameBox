@@ -6,7 +6,7 @@ import {
   useAddGameLink,
   useUpdateGameLink,
   useDeleteGameLink,
-} from '../../api/originAPI';
+} from '@renderer/api/queries';
 
 interface LinkMetadata {
   title: string;

@@ -5,7 +5,7 @@ import DefaultAvatar from '../../assets/lopgame.png';
 import { createPortal } from 'react-dom';
 import UpdateContent from '../ModalContent/UpdateContent';
 import LoginContent from '../ModalContent/LoginContent';
-import { useGetMe, useLogout } from '@renderer/api/originAPI';
+import { useGetMe, useLogout } from '@renderer/api/queries';
 
 import toast from 'react-hot-toast';
 

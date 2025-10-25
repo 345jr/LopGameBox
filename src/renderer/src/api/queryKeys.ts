@@ -33,4 +33,8 @@ export const queryKeys = {
    * @param gameId - 游戏 ID
    */
   gameLinks: (gameId: number) => ['game-links', gameId] as const,
+  //游戏列表
+  gameList: () => ['game-list'] as const,
+  //游戏封面图
+  gameBanners: () => ['game-banners'] as const,
 };

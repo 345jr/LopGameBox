@@ -18,6 +18,8 @@ import { VscAdd } from "react-icons/vsc";
 
 import EmptyBox from "@renderer/assets/emptyBox.png";
 
+import { useGameBanner, useGameList } from '@renderer/api/queries/queries.gameList';
+
 const GameCards = () => {
   // #region 状态管理
   // 存储游戏列表数据
@@ -54,9 +56,12 @@ const GameCards = () => {
   const categoryItemsRef = useRef<HTMLButtonElement[]>([]);
   // #endregion
 
+  const { data: gameListData } = useGameList();
+  const { data: bannerListData } = useGameBanner();
   // 当分类改变时重新获取游戏列表,添加新游戏时也会触发
   useEffect(() => {
-    fetchGamesByCategory();
+    // fetchGamesByCategory();
+    // setGames(gameListData as Game[]);
   }, [getGameList, selectedCategory]);
 
   // 根据分类获取游戏数据
@@ -73,7 +78,7 @@ const GameCards = () => {
 
   //加载主页数据 --
   useEffect(() => {
-    fetchGamesByCategory(); 
+    // fetchGamesByCategory(); 
     //放置打开休息界面监听器
     window.api.onOpenRestTimeModal(() => {
       setShowRestTimeModal(true);
@@ -83,6 +88,7 @@ const GameCards = () => {
       window.api.offOpenRestTimeModal();
     };
   }, [fetchGamesByCategory]);
+  
   //重载模糊查询数据 --
   useEffect(() => {
     if (searchResults.length > 0) {
@@ -192,7 +198,7 @@ const GameCards = () => {
     <>
       <div className="relative flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed">
         {/* 空列表提示 */}
-        {games.length === 0 && (
+        {gameListData?.length === 0 && (
           <div className="flex-center mt-32 flex-col items-center justify-center gap-4">
             <div className="rounded-full bg-white/60 p-4 shadow-md">
               <img src={EmptyBox} alt="empty" className="h-32 w-32 object-contain" />
@@ -346,7 +352,7 @@ const GameCards = () => {
           休息时间调试
         </button> */}
         {/* 游戏卡片 */}
-        {games.map((game) => (
+        {gameListData?.map((game) => (
           <div key={game.id} className="flex-center flex-col p-4">
             <div className="flex flex-row">
               <motion.div
@@ -359,7 +365,7 @@ const GameCards = () => {
                 <motion.img
                   src={
                     'lop://' +
-                    BannersRef.current
+                    bannerListData
                       ?.find((i: Banners) => i.game_id === game.id)
                       ?.relative_path?.replace(/\\/g, '/')
                   }

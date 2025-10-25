@@ -36,16 +36,8 @@ const GameCards = () => {
   const [selectedGamePath, setSelectedGamePath] = useState<string>('');
   // 获取当前游戏的全局状态ID
   const getGameList = useGameStore((state) => state.gameId);
-  // 更新游戏的计时信息
-  const setGameTime = useGameStore((state) => state.setGameTime);
-  // 获取当前游戏的运行状态
-  const GameState = useGameStore((state) => state.gameState);
-  // 设置当前游戏的运行状态
-  const setGameState = useGameStore((state) => state.setGameState);
   // 存储搜索结果
-  const searchResults = useGameStore((state) => state.searchResults);
-  // 获取当前选择的游戏模式
-  const gameMode = useGameStore((state) => state.gameMode);
+  const searchResults = useGameStore((state) => state.searchResults);  
   //游戏状态
   const gameState = useGameStore((state) => state.gameState);
   // 当前选择的分类 - 从全局状态获取
@@ -79,12 +71,6 @@ const GameCards = () => {
     }
   }, [selectedCategory]);
 
-  // 缓存停止计时函数
-  const handleTimerStopped = useCallback(() => {
-    toast.success(`游戏已关闭。`);
-    setGameState('stop');
-    fetchGamesByCategory();
-  }, [fetchGamesByCategory]);
   //加载主页数据 --
   useEffect(() => {
     fetchGamesByCategory(); 
@@ -103,53 +89,15 @@ const GameCards = () => {
       setGames(searchResults);
     }
   }, [searchResults]);
-  //打开文件管理模态框 --
+  // 打开文件管理模态框 -- 由 Action 触发
   const handleOpenFolderModal = (folderPath: string, gameId: number) => {
     setSelectedGamePath(folderPath);
     setSelectedGameId(gameId);
     setShowFolderModal(true);
   };
-  //打开游戏文件夹 --
+  // 打开游戏文件夹 
   const handleOpenGameFolder = async (folderPath: string) => {
     await window.api.openFolder(folderPath);
-  };
-  //启动游戏 --
-  const handleRunGame = async (game: Game) => {
-    //注册监听器
-    window.api.onTimerUpdate(setGameTime);
-    window.api.onTimerStopped(handleTimerStopped);
-    if (GameState === 'run') {
-      toast.error("已经有另一个游戏在运行中")
-      return;
-    }
-
-    const result = await window.api.executeFile({
-      id: game.id,
-      path: game.launch_path,
-      gameMode: gameMode,
-    });
-
-    if (result.success) {
-      setGameState('run');
-      toast.success(`启动!${game.game_name}`);
-    } else {
-      setGameState('null');
-    }
-  };
-  //删除游戏 --
-  const handleDeleteGame = async (game: Game) => {
-    if (GameState === 'run') {
-      toast.error("不能删除正在运行的游戏！");
-      return;
-    }
-    if (
-      confirm(`确定要删除游戏《${game.game_name}》?\n此操作只会删除游戏的记录 ,不会删除游戏本地的文件。
-      `)
-    ) {
-      await window.api.deleteGame(game.id);
-      toast.success(`${game.game_name}已删除。`);
-      fetchGamesByCategory();
-    }
   };
   //添加游戏 --
   const handleAddGame = async () => {
@@ -174,36 +122,6 @@ const GameCards = () => {
     } catch (error: any) {
       console.log(`${error.message}`);
       toast.error(`添加游戏失败: ${error.message}`);
-    }
-  };
-  //添加封面 --
-  const handleAddBanner = async (game: Game) => {
-    const targetPath = 'banner/';
-    const path = await window.api.openFile();
-    //获取旧的封面地址便于删除和替换
-    let oldFilePath = BannersRef.current?.find((i) => i.game_id === game.id)
-      ?.relative_path as string;
-    if (!path) return;
-    //首次默认为封面，所以跳过
-    if (oldFilePath == undefined) oldFilePath = 'skip';
-    try {
-      //先复制一份到资源目录下
-      const result = await window.api.copyImages({
-        origin: path,
-        target: targetPath,
-        gameName: game.game_name,
-        oldFilePath: oldFilePath,
-      });
-      //再添加封面
-      await window.api.addBanner({
-        gameId: game.id,
-        imagePath: path,
-        relativePath: result.relativePath,
-      });
-      toast.success(`封面图替换成功`);
-      fetchGamesByCategory();
-    } catch (error: any) {
-      toast.error(`封面图替换失败`);
     }
   };
   //动画效果父 --
@@ -468,21 +386,18 @@ const GameCards = () => {
                   variants={gameItems}
                   className="absolute top-0 right-0 z-20 h-70 w-60 rounded-l-[20px] rounded-r-2xl border-r-2 border-white bg-stone-800/75 p-5"
                 >
-                  {/* 数据区*/}
+                  {/*数据区*/}
                   <GameCardData game={game} />
                   {/*操作区*/}
                     <GameCardActions
                       game={game}
-                      onRun={handleRunGame}
-                      onOpenFolderModal={handleOpenFolderModal}
-                      onAddBanner={handleAddBanner}
-                      onDelete={handleDeleteGame}
                       onOpenLinks={(id) => {
                         setSelectedGameId(id);
                         setShowLinksModal(true);
                       }}
+                      onOpenFolderModal={handleOpenFolderModal}
                       onUpdateGames={setGames}
-                    />                    
+                    />
                 </motion.div>
               </motion.div>
               {/* 一个阻挡的块，防止触发隐藏的动画元素 */}

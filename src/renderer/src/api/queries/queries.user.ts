@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as api from './index';
-import { queryKeys } from './queryKeys';
+import * as api from '../originAPI/index';
+import { queryKeys } from '../queryKeys';
 
 /**
  * 获取当前登录用户信息的 Hook

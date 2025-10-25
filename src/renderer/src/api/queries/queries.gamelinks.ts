@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from './queryKeys';
+import { queryKeys } from '../queryKeys';
 
 /**
  * 获取某个游戏的链接列表 Hook

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import useUserStore from '@renderer/store/UserStore';
-import { useLogin, useRegister } from '@renderer/api';
+import { useLogin, useRegister } from '@renderer/api/originAPI';
 import toast from 'react-hot-toast';
 
 const LoginContent = ({ onClose }: { onClose: () => void }) => {

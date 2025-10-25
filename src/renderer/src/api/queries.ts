@@ -6,7 +6,7 @@
  * - 将各类 hook 按功能拆分到独立文件，便于维护与测试
  */
 export * from './queryKeys';
-export * from './queries.user';
-export * from './queries.metadata';
-export * from './queries.update';
-export * from './queries.gamelinks';
+export * from './queries/queries.user';
+export * from './queries/queries.metadata';
+export * from './queries/queries.update';
+export * from './queries/queries.gamelinks';

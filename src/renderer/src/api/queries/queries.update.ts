@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import * as api from './index';
-import { queryKeys } from './queryKeys';
+import * as api from '../originAPI/index';
+import { queryKeys } from '../queryKeys';
 
 /**
  * 检查可用更新的 Hook

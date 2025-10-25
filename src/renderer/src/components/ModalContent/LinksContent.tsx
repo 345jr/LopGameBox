@@ -6,7 +6,7 @@ import {
   useAddGameLink,
   useUpdateGameLink,
   useDeleteGameLink,
-} from '../../api';
+} from '../../api/originAPI';
 
 interface LinkMetadata {
   title: string;

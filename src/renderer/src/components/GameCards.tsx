@@ -204,10 +204,10 @@ const GameCards = () => {
         imagePath: path,
         relativePath: result.relativePath,
       });
-      toast.success(`添加成功`);
+      toast.success(`封面图替换成功`);
       fetchGamesByCategory();
     } catch (error: any) {
-      toast.error(`添加封面失败`);
+      toast.error(`封面图替换失败`);
     }
   };
   //动画效果父 --

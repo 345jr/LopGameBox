@@ -1,4 +1,4 @@
-import GameCards from './components/GameCards';
+import GameCards from './components/GameCard/GameCards';
 
 function App(): React.JSX.Element {
   return (

@@ -1,26 +1,24 @@
 import { Banners, Game } from '@renderer/types/Game';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { VscFileMedia, VscFolder, VscPlay, VscTrash } from 'react-icons/vsc';
-import { GiAchievement } from "react-icons/gi";
+import GameCardActions from './GameCardActions';
 import useGameStore from '@renderer/store/GameStore';
 import gameSizeFormat from '@renderer/util/gameSizeFormat';
 import { formatTime, formatTimeCalender, formatRelativeTime } from '@renderer/util/timeFormat';
 import { motion, Variants } from 'motion/react';
 import { createPortal } from 'react-dom';
-import { Link } from 'react-router-dom';
-import Selector from './GameModeSelector/Selector';
-import { RestTimeContent } from './ModalContent/RestTimeContent';
-import LinksContent from './ModalContent/LinksContent';
-import FolderManageContent from './ModalContent/FolderManageContent';
-import Portal from './Portal';
+import Selector from '../GameModeSelector/Selector';
+import { RestTimeContent } from '../ModalContent/RestTimeContent';
+import LinksContent from '../ModalContent/LinksContent';
+import FolderManageContent from '../ModalContent/FolderManageContent';
+import Portal from '../Portal';
 import { FaArrowUp, FaPersonWalkingArrowRight } from 'react-icons/fa6';
 import { FaGithub, FaList } from "react-icons/fa";
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { toast } from 'react-hot-toast';
-import { VscAttach, VscAdd } from "react-icons/vsc";
+import { VscAdd } from "react-icons/vsc";
 
-import EmptyBox from '../assets/emptyBox.png';
+import EmptyBox from "@renderer/assets/emptyBox.png";
 
 const GameCards = () => {
   // #region 状态管理
@@ -512,59 +510,20 @@ const GameCards = () => {
                     </div>
                   <div className="m-4 h-0.5 w-40 bg-white"></div>
 
-                  {/* 操作区 */}
-                  {/* 启动游戏 */}
-                  <div className="grid grid-cols-7 grid-rows-1 gap-1">
-                    <motion.button
-                      onClick={() => handleRunGame(game)}
-                      initial={{ y: 0 }}
-                      whileHover={{ y: -5 }}
-                    >
-                      <VscPlay className="iconBtn" />
-                    </motion.button>
-                    {/* 打开游戏文件夹 */}
-                    <motion.button
-                      initial={{ y: 0 }}
-                      whileHover={{ y: -5 }}
-                      onClick={() => handleOpenFolderModal(game.launch_path, game.id)}
-                    >
-                      <VscFolder className="iconBtn" />
-                    </motion.button>
-                    {/* 打开配置页面 */}
-                    <Portal gameId={game.id} updata={setGames} />
-                    {/* 封面图修改 */}
-                    <motion.button
-                      onClick={() => handleAddBanner(game)}
-                      initial={{ y: 0 }}
-                      whileHover={{ y: -5 }}
-                    >
-                      <VscFileMedia className="iconBtn" />
-                    </motion.button>
-                    {/* 游戏图集与成就面板 */}
-                    <motion.button initial={{ y: 0 }} whileHover={{ y: -5 }}>
-                      <Link to={`/gallery/${game.id}`}>
-                        <GiAchievement className="iconBtn" />
-                      </Link>
-                    </motion.button>                    
-                    {/* 外链管理 */}
-                    <motion.button
-                      onClick={() => {
-                        setSelectedGameId(game.id);
+                  {/*操作区*/}
+                  <div className="motion-actions">
+                    <GameCardActions
+                      game={game}
+                      onRun={handleRunGame}
+                      onOpenFolderModal={handleOpenFolderModal}
+                      onAddBanner={handleAddBanner}
+                      onDelete={handleDeleteGame}
+                      onOpenLinks={(id) => {
+                        setSelectedGameId(id);
                         setShowLinksModal(true);
                       }}
-                      initial={{ y: 0 }}
-                      whileHover={{ y: -5 }}
-                    >
-                      <VscAttach className="iconBtn" />
-                    </motion.button>
-                    {/* 删除游戏记录 */}
-                    <motion.button
-                      onClick={() => handleDeleteGame(game)}
-                      initial={{ y: 0 }}
-                      whileHover={{ y: -5 }}
-                    >
-                      <VscTrash className="iconBtn" />
-                    </motion.button>
+                      onUpdateGames={setGames}
+                    />                    
                   </div>
                 </motion.div>
               </motion.div>

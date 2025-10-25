@@ -6,10 +6,10 @@ import { motion } from 'motion/react';
 
 export default function Portal({
   gameId,
-  updata,
+  onRefresh,
 }: {
   gameId: number;
-  updata: React.Dispatch<React.SetStateAction<any>>;
+  onRefresh: () => void;
 }) {
   const [showModal, setShowModal] = useState(false);
   return (
@@ -24,7 +24,7 @@ export default function Portal({
       </motion.button>
       {showModal &&
         createPortal(
-          <ModalContent onClose={() => setShowModal(false)} gameId={gameId} updata={updata} />,
+          <ModalContent onClose={() => setShowModal(false)} gameId={gameId}  onRefresh={onRefresh} />,
           document.body,
         )}
     </>

@@ -21,11 +21,7 @@ import EmptyBox from "@renderer/assets/emptyBox.png";
 import { useCategoryGames, useGameBanner, useGameList, useSearchGames } from '@renderer/api/queries/queries.gameList';
 
 const GameCards = () => {
-  // #region 状态管理
-  // 存储游戏列表数据
-  const [games, setGames] = useState<Game[]>([]);
-  // 存储游戏封面图的引用
-  const BannersRef = useRef<Banners[]>(null);
+  // #region 状态管理  
   // 控制是否显示休息时间弹窗
   const [showRestTimeModal, setShowRestTimeModal] = useState(false);
   // 控制是否显示外链管理弹窗
@@ -36,17 +32,11 @@ const GameCards = () => {
   const [selectedGameId, setSelectedGameId] = useState<number | null>(null);
   // 当前选择的游戏路径(用于文件管理)
   const [selectedGamePath, setSelectedGamePath] = useState<string>('');
-  // 获取当前游戏的全局状态ID
-  const getGameList = useGameStore((state) => state.gameId);
-  // 存储搜索结果
-  // const searchResults = useGameStore((state) => state.searchResults);  
   //游戏状态
   const gameState = useGameStore((state) => state.gameState);
   // 当前选择的分类 - 从全局状态获取
   const selectedCategory = useGameStore((state) => state.selectedCategory);
   const setSelectedCategory = useGameStore((state) => state.setSelectedCategory);
-  // 用于刷新游戏列表
-  const setGameList = useGameStore((state) => state.setGameList);
   // 分类菜单展开状态
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   // 控制分类菜单是否渲染在 DOM 中
@@ -57,34 +47,24 @@ const GameCards = () => {
   //搜索关键词
   const keyword = useGameStore((state) => state.searchKeyword);
   // #endregion
+  
+  // 获取数据
+  const { data: bannerListData, refetch: refetchBannerList } = useGameBanner();
+  const { data: gameListData , refetch: refetchGameList } = useGameList();
+  const { data: searchResults, refetch: refetchSearchResults } = useSearchGames(keyword);
+  const { data: categoryResults, refetch: refetchCategoryResults } = useCategoryGames(selectedCategory);
 
-  const { data: gameListData } = useGameList();
-  const { data: bannerListData } = useGameBanner();
-  const { data: searchResults } = useSearchGames(keyword);
-  const { data: categoryResults } = useCategoryGames(selectedCategory);
   //搜索结果 > 分类游戏 > 游戏列表
   const List = searchResults ? searchResults  : categoryResults ? categoryResults : gameListData;
+  // 全部刷新
 
-  // 当分类改变时重新获取游戏列表,添加新游戏时也会触发
-  // useEffect(() => {
-    
-  // }, [getGameList, selectedCategory]);
-
-  // 根据分类获取游戏数据
-  const fetchGamesByCategory = useCallback(async () => {
-    BannersRef.current = await window.api.getBanners();
-    if (selectedCategory === 'all') {
-      const gameList = await window.api.getAllGames();
-      setGames(gameList);
-    } else {
-      const gameList = await window.api.getGamesByCategory(selectedCategory);
-      setGames(gameList);
-    }
-  }, [selectedCategory]);
-
-  //加载主页数据 --
+  const refetch = () => {
+    refetchGameList();
+    refetchBannerList();
+    if (keyword) refetchSearchResults();
+    if (selectedCategory) refetchCategoryResults();
+  };
   useEffect(() => {
-    // fetchGamesByCategory(); 
     //放置打开休息界面监听器
     window.api.onOpenRestTimeModal(() => {
       setShowRestTimeModal(true);
@@ -93,7 +73,7 @@ const GameCards = () => {
     return () => {
       window.api.offOpenRestTimeModal();
     };
-  }, [fetchGamesByCategory]);
+  }, []);
   // 打开文件管理模态框 -- 由 Action 触发
   const handleOpenFolderModal = (folderPath: string, gameId: number) => {
     setSelectedGamePath(folderPath);
@@ -118,8 +98,7 @@ const GameCards = () => {
         relativePath: defaultPath,
       });
       toast.success(`${defaultName} 已添加`);
-      //添加游戏后刷新游戏列表
-      setGameList(gameInitData.id);
+      refetch();
     } catch (error: any) {
       console.log(`${error.message}`);
       toast.error(`添加游戏失败: ${error.message}`);
@@ -395,8 +374,8 @@ const GameCards = () => {
                         setSelectedGameId(id);
                         setShowLinksModal(true);
                       }}
-                      onOpenFolderModal={handleOpenFolderModal}
-                      onUpdateGames={setGames}
+                      onOpenFolderModal={handleOpenFolderModal}                      
+                      onRefresh={refetch}
                     />
                 </motion.div>
               </motion.div>

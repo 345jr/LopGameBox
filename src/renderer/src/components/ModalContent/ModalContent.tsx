@@ -12,11 +12,11 @@ import toast from 'react-hot-toast';
 export default function ModalContent({
   onClose,
   gameId,
-  updata,
+  onRefresh,
 }: {
   onClose: () => void;
   gameId: number;
-  updata: React.Dispatch<React.SetStateAction<any>>;
+  onRefresh: () => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [size, setSize] = useState<number>(0);
@@ -160,11 +160,8 @@ export default function ModalContent({
     if (newName) {
       // 调用修改游戏名的API
       await window.api.modifyGameName(gameId, newName);
-      //重新获取数据
-      const gameList = await window.api.getAllGames();
-      updata(gameList);
+      onRefresh();
       onClose();
-      // setInfo(`游戏名已修改为: ${newName}`);
       toast.success(`游戏名已修改为: ${newName}`);
     } else {
       onClose();
@@ -177,9 +174,8 @@ export default function ModalContent({
     //更新游戏大小
     const newSize = await window.api.updateGameSize(gameId, game.launch_path);
     setSize(newSize);
-    //重新获取数据
-    const newGameList = await window.api.getAllGames();
-    updata(newGameList);
+    onRefresh();
+    toast.success('游戏大小已更新');
   };
 
   // 更新游戏分类
@@ -189,9 +185,7 @@ export default function ModalContent({
       if (result.success) {
         setCurrentCategory(category);
         toast.success(`分类已更新为: ${category === 'playing' ? '攻略中' : '已归档'}`);
-        // 重新获取数据
-        const newGameList = await window.api.getAllGames();
-        updata(newGameList);
+        onRefresh();
       } else {
         toast.error(`更新失败: ${result.message}`);
       }
@@ -260,8 +254,7 @@ export default function ModalContent({
       
       // 重新拉取所有版本并刷新游戏列表
       await loadVersions();
-      const newGameList = await window.api.getAllGames();
-      updata(newGameList);
+      onRefresh();
       toast.success(`已创建新版本 ${newVersion.version}，游戏路径已更新`);
       setIsUpdateModalOpen(false);
     } catch (err: any) {

@@ -1,6 +1,5 @@
 import { FC } from 'react';
 import { motion } from 'motion/react';
-import type { Dispatch, SetStateAction } from 'react';
 import { VscFileMedia, VscFolder, VscPlay, VscTrash, VscAttach } from 'react-icons/vsc';
 import { GiAchievement } from 'react-icons/gi';
 import { Link } from 'react-router-dom';
@@ -14,10 +13,10 @@ type Props = {
   game: Game;
   onOpenLinks: (gameId: number) => void;
   onOpenFolderModal: (folderPath: string, gameId: number) => void;
-  onUpdateGames: Dispatch<SetStateAction<Game[]>>;
+  onRefresh: () => void;
 };
 
-const GameCardActions: FC<Props> = ({ game, onOpenLinks, onOpenFolderModal, onUpdateGames }) => {
+const GameCardActions: FC<Props> = ({ game, onOpenLinks, onOpenFolderModal,  onRefresh }) => {
   const setGameTime = useGameStore((state) => state.setGameTime);
   const GameState = useGameStore((state) => state.gameState);
   const setGameState = useGameStore((state) => state.setGameState);
@@ -28,7 +27,8 @@ const GameCardActions: FC<Props> = ({ game, onOpenLinks, onOpenFolderModal, onUp
     window.api.onTimerStopped(() => {
       toast.success(`游戏已关闭。`);
       setGameState('stop');
-      fetchGamesByCategory();
+      // fetchGamesByCategory();
+      onRefresh();
     });
     if (GameState === 'run') {
       toast.error('已经有另一个游戏在运行中');
@@ -60,7 +60,8 @@ const GameCardActions: FC<Props> = ({ game, onOpenLinks, onOpenFolderModal, onUp
     ) {
       await window.api.deleteGame(game.id);
       toast.success(`${game.game_name}已删除。`);
-      fetchGamesByCategory();
+      // fetchGamesByCategory();
+      onRefresh();
     }
   };
 
@@ -85,16 +86,17 @@ const GameCardActions: FC<Props> = ({ game, onOpenLinks, onOpenFolderModal, onUp
         relativePath: result.relativePath,
       });
       toast.success('封面图替换成功');
-      fetchGamesByCategory();
+      // fetchGamesByCategory();
+      onRefresh();
     } catch (error: any) {
       toast.error('封面图替换失败');
     }
   };
   // 刷新游戏列表
-  const fetchGamesByCategory = async () => {
-    const gameList = await window.api.getAllGames();
-    onUpdateGames(gameList);
-  };
+  // const fetchGamesByCategory = async () => {
+  //   const gameList = await window.api.getAllGames();
+  //   onUpdateGames(gameList);
+  // };
   return (
     <>
       <div className="grid grid-cols-7 grid-rows-1 gap-1">
@@ -150,7 +152,7 @@ const GameCardActions: FC<Props> = ({ game, onOpenLinks, onOpenFolderModal, onUp
           <VscTrash className="iconBtn" />
         </motion.button>
         {/* 配置页面*/}
-        <Portal gameId={game.id} updata={onUpdateGames} />
+        <Portal gameId={game.id}  onRefresh={onRefresh} />
       </div>
     </>
   );

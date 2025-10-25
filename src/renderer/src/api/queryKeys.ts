@@ -39,4 +39,6 @@ export const queryKeys = {
   gameBanners: () => ['game-banners'] as const,
   //搜索游戏
   searchGames: (keyword: string) => ['search-games', keyword] as const,
+  //分类游戏
+  categoryGames: (category: string) => ['category-games', category] as const,
 };

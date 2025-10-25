@@ -19,6 +19,14 @@ export class GameRepository {
   }
   //根据分类查询游戏列表
   public getGamesByCategory(category: string) {
+    // 如果 category 为 'all' 或为空/undefined，返回全部游戏
+    if (!category || category.toLowerCase() === 'all') {
+      const stmt = this.db.prepare(`
+        SELECT * FROM games ORDER BY last_launch_time DESC, game_name ASC
+      `);
+      return stmt.all();
+    }
+
     const stmt = this.db.prepare(`
       SELECT * FROM games WHERE category = ? ORDER BY last_launch_time DESC, game_name ASC
     `);

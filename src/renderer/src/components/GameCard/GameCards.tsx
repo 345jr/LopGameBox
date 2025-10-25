@@ -18,7 +18,7 @@ import { VscAdd } from "react-icons/vsc";
 
 import EmptyBox from "@renderer/assets/emptyBox.png";
 
-import { useGameBanner, useGameList, useSearchGames } from '@renderer/api/queries/queries.gameList';
+import { useCategoryGames, useGameBanner, useGameList, useSearchGames } from '@renderer/api/queries/queries.gameList';
 
 const GameCards = () => {
   // #region 状态管理
@@ -61,8 +61,9 @@ const GameCards = () => {
   const { data: gameListData } = useGameList();
   const { data: bannerListData } = useGameBanner();
   const { data: searchResults } = useSearchGames(keyword);
-
-  const List = searchResults ? searchResults : gameListData;
+  const { data: categoryResults } = useCategoryGames(selectedCategory);
+  //搜索结果 > 分类游戏 > 游戏列表
+  const List = searchResults ? searchResults  : categoryResults ? categoryResults : gameListData;
 
   // 当分类改变时重新获取游戏列表,添加新游戏时也会触发
   // useEffect(() => {

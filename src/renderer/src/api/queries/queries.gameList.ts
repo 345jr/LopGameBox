@@ -26,3 +26,17 @@ export const useGameBanner = (enabled: boolean = true) => {
     retry: false,
   });
 };
+
+export const useSearchGames = (keyword: string, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: queryKeys.searchGames(keyword),
+    queryFn: async () => {
+      return await window.api.searchGames(keyword);
+    },
+    enabled: !!keyword && enabled,
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+
+  });
+};

@@ -21,8 +21,6 @@ const NavHeader = () => {
   const gameTime = useGameStore((state) => state.gameTime);
   // 游戏当前的运行状态（run stop null）
   const gameState = useGameStore((state) => state.gameState);
-  // 设置搜索结果
-  const searchResults = useGameStore((state) => state.setSearchResults);
   // 控制 Logo 动画的激活状态
   const [active, setActive] = useState(false);
   // 开关模式选择器
@@ -35,7 +33,8 @@ const NavHeader = () => {
   const [isMaximized, setIsMaximized] = useState(false);
   // 用于导航回到主页
   const navigate = useNavigate();
-
+  // 搜索keyword
+  const setSearchKeyword = useGameStore((state) => state.setSearchKeyword);
   //#endregion 状态管理
 
   //返回到主页
@@ -84,8 +83,7 @@ const NavHeader = () => {
 
   // 处理模糊查询
   const handleSearch = async (keyword: string) => {
-    const gameList = await window.api.searchGames(keyword);
-    searchResults(gameList);
+    setSearchKeyword(keyword);
   };
   
   // 窗口控制函数

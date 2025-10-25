@@ -18,7 +18,7 @@ import { VscAdd } from "react-icons/vsc";
 
 import EmptyBox from "@renderer/assets/emptyBox.png";
 
-import { useGameBanner, useGameList } from '@renderer/api/queries/queries.gameList';
+import { useGameBanner, useGameList, useSearchGames } from '@renderer/api/queries/queries.gameList';
 
 const GameCards = () => {
   // #region 状态管理
@@ -39,7 +39,7 @@ const GameCards = () => {
   // 获取当前游戏的全局状态ID
   const getGameList = useGameStore((state) => state.gameId);
   // 存储搜索结果
-  const searchResults = useGameStore((state) => state.searchResults);  
+  // const searchResults = useGameStore((state) => state.searchResults);  
   //游戏状态
   const gameState = useGameStore((state) => state.gameState);
   // 当前选择的分类 - 从全局状态获取
@@ -54,15 +54,20 @@ const GameCards = () => {
   // 分类按钮的引用
   const categoryBtnRef = useRef<HTMLButtonElement>(null);
   const categoryItemsRef = useRef<HTMLButtonElement[]>([]);
+  //搜索关键词
+  const keyword = useGameStore((state) => state.searchKeyword);
   // #endregion
 
   const { data: gameListData } = useGameList();
   const { data: bannerListData } = useGameBanner();
+  const { data: searchResults } = useSearchGames(keyword);
+
+  const List = searchResults ? searchResults : gameListData;
+
   // 当分类改变时重新获取游戏列表,添加新游戏时也会触发
-  useEffect(() => {
-    // fetchGamesByCategory();
-    // setGames(gameListData as Game[]);
-  }, [getGameList, selectedCategory]);
+  // useEffect(() => {
+    
+  // }, [getGameList, selectedCategory]);
 
   // 根据分类获取游戏数据
   const fetchGamesByCategory = useCallback(async () => {
@@ -88,13 +93,6 @@ const GameCards = () => {
       window.api.offOpenRestTimeModal();
     };
   }, [fetchGamesByCategory]);
-  
-  //重载模糊查询数据 --
-  useEffect(() => {
-    if (searchResults.length > 0) {
-      setGames(searchResults);
-    }
-  }, [searchResults]);
   // 打开文件管理模态框 -- 由 Action 触发
   const handleOpenFolderModal = (folderPath: string, gameId: number) => {
     setSelectedGamePath(folderPath);
@@ -198,7 +196,7 @@ const GameCards = () => {
     <>
       <div className="relative flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed">
         {/* 空列表提示 */}
-        {gameListData?.length === 0 && (
+        {List?.length === 0 && (
           <div className="flex-center mt-32 flex-col items-center justify-center gap-4">
             <div className="rounded-full bg-white/60 p-4 shadow-md">
               <img src={EmptyBox} alt="empty" className="h-32 w-32 object-contain" />
@@ -352,7 +350,7 @@ const GameCards = () => {
           休息时间调试
         </button> */}
         {/* 游戏卡片 */}
-        {gameListData?.map((game) => (
+        {List?.map((game) => (
           <div key={game.id} className="flex-center flex-col p-4">
             <div className="flex flex-row">
               <motion.div

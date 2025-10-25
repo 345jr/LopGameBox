@@ -37,4 +37,6 @@ export const queryKeys = {
   gameList: () => ['game-list'] as const,
   //游戏封面图
   gameBanners: () => ['game-banners'] as const,
+  //搜索游戏
+  searchGames: (keyword: string) => ['search-games', keyword] as const,
 };

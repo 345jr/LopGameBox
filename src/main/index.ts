@@ -464,7 +464,7 @@ app.whenReady().then(() => {
   //复制游戏图片到资源目录
   ipcMain.handle('op:copyImages', async (_event, { origin, target, gameName, oldFilePath }) => {
     try {
-      const time = new Date().toDateString();
+      const time = Date.now();
       //构建游戏名
       const gameNameExtension = `${gameName}-${time}.jpg`.replace(/\s/g, '');
       const imageName = path.join(

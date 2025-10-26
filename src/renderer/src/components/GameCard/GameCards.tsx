@@ -193,7 +193,7 @@ const GameCards = () => {
         {/* 主动休息按钮 */}
          {gameState === 'run' && (         
           <motion.div>
-            <div className="fixed top-17 right-0 z-30 rounded-l-2xl border border-gray-300 bg-white px-2 py-2 shadow-md">
+            <div className="fixed top-17 right-0 z-50 rounded-l-2xl border border-gray-300 bg-white px-2 py-2 shadow-md">
               <button
                 onClick={() => enterRestMode()}
                 className="flex cursor-pointer flex-row items-center"

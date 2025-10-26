@@ -90,13 +90,11 @@ const NavHeader = () => {
   const handleMinimize = () => {
     window.api.minimizeWindow();
   };
-
   const handleMaximize = async () => {
     await window.api.maximizeWindow();
     const maximized = await window.api.isWindowMaximized();
     setIsMaximized(maximized);
   };
-
   const handleClose = () => {
     window.api.closeWindow();
   };
@@ -221,7 +219,7 @@ const NavHeader = () => {
         <div className="flex items-center justify-center h-8 w-40 rounded-full border border-gray-300 bg-white shadow-sm">
           <input
             type="text"
-            className="w-25 text-gray-700 focus:outline-none bg-transparent"
+            className="w-32 text-gray-700 focus:outline-none bg-transparent"
             value={inputRef}
             onChange={(e) => setInputRef(e.target.value)}
           />

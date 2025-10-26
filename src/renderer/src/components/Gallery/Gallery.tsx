@@ -2,8 +2,9 @@ import { Snapshot, GameAchievement } from '@renderer/types/Game';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
-import { FaRegCircleXmark, FaPlus, FaCheck, FaTrophy } from 'react-icons/fa6';
+import { FaRegCircleXmark, FaPlus } from 'react-icons/fa6';
 import Masonry from 'react-responsive-masonry';
+import Achievements from './Achievements';
 import toast from 'react-hot-toast';
 
 // 时长成就等级配置
@@ -283,13 +284,6 @@ const Gallery = () => {
     }
   };
 
-  //格式化时间戳
-  const formatDate = (timestamp: number | null) => {
-    if (!timestamp) return '-';
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleDateString('zh-CN');
-  };
-
   // ==================== ALT描述相关功能 ====================
 
   //打开ALT模态框
@@ -431,158 +425,16 @@ const Gallery = () => {
         )}
       </div>
 
-      {/* 第二行右侧：成就区域 - 占据2列 */}
-      <div className="col-span-2 rounded-lg bg-gray-100 p-4">
-        <h2 className="mb-4 flex items-center text-xl font-bold">
-          <FaTrophy className="mr-2 text-yellow-500" />
-          游戏成就
-        </h2>
-
-        {/* 时长成就 - 默认显示 */}
-        <div className="mb-4 rounded-lg bg-white p-3 shadow">
-          <div className="mb-2 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="rounded bg-purple-100 px-2 py-1 text-xs text-purple-600">
-                时长成就
-              </span>
-              <span className="font-semibold">
-                {TIME_ACHIEVEMENTS[getCurrentTimeLevel()]?.name || TIME_ACHIEVEMENTS[0].name}
-              </span>
-            </div>
-            <span className="text-xs text-gray-500">
-              Lv.{getCurrentTimeLevel() + 1}/{TIME_ACHIEVEMENTS.length}
-            </span>
-          </div>
-          <p className="mb-2 text-sm text-gray-600">
-            {TIME_ACHIEVEMENTS[getCurrentTimeLevel()]?.description ||
-              TIME_ACHIEVEMENTS[0].description}
-          </p>
-          <div className="flex items-center justify-between">
-            {getCurrentTimeLevel() < TIME_ACHIEVEMENTS.length ? (
-              <button
-                onClick={upgradeTimeAchievement}
-                className="rounded bg-purple-500 px-3 py-1 text-sm text-white transition hover:bg-purple-600"
-              >
-                {getCurrentTimeLevel() === 0 ? '开始' : '升级'}
-              </button>
-            ) : (
-              <span className="flex items-center text-sm text-green-600">
-                <FaCheck className="mr-1" />
-                已达到最高等级
-              </span>
-            )}
-            {getCurrentTimeLevel() > 0 && (
-              <span className="text-xs text-gray-500">
-                完成于:{' '}
-                {formatDate(
-                  achievements.find((a) => a.achievement_type === '时长成就')?.completed_at || null,
-                )}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* 完成度成就 - 默认显示 */}
-        <div className="mb-4 rounded-lg bg-white p-3 shadow">
-          <div className="mb-2 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="rounded bg-cyan-100 px-2 py-1 text-xs text-cyan-600">
-                完成度成就
-              </span>
-              <span className="font-semibold">
-                {COMPLETION_ACHIEVEMENTS[getCurrentCompletionLevel()]?.name ||
-                  COMPLETION_ACHIEVEMENTS[0].name}
-              </span>
-            </div>
-            <span className="text-xs text-gray-500">
-              Lv.{getCurrentCompletionLevel() + 1}/{COMPLETION_ACHIEVEMENTS.length}
-            </span>
-          </div>
-          <p className="mb-2 text-sm text-gray-600">
-            {COMPLETION_ACHIEVEMENTS[getCurrentCompletionLevel()]?.description ||
-              COMPLETION_ACHIEVEMENTS[0].description}
-          </p>
-          <div className="flex items-center justify-between">
-            {getCurrentCompletionLevel() < COMPLETION_ACHIEVEMENTS.length ? (
-              <button
-                onClick={upgradeCompletionAchievement}
-                className="rounded bg-cyan-500 px-3 py-1 text-sm text-white transition hover:bg-cyan-600"
-              >
-                {getCurrentCompletionLevel() === 0 ? '开始' : '升级'}
-              </button>
-            ) : (
-              <span className="flex items-center text-sm text-green-600">
-                <FaCheck className="mr-1" />
-                已达到最高等级
-              </span>
-            )}
-            {getCurrentCompletionLevel() > 0 && (
-              <span className="text-xs text-gray-500">
-                完成于:{' '}
-                {formatDate(
-                  achievements.find((a) => a.achievement_type === '完成度成就')?.completed_at ||
-                    null,
-                )}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* 自定义成就列表 */}
-        <div className="max-h-[500px] space-y-2 overflow-y-auto">
-          {achievements
-            .filter((a) => a.achievement_type !== '时长成就' && a.achievement_type !== '完成度成就')
-            .map((achievement) => (
-              <div
-                key={achievement.id}
-                className={`rounded-lg bg-white p-3 shadow ${achievement.is_completed ? 'border-l-4 border-green-500' : ''}`}
-              >
-                <div className="mb-1 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-600">
-                      {achievement.achievement_type}
-                    </span>
-                    <span className="font-semibold">{achievement.achievement_name}</span>
-                  </div>
-                  <button
-                    onClick={() => handleDeleteAchievement(achievement.id)}
-                    className="text-red-500 transition hover:text-red-700"
-                  >
-                    <FaRegCircleXmark />
-                  </button>
-                </div>
-                {achievement.description && (
-                  <p className="mb-2 text-sm text-gray-600">{achievement.description}</p>
-                )}
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => handleToggleAchievement(achievement)}
-                    className={`rounded px-3 py-1 text-sm text-white transition ${
-                      achievement.is_completed
-                        ? 'bg-gray-400 hover:bg-gray-500'
-                        : 'bg-green-500 hover:bg-green-600'
-                    }`}
-                  >
-                    {achievement.is_completed ? '取消完成' : '标记完成'}
-                  </button>
-                  {achievement.is_completed && (
-                    <span className="text-xs text-gray-500">
-                      完成于: {formatDate(achievement.completed_at)}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-
-          {achievements.filter(
-            (a) => a.achievement_type !== '时长成就' && a.achievement_type !== '完成度成就',
-          ).length === 0 && (
-            <div className="rounded-lg bg-white p-4 text-center text-gray-400">
-              暂无自定义成就,点击上方按钮添加
-            </div>
-          )}
-        </div>
-      </div>
+      {/* 第二行右侧：成就区域 - 封装为组件 */}
+      <Achievements
+        achievements={achievements}
+        getCurrentTimeLevel={getCurrentTimeLevel}
+        getCurrentCompletionLevel={getCurrentCompletionLevel}
+        upgradeTimeAchievement={upgradeTimeAchievement}
+        upgradeCompletionAchievement={upgradeCompletionAchievement}
+        handleDeleteAchievement={handleDeleteAchievement}
+        handleToggleAchievement={handleToggleAchievement}
+      />
 
       {/* 添加成就模态框 */}
       {showAddModal && (

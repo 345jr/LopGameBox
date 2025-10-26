@@ -4,7 +4,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Gallery from './components/Gallery';
+import Gallery from './components/Gallery/Gallery';
 import Update from './components/SettingCenter/Update';
 import Dashboard from './components/Dashboard/Dashboard';
 import SettingPage from './components/SettingCenter/SettingPage';

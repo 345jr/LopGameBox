@@ -6,6 +6,7 @@ import { FaRegCircleXmark, FaPlus } from 'react-icons/fa6';
 import Masonry from 'react-responsive-masonry';
 import Achievements from './Achievements';
 import toast from 'react-hot-toast';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
 
 // 时长成就等级配置
 const TIME_ACHIEVEMENTS = [
@@ -372,7 +373,7 @@ const Gallery = () => {
               onClick={() => setShowAddModal(true)}
               className="rounded bg-green-500 px-4 py-2 text-white transition hover:bg-green-600"
             >
-              <FaPlus className="inline mr-1" />
+              <FaPlus className="mr-1 inline" />
               添加成就
             </button>
             <Link to={'/'}>
@@ -386,45 +387,26 @@ const Gallery = () => {
 
       {/* 第二行左侧：瀑布流图墙 - 占据3列 */}
       <div className="col-span-3">
-        <Masonry columnsCount={2} gutter="10px">
-          {snapshotList?.map((i) => {
-            return (
-              <div key={i.id}>
-                <div className="group relative flex justify-end">
-                  {/* 删除按钮 */}
-                  <button
-                    onClick={() => delectSnapshot(i.id, i.relative_path)}
-                    className="Tr_ani absolute top-2 right-2 z-10 cursor-pointer"
-                  >
-                    <FaRegCircleXmark className="text-2xl text-red-600" />
-                  </button>
-                  {/* ALT描述按钮 */}
-                  <button
-                    onClick={() => openAltModal(i.id)}
-                    className="Tr_ani absolute bottom-2 right-2 z-10 cursor-pointer rounded bg-blue-500 px-2 py-1 text-xs text-white opacity-0 transition group-hover:opacity-100 hover:bg-blue-600"
-                  >
-                    ALT
-                  </button>
-                  <img
-                    src={`lop://` + i.relative_path.replace(/\\/g, '/')}
-                    alt="图集"
-                    className=""
-                    style={{ width: '100%', display: 'block' }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </Masonry>
+        <PhotoProvider>
+          <Masonry columnsCount={2} gutter="10px">
+            {snapshotList?.map((i) => {
+              return (
+                <PhotoView key={i.id} src={`lop://` + i.relative_path.replace(/\\/g, '/')}>
+                  <img src={`lop://` + i.relative_path.replace(/\\/g, '/')} alt="" className="" />
+                </PhotoView>
+              );
+            })}
+          </Masonry>
+        </PhotoProvider>
+
         {/* 无图时默认展示 */}
         {snapshotList?.length === 0 && (
           <>
-            <div className="text-center text-gray-500 mt-8">暂无图片</div>
-            <div className="text-center text-gray-500 mt-8">快去游戏中记录精彩瞬间吧!</div>
+            <div className="mt-8 text-center text-gray-500">暂无图片</div>
+            <div className="mt-8 text-center text-gray-500">快去游戏中记录精彩瞬间吧!</div>
           </>
         )}
       </div>
-
       {/* 第二行右侧：成就区域 - 封装为组件 */}
       <Achievements
         achievements={achievements}
@@ -438,7 +420,7 @@ const Gallery = () => {
 
       {/* 添加成就模态框 */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
           <div className="w-96 rounded-lg bg-white p-6 shadow-xl">
             <h3 className="mb-4 text-xl font-bold">添加新成就</h3>
             <div className="space-y-4">
@@ -502,8 +484,14 @@ const Gallery = () => {
 
       {/* ALT描述模态框 */}
       {showAltModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={closeAltModal}>
-          <div className="w-full max-w-lg rounded-lg bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={closeAltModal}
+        >
+          <div
+            className="w-full max-w-lg rounded-lg bg-white shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             {isEditingAlt ? (
               /* 编辑模式 - 箴言展示风格 */
               <div className="relative">
@@ -513,28 +501,28 @@ const Gallery = () => {
                     "{altText}"
                   </p>
                 </div>
-                
+
                 {/* 底部操作区域 - 低调的图标按钮 */}
                 <div className="flex items-center justify-between border-t bg-gray-50 px-6 py-3">
                   <button
                     onClick={() => {
                       setIsEditingAlt(false);
                     }}
-                    className="text-sm text-gray-600 transition hover:text-blue-600 hover:underline cursor-pointer"
+                    className="cursor-pointer text-sm text-gray-600 transition hover:text-blue-600 hover:underline"
                   >
                     编辑内容
                   </button>
                   <div className="flex gap-3">
                     <button
                       onClick={handleDeleteAlt}
-                      className="text-sm text-gray-500 transition hover:text-red-600 cursor-pointer"
+                      className="cursor-pointer text-sm text-gray-500 transition hover:text-red-600"
                       title="删除描述"
                     >
                       删除
                     </button>
                     <button
                       onClick={closeAltModal}
-                      className="text-sm text-gray-500 transition hover:text-gray-700 cursor-pointer"
+                      className="cursor-pointer text-sm text-gray-500 transition hover:text-gray-700"
                       title="关闭"
                     >
                       关闭
@@ -551,7 +539,7 @@ const Gallery = () => {
                 <textarea
                   value={altText}
                   onChange={(e) => setAltText(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 font-serif focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-3 font-serif focus:border-amber-400 focus:ring-2 focus:ring-amber-200 focus:outline-none"
                   rows={4}
                   placeholder="在此输入图片描述..."
                   autoFocus

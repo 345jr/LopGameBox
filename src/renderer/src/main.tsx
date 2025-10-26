@@ -1,5 +1,5 @@
 import './assets/main.css';
-
+import 'react-photo-view/dist/react-photo-view.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
@@ -13,6 +13,8 @@ import Layout from './components/Layout';
 import App from './App';
 import ErrorPage from './components/ErrorPage';
 import NotFound from './components/NotFound';
+
+
 
 const router = createHashRouter([
   {

@@ -41,6 +41,8 @@ const Gallery = () => {
   const [currentSnapshotId, setCurrentSnapshotId] = useState<number | null>(null);
   const [altText, setAltText] = useState('');
   const [isEditingAlt, setIsEditingAlt] = useState(false);
+  // 选中快照用于批量操作
+  const [selectedSnapshots, setSelectedSnapshots] = useState<Set<number>>(new Set());
 
   //获取图集列表
   const fetchSnapshotList = async () => {
@@ -99,6 +101,16 @@ const Gallery = () => {
     //删除对应文件
     await window.api.delectImages(relative_path);
     fetchSnapshotList();
+  };
+
+  // 切换选择状态（仅 UI）
+  const toggleSelected = (id: number) => {
+    setSelectedSnapshots((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   // ==================== 成就相关功能 ====================
@@ -346,29 +358,18 @@ const Gallery = () => {
       }
     }
   };
-
+  // ALT按钮组件
   const OverlayContent: React.FC<{ index: number }> = ({ index }) => {
+    if (!snapshotList || !snapshotList[index]) return null;
     return (
-      <div
-        className={`absolute right-4 bottom-4 left-4 z-[1200] flex items-center justify-between gap-3`}
-      >
-        <div className="max-w-[75%] truncate overflow-hidden rounded-md bg-black/60 px-3 py-2 text-white">
-          {/* {altText} */}
-          当前的索引
-          {index}
-          图片的ID
-          {snapshotList && snapshotList[index] ? snapshotList[index].id : '未知'}
-        </div>
-        {snapshotList && snapshotList[index] && (
-          <div className="flex gap-2">
-            <button
-              onClick={() => openAltModal(snapshotList[index].id)}
-              className="rounded-md bg-black/60 px-2 py-1 text-white cursor-pointer"
-            >
-              ALT
-            </button>
-          </div>
-        )}
+      <div className="fixed right-4 bottom-4 z-[1200]">
+        <button
+          onClick={() => openAltModal(snapshotList[index].id)}
+          className="rounded-md bg-black/60 px-3 py-2 text-white cursor-pointer"
+          aria-label={`ALT for snapshot ${snapshotList[index].id}`}
+        >
+          ALT
+        </button>
       </div>
     );
   };
@@ -398,6 +399,19 @@ const Gallery = () => {
               添加图片
             </button>
             <button
+              onClick={() => {
+                // 批量删除实现留空（UI stub）
+                if (selectedSnapshots.size === 0) return;
+                alert(`批量删除 ${selectedSnapshots.size} 张（未实现）`);
+              }}
+              disabled={selectedSnapshots.size === 0}
+              className={`rounded px-4 py-2 text-white transition ${
+                selectedSnapshots.size === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
+              }`}
+            >
+              批量删除{selectedSnapshots.size > 0 ? ` (${selectedSnapshots.size})` : ''}
+            </button>
+            <button
               onClick={() => setShowAddModal(true)}
               className="rounded bg-green-500 px-4 py-2 text-white transition hover:bg-green-600"
             >
@@ -421,9 +435,29 @@ const Gallery = () => {
           <Masonry columnsCount={2} gutter="15px">
             {snapshotList?.map((i) => {
               return (
-                <PhotoView key={i.id} src={`lop://` + i.relative_path.replace(/\\/g, '/')}>
-                  <img src={`lop://` + i.relative_path.replace(/\\/g, '/')} alt="" className="" />
-                </PhotoView>
+                <div key={i.id} className="relative group">
+                  {/* 右上角复选按钮 - 绝对定位，不会阻止图片打开（阻止事件冒泡） */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleSelected(i.id);
+                    }}
+                    className={`absolute right-2 top-2 z-30 rounded-full bg-black/60 p-1 text-white transition-all transform ${
+                      selectedSnapshots.has(i.id)
+                        ? 'opacity-95 scale-100'
+                        : 'opacity-0 scale-90 group-hover:opacity-95 group-hover:scale-100'
+                    }`}
+                    style={{ width: 32, height: 32 }}
+                    aria-pressed={selectedSnapshots.has(i.id)}
+                    title={selectedSnapshots.has(i.id) ? '已选中' : '选择'}
+                  >
+                    <span className="text-sm leading-none">{selectedSnapshots.has(i.id) ? '✓' : '○'}</span>
+                  </button>
+
+                  <PhotoView key={i.id} src={`lop://` + i.relative_path.replace(/\\/g, '/')}>
+                    <img src={`lop://` + i.relative_path.replace(/\\/g, '/')} alt="" className="w-full" />
+                  </PhotoView>
+                </div>
               );
             })}
           </Masonry>

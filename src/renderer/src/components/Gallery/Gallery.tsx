@@ -346,29 +346,18 @@ const Gallery = () => {
       }
     }
   };
-
+  // ALT按钮组件
   const OverlayContent: React.FC<{ index: number }> = ({ index }) => {
+    if (!snapshotList || !snapshotList[index]) return null;
     return (
-      <div
-        className={`absolute right-4 bottom-4 left-4 z-[1200] flex items-center justify-between gap-3`}
-      >
-        <div className="max-w-[75%] truncate overflow-hidden rounded-md bg-black/60 px-3 py-2 text-white">
-          {/* {altText} */}
-          当前的索引
-          {index}
-          图片的ID
-          {snapshotList && snapshotList[index] ? snapshotList[index].id : '未知'}
-        </div>
-        {snapshotList && snapshotList[index] && (
-          <div className="flex gap-2">
-            <button
-              onClick={() => openAltModal(snapshotList[index].id)}
-              className="rounded-md bg-black/60 px-2 py-1 text-white cursor-pointer"
-            >
-              ALT
-            </button>
-          </div>
-        )}
+      <div className="fixed right-4 bottom-4 z-[1200]">
+        <button
+          onClick={() => openAltModal(snapshotList[index].id)}
+          className="rounded-md bg-black/60 px-3 py-2 text-white cursor-pointer"
+          aria-label={`ALT for snapshot ${snapshotList[index].id}`}
+        >
+          ALT
+        </button>
       </div>
     );
   };

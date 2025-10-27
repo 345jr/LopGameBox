@@ -7,6 +7,7 @@ import Masonry from 'react-responsive-masonry';
 import Achievements from './Achievements';
 import toast from 'react-hot-toast';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
+import { DataType } from 'react-photo-view/dist/types';
 
 // 时长成就等级配置
 const TIME_ACHIEVEMENTS = [
@@ -346,6 +347,33 @@ const Gallery = () => {
     }
   };
 
+  const OverlayContent: React.FC<{ index: number }> = ({ index }) => {
+    return (
+      <div
+        className={`absolute right-4 bottom-4 left-4 z-[1200] flex items-center justify-between gap-3`}
+      >
+        <div className="max-w-[75%] truncate overflow-hidden rounded-md bg-black/60 px-3 py-2 text-white">
+          {/* {altText} */}
+          当前的索引
+          {index}
+          图片的ID
+          {snapshotList && snapshotList[index] ? snapshotList[index].id : '未知'}
+        </div>
+        {snapshotList && snapshotList[index] && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => openAltModal(snapshotList[index].id)}
+              className="rounded-md bg-black/60 px-2 py-1 text-white cursor-pointer"
+            >
+              ALT
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+
   return (
     <div className="grid grid-cols-5 gap-4 p-4">
       {/* 第一行：数据展示和交互按钮区域 - 占据全部5列 */}
@@ -387,8 +415,10 @@ const Gallery = () => {
 
       {/* 第二行左侧：瀑布流图墙 - 占据3列 */}
       <div className="col-span-3">
-        <PhotoProvider>
-          <Masonry columnsCount={2} gutter="10px">
+        <PhotoProvider
+          overlayRender={({ index }) => <OverlayContent index={index} />}
+        >
+          <Masonry columnsCount={2} gutter="15px">
             {snapshotList?.map((i) => {
               return (
                 <PhotoView key={i.id} src={`lop://` + i.relative_path.replace(/\\/g, '/')}>
@@ -485,44 +515,44 @@ const Gallery = () => {
       {/* ALT描述模态框 */}
       {showAltModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          className="fixed inset-0 z-5000 flex items-center justify-center bg-black/50"
           onClick={closeAltModal}
         >
           <div
-            className="w-full max-w-lg rounded-lg bg-white shadow-2xl"
+            className="w-full max-w-lg rounded-lg bg-white text-black shadow-2xl ring-1 ring-black/10"
             onClick={(e) => e.stopPropagation()}
           >
             {isEditingAlt ? (
-              /* 编辑模式 - 箴言展示风格 */
+              /* 编辑模式 - 白底黑字 */
               <div className="relative">
-                {/* 描述文本区域 - 箴言样式 */}
-                <div className="border-l-4 border-amber-400 bg-gradient-to-r from-amber-50 to-white px-8 py-12">
-                  <p className="text-center font-serif text-lg leading-relaxed text-gray-700 italic">
+                {/* 描述文本区域 - 白底黑字，左侧细边 */}
+                <div className="border-l-4 border-black/20 bg-white px-8 py-12">
+                  <p className="text-center font-serif text-lg leading-relaxed text-black italic">
                     "{altText}"
                   </p>
                 </div>
 
-                {/* 底部操作区域 - 低调的图标按钮 */}
-                <div className="flex items-center justify-between border-t bg-gray-50 px-6 py-3">
+                {/* 底部操作区域 - 简洁黑白按钮 */}
+                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-6 py-3">
                   <button
                     onClick={() => {
                       setIsEditingAlt(false);
                     }}
-                    className="cursor-pointer text-sm text-gray-600 transition hover:text-blue-600 hover:underline"
+                    className="cursor-pointer text-sm text-gray-600 transition hover:text-black hover:underline"
                   >
                     编辑内容
                   </button>
                   <div className="flex gap-3">
                     <button
                       onClick={handleDeleteAlt}
-                      className="cursor-pointer text-sm text-gray-500 transition hover:text-red-600"
+                      className="cursor-pointer rounded bg-transparent px-2 py-1 text-sm text-gray-600 transition hover:text-red-600"
                       title="删除描述"
                     >
                       删除
                     </button>
                     <button
                       onClick={closeAltModal}
-                      className="cursor-pointer text-sm text-gray-500 transition hover:text-gray-700"
+                      className="cursor-pointer rounded border border-gray-200 px-2 py-1 text-sm text-gray-700 transition hover:bg-gray-50"
                       title="关闭"
                     >
                       关闭
@@ -532,14 +562,14 @@ const Gallery = () => {
               </div>
             ) : (
               /* 添加/编辑输入模式 */
-              <div className="p-6">
-                <h3 className="mb-4 text-lg font-semibold text-gray-800">
+              <div className="p-6 bg-white text-black">
+                <h3 className="mb-4 text-lg font-semibold text-black">
                   {altText ? '编辑描述' : '添加描述'}
                 </h3>
                 <textarea
                   value={altText}
                   onChange={(e) => setAltText(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-3 font-serif focus:border-amber-400 focus:ring-2 focus:ring-amber-200 focus:outline-none"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 font-serif text-black focus:border-black/50 focus:ring-2 focus:ring-black/10 focus:outline-none"
                   rows={4}
                   placeholder="在此输入图片描述..."
                   autoFocus
@@ -547,7 +577,7 @@ const Gallery = () => {
                 <div className="mt-4 flex justify-end gap-2">
                   <button
                     onClick={closeAltModal}
-                    className="cursor-pointer rounded px-4 py-2 text-sm text-gray-600 transition hover:bg-gray-100"
+                    className="cursor-pointer rounded border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50"
                   >
                     取消
                   </button>
@@ -558,7 +588,7 @@ const Gallery = () => {
                         setIsEditingAlt(true);
                       }
                     }}
-                    className="cursor-pointer rounded bg-amber-500 px-4 py-2 text-sm text-white transition hover:bg-amber-600"
+                    className="cursor-pointer rounded bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-900"
                   >
                     保存
                   </button>

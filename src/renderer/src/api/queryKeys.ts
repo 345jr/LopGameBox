@@ -36,9 +36,15 @@ export const queryKeys = {
   //游戏列表
   gameList: () => ['game-list'] as const,
   //游戏封面图
-  gameBanners: () => ['game-banners'] as const,
+  gameBanners: () => ['game-banners'] as const,  
   //搜索游戏
   searchGames: (keyword: string) => ['search-games', keyword] as const,
   //分类游戏
   categoryGames: (category: string) => ['category-games', category] as const,
+  // 游戏成就列表
+  gameAchievements: (gameId: string) => ['game-achievements', gameId] as const,
+  // 游戏成就统计
+  achievementStats: (gameId: string) => ['achievement-stats', gameId] as const,
+  // 图集列表
+  galleryList: (gameId: string) => ['gallery-list', gameId] as const,
 };

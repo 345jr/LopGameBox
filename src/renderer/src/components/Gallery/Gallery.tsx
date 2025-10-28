@@ -7,29 +7,10 @@ import Masonry from 'react-responsive-masonry';
 import Achievements from './Achievements';
 import toast from 'react-hot-toast';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
-
-// 时长成就等级配置
-const TIME_ACHIEVEMENTS = [
-  { level: 1, hours: 2, name: '初入游戏', description: '游玩时长达到2小时' },
-  { level: 2, hours: 5, name: '渐入佳境', description: '游玩时长达到5小时' },
-  { level: 3, hours: 10, name: '深度体验', description: '游玩时长达到10小时' },
-  { level: 4, hours: 20, name: '资深玩家', description: '游玩时长达到20小时' },
-];
-
-// 完成度成就等级配置
-const COMPLETION_ACHIEVEMENTS = [
-  { level: 1, percent: 20, name: '略有小成', description: '游戏完成度达到20%' },
-  { level: 2, percent: 40, name: '渐入佳境', description: '游戏完成度达到40%' },
-  { level: 3, percent: 60, name: '过半完成', description: '游戏完成度达到60%' },
-  { level: 4, percent: 80, name: '接近尾声', description: '游戏完成度达到80%' },
-  { level: 5, percent: 100, name: '完美达成', description: '游戏完成度达到100%' },
-];
+import { useGalleryList, useGalleryStats } from '@renderer/api/queries/queries.gallery';
 
 const Gallery = () => {
   const { gameId } = useParams();
-  const [snapshotList, setSnapshotList] = useState<Snapshot[]>();
-  const [achievements, setAchievements] = useState<GameAchievement[]>([]);
-  const [stats, setStats] = useState({ total: 0, completed: 0, completionRate: 0 });
   const [showAddModal, setShowAddModal] = useState(false);
   const [newAchievement, setNewAchievement] = useState({
     name: '',
@@ -40,32 +21,14 @@ const Gallery = () => {
   const [currentSnapshotId, setCurrentSnapshotId] = useState<number | null>(null);
   const [altText, setAltText] = useState('');
   const [isEditingAlt, setIsEditingAlt] = useState(false);
-  // 选中快照用于批量操作
   const [selectedSnapshots, setSelectedSnapshots] = useState<Set<number>>(new Set());
+  const [isBatchDeleting, setIsBatchDeleting] = useState(false);
 
-  //获取图集列表
-  const fetchSnapshotList = async () => {
-    if (gameId) {
-      const snapshotList = await window.api.getGameSnapshot(parseInt(gameId));
-      setSnapshotList(snapshotList);
-    }
-  };
+  const gameIdNum = parseInt(gameId as string);
+  const { data: statsData } = useGalleryStats(gameIdNum);
+  const { data: snapshotList, refetch: refetchSnapshots } = useGalleryList(gameIdNum);
 
-  //获取成就列表
-  const fetchAchievements = async () => {
-    if (gameId) {
-      const data = await window.api.getGameAchievements(parseInt(gameId));
-      setAchievements(data);
-
-      const statsData = await window.api.getAchievementStats(parseInt(gameId));
-      setStats(statsData);
-    }
-  };
-
-  useEffect(() => {
-    fetchSnapshotList();
-    fetchAchievements();
-  }, [gameId]);
+  
 
   //添加图
   const addSnapshot = async () => {
@@ -87,22 +50,12 @@ const Gallery = () => {
           relativePath: result.relativePath,
         });
       }
-      fetchSnapshotList();
+      refetchSnapshots();
     } catch (error) {
       console.log(error);
     }
   };
-
-  //删除图
-  // const delectSnapshot = async (id: number, relative_path: string) => {
-  //   //删除数据库记录
-  //   await window.api.delectSnapshot(id);
-  //   //删除对应文件
-  //   await window.api.delectImages(relative_path);
-  //   fetchSnapshotList();
-  // };
-
-  // 切换选择状态（仅 UI）
+  // 切换选择状态
   const toggleSelected = (id: number) => {
     setSelectedSnapshots((prev) => {
       const next = new Set(prev);
@@ -111,10 +64,7 @@ const Gallery = () => {
       return next;
     });
   };
-
-  const [isBatchDeleting, setIsBatchDeleting] = useState(false);
-
-  // 批量删除已选图片（实现）
+  // 批量删除已选图片
   const batchDeleteSelected = async () => {
     if (selectedSnapshots.size === 0) return;
 
@@ -138,8 +88,7 @@ const Gallery = () => {
       await Promise.all(tasks);
 
       toast.success(`已删除 ${ids.length} 张图片`);
-      // 刷新列表并清空选择
-      await fetchSnapshotList();
+      refetchSnapshots();
       setSelectedSnapshots(new Set());
     } catch (error) {
       console.error('批量删除失败', error);
@@ -148,145 +97,6 @@ const Gallery = () => {
       setIsBatchDeleting(false);
     }
   };
-
-  // ==================== 成就相关功能 ====================
-
-  //获取当前时长成就等级
-  const getCurrentTimeLevel = () => {
-    const timeAchievement = achievements.find((a) => a.achievement_type === '时长成就');
-    if (!timeAchievement) return 0;
-
-    const desc = timeAchievement.description || '';
-    const match = desc.match(/(\d+)小时/);
-    if (match) {
-      const hours = parseInt(match[1]);
-      const level = TIME_ACHIEVEMENTS.find((t) => t.hours === hours);
-      return level?.level || 0;
-    }
-    return 0;
-  };
-
-  //升级时长成就
-  const upgradeTimeAchievement = async () => {
-    if (!gameId) return;
-
-    const currentLevel = getCurrentTimeLevel();
-    const nextLevel = currentLevel + 1;
-
-    if (nextLevel > TIME_ACHIEVEMENTS.length) {
-      alert('已达到最高等级!');
-      return;
-    }
-
-    const nextAchievement = TIME_ACHIEVEMENTS[nextLevel - 1];
-
-    try {
-      // 如果是第一次,创建新成就
-      if (currentLevel === 0) {
-        await window.api.createAchievement(
-          parseInt(gameId),
-          nextAchievement.name,
-          '时长成就',
-          nextAchievement.description,
-        );
-      } else {
-        // 否则更新现有成就
-        const timeAchievement = achievements.find((a) => a.achievement_type === '时长成就');
-        if (timeAchievement) {
-          // 删除旧的
-          await window.api.deleteAchievement(timeAchievement.id);
-          // 创建新的
-          await window.api.createAchievement(
-            parseInt(gameId),
-            nextAchievement.name,
-            '时长成就',
-            nextAchievement.description,
-          );
-        }
-      }
-
-      // 标记为完成
-      const newList = await window.api.getGameAchievements(parseInt(gameId));
-      const newTimeAchievement = newList.find((a) => a.achievement_type === '时长成就');
-      if (newTimeAchievement) {
-        await window.api.toggleAchievementStatus(newTimeAchievement.id, 1);
-      }
-
-      fetchAchievements();
-    } catch (error) {
-      console.error('升级时长成就失败:', error);
-    }
-  };
-
-  //获取当前完成度成就等级
-  const getCurrentCompletionLevel = () => {
-    const completionAchievement = achievements.find((a) => a.achievement_type === '完成度成就');
-    if (!completionAchievement) return 0;
-
-    const desc = completionAchievement.description || '';
-    const match = desc.match(/(\d+)%/);
-    if (match) {
-      const percent = parseInt(match[1]);
-      const level = COMPLETION_ACHIEVEMENTS.find((c) => c.percent === percent);
-      return level?.level || 0;
-    }
-    return 0;
-  };
-
-  //升级完成度成就
-  const upgradeCompletionAchievement = async () => {
-    if (!gameId) return;
-
-    const currentLevel = getCurrentCompletionLevel();
-    const nextLevel = currentLevel + 1;
-
-    if (nextLevel > COMPLETION_ACHIEVEMENTS.length) {
-      toast.success('已达到最高等级!');
-      return;
-    }
-
-    const nextAchievement = COMPLETION_ACHIEVEMENTS[nextLevel - 1];
-
-    try {
-      // 如果是第一次,创建新成就
-      if (currentLevel === 0) {
-        await window.api.createAchievement(
-          parseInt(gameId),
-          nextAchievement.name,
-          '完成度成就',
-          nextAchievement.description,
-        );
-      } else {
-        // 否则更新现有成就
-        const completionAchievement = achievements.find(
-          (a) => a.achievement_type === '完成度成就',
-        );
-        if (completionAchievement) {
-          // 删除旧的
-          await window.api.deleteAchievement(completionAchievement.id);
-          // 创建新的
-          await window.api.createAchievement(
-            parseInt(gameId),
-            nextAchievement.name,
-            '完成度成就',
-            nextAchievement.description,
-          );
-        }
-      }
-
-      // 标记为完成
-      const newList = await window.api.getGameAchievements(parseInt(gameId));
-      const newCompletionAchievement = newList.find((a) => a.achievement_type === '完成度成就');
-      if (newCompletionAchievement) {
-        await window.api.toggleAchievementStatus(newCompletionAchievement.id, 1);
-      }
-
-      fetchAchievements();
-    } catch (error) {
-      console.error('升级完成度成就失败:', error);
-    }
-  };
-
   //添加自定义成就
   const handleAddAchievement = async () => {
     if (!gameId || !newAchievement.name.trim()) {
@@ -304,32 +114,9 @@ const Gallery = () => {
 
       setNewAchievement({ name: '', type: '自定义成就', description: '' });
       setShowAddModal(false);
-      fetchAchievements();
+      // fetchAchievements();
     } catch (error) {
       console.error('添加成就失败:', error);
-    }
-  };
-
-  //删除成就
-  const handleDeleteAchievement = async (achievementId: number) => {
-    if (confirm('确定要删除这个成就吗?')) {
-      try {
-        await window.api.deleteAchievement(achievementId);
-        fetchAchievements();
-      } catch (error) {
-        console.error('删除成就失败:', error);
-      }
-    }
-  };
-
-  //切换成就完成状态
-  const handleToggleAchievement = async (achievement: GameAchievement) => {
-    try {
-      const newStatus = achievement.is_completed === 0 ? 1 : 0;
-      await window.api.toggleAchievementStatus(achievement.id, newStatus);
-      fetchAchievements();
-    } catch (error) {
-      console.error('切换成就状态失败:', error);
     }
   };
 
@@ -371,7 +158,7 @@ const Gallery = () => {
     try {
       await window.api.updateSnapshotAlt(currentSnapshotId, altText.trim());
       closeAltModal();
-      fetchSnapshotList();
+      refetchSnapshots();
     } catch (error) {
       console.error('保存ALT描述失败:', error);
       alert('保存失败');
@@ -386,7 +173,7 @@ const Gallery = () => {
       try {
         await window.api.deleteSnapshotAlt(currentSnapshotId);
         closeAltModal();
-        fetchSnapshotList();
+        refetchSnapshots;
       } catch (error) {
         console.error('删除ALT描述失败:', error);
         alert('删除失败');
@@ -400,7 +187,7 @@ const Gallery = () => {
       <div className="fixed right-4 bottom-4 z-[1200]">
         <button
           onClick={() => openAltModal(snapshotList[index].id)}
-          className="rounded-md bg-black/60 px-3 py-2 text-white cursor-pointer"
+          className="cursor-pointer rounded-md bg-black/60 px-3 py-2 text-white"
           aria-label={`ALT for snapshot ${snapshotList[index].id}`}
         >
           ALT
@@ -409,6 +196,7 @@ const Gallery = () => {
     );
   };
 
+  if (!snapshotList) return <div>加载中...</div>;
 
   return (
     <div className="grid grid-cols-5 gap-4 p-4">
@@ -418,11 +206,11 @@ const Gallery = () => {
           <div className="flex gap-4">
             {/* 数据展示区域 */}
             <div className="flex flex-row gap-4 text-lg">
-              <span>图片总数: {snapshotList?.length || 0}</span>
+              <span>图片总数: {snapshotList.length || 0}</span>
               <span>
-                成就完成: {stats.completed}/{stats.total}
+                成就完成: {statsData?.completed}/{statsData?.total}
               </span>
-              <span>完成率: {stats.completionRate.toFixed(1)}%</span>
+              <span>完成率: {statsData?.completionRate.toFixed(1)}%</span>
             </div>
           </div>
           <div className="flex gap-2">
@@ -438,11 +226,13 @@ const Gallery = () => {
               disabled={selectedSnapshots.size === 0 || isBatchDeleting}
               className={`rounded px-4 py-2 text-white transition ${
                 selectedSnapshots.size === 0 || isBatchDeleting
-                  ? 'bg-gray-300 cursor-not-allowed'
+                  ? 'cursor-not-allowed bg-gray-300'
                   : 'bg-red-500 hover:bg-red-600'
               }`}
             >
-              {isBatchDeleting ? '删除中...' : `批量删除${selectedSnapshots.size > 0 ? ` (${selectedSnapshots.size})` : ''}`}
+              {isBatchDeleting
+                ? '删除中...'
+                : `批量删除${selectedSnapshots.size > 0 ? ` (${selectedSnapshots.size})` : ''}`}
             </button>
             <button
               onClick={() => setShowAddModal(true)}
@@ -462,33 +252,37 @@ const Gallery = () => {
 
       {/* 第二行左侧：瀑布流图墙 - 占据3列 */}
       <div className="col-span-3">
-        <PhotoProvider
-          overlayRender={({ index }) => <OverlayContent index={index} />}
-        >
+        <PhotoProvider overlayRender={({ index }) => <OverlayContent index={index} />}>
           <Masonry columnsCount={2} gutter="15px">
-            {snapshotList?.map((i) => {
+            {snapshotList.map((i) => {
               return (
-                <div key={i.id} className="relative group">
+                <div key={i.id} className="group relative">
                   {/* 右上角复选按钮 - 绝对定位，不会阻止图片打开（阻止事件冒泡） */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleSelected(i.id);
                     }}
-                    className={`absolute right-2 top-2 z-30 rounded-full bg-black/60 p-1 text-white transition-all transform ${
+                    className={`absolute top-2 right-2 z-30 transform rounded-full bg-black/60 p-1 text-white transition-all ${
                       selectedSnapshots.has(i.id)
-                        ? 'opacity-95 scale-100'
-                        : 'opacity-0 scale-90 group-hover:opacity-95 group-hover:scale-100'
+                        ? 'scale-100 opacity-95'
+                        : 'scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-95'
                     }`}
                     style={{ width: 32, height: 32 }}
                     aria-pressed={selectedSnapshots.has(i.id)}
                     title={selectedSnapshots.has(i.id) ? '已选中' : '选择'}
                   >
-                    <span className="text-sm leading-none">{selectedSnapshots.has(i.id) ? '✓' : '○'}</span>
+                    <span className="text-sm leading-none">
+                      {selectedSnapshots.has(i.id) ? '✓' : '○'}
+                    </span>
                   </button>
 
                   <PhotoView key={i.id} src={`lop://` + i.relative_path.replace(/\\/g, '/')}>
-                    <img src={`lop://` + i.relative_path.replace(/\\/g, '/')} alt="" className="w-full" />
+                    <img
+                      src={`lop://` + i.relative_path.replace(/\\/g, '/')}
+                      alt=""
+                      className="w-full"
+                    />
                   </PhotoView>
                 </div>
               );
@@ -497,7 +291,7 @@ const Gallery = () => {
         </PhotoProvider>
 
         {/* 无图时默认展示 */}
-        {snapshotList?.length === 0 && (
+        {snapshotList.length === 0 && (
           <>
             <div className="mt-8 text-center text-gray-500">暂无图片</div>
             <div className="mt-8 text-center text-gray-500">快去游戏中记录精彩瞬间吧!</div>
@@ -505,15 +299,7 @@ const Gallery = () => {
         )}
       </div>
       {/* 第二行右侧：成就区域 - 封装为组件 */}
-      <Achievements
-        achievements={achievements}
-        getCurrentTimeLevel={getCurrentTimeLevel}
-        getCurrentCompletionLevel={getCurrentCompletionLevel}
-        upgradeTimeAchievement={upgradeTimeAchievement}
-        upgradeCompletionAchievement={upgradeCompletionAchievement}
-        handleDeleteAchievement={handleDeleteAchievement}
-        handleToggleAchievement={handleToggleAchievement}
-      />
+      <Achievements/>
 
       {/* 添加成就模态框 */}
       {showAddModal && (
@@ -629,7 +415,7 @@ const Gallery = () => {
               </div>
             ) : (
               /* 添加/编辑输入模式 */
-              <div className="p-6 bg-white text-black">
+              <div className="bg-white p-6 text-black">
                 <h3 className="mb-4 text-lg font-semibold text-black">
                   {altText ? '编辑描述' : '添加描述'}
                 </h3>

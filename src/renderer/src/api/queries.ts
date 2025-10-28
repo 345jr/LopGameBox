@@ -10,3 +10,4 @@ export * from './queries/queries.user';
 export * from './queries/queries.metadata';
 export * from './queries/queries.update';
 export * from './queries/queries.gamelinks';
+

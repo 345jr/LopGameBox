@@ -1,18 +1,11 @@
 import React from 'react';
 import { FaCheck, FaRegCircleXmark } from 'react-icons/fa6';
 import {formatTimeCalender} from '../../util/timeFormat';
+import { useAchievementList } from '@renderer/api/queries/queries.gallery';
+import { useParams } from 'react-router-dom';
 
-type Achievement = any;
-
-type Props = {
-  achievements: Achievement[];
-  getCurrentTimeLevel: () => number;
-  getCurrentCompletionLevel: () => number;
-  upgradeTimeAchievement: () => Promise<void> | void;
-  upgradeCompletionAchievement: () => Promise<void> | void;
-  handleDeleteAchievement: (id: number) => Promise<void> | void;
-  handleToggleAchievement: (achievement: Achievement) => Promise<void> | void;
-};
+import { GameAchievement } from '@renderer/types/Game';
+import toast from 'react-hot-toast';
 
 // 时长成就等级配置
 const TIME_ACHIEVEMENTS = [
@@ -31,15 +24,175 @@ const COMPLETION_ACHIEVEMENTS = [
   { level: 5, percent: 100, name: '完美达成', description: '游戏完成度达到100%' },
 ];
 
-const Achievements: React.FC<Props> = ({
-  achievements,
-  getCurrentTimeLevel,
-  getCurrentCompletionLevel,
-  upgradeTimeAchievement,
-  upgradeCompletionAchievement,
-  handleDeleteAchievement,
-  handleToggleAchievement,
-}) => {
+const Achievements: React.FC = () => {
+  const { gameId } = useParams();
+  const gameIdNum = parseInt(gameId as string);
+  const { data: achievementsData, isPending } = useAchievementList(gameIdNum);
+
+  //获取当前时长成就等级
+  const getCurrentTimeLevel = () => {
+    const timeAchievement = achievementsData?.find((a) => a.achievement_type === '时长成就');
+    if (!timeAchievement) return 0;
+
+    const desc = timeAchievement.description || '';
+    const match = desc.match(/(\d+)小时/);
+    if (match) {
+      const hours = parseInt(match[1]);
+      const level = TIME_ACHIEVEMENTS.find((t) => t.hours === hours);
+      return level?.level || 0;
+    }
+    return 0;
+  };
+
+  //升级时长成就
+  const upgradeTimeAchievement = async () => {
+    if (!gameId) return;
+
+    const currentLevel = getCurrentTimeLevel();
+    const nextLevel = currentLevel + 1;
+
+    if (nextLevel > TIME_ACHIEVEMENTS.length) {
+      alert('已达到最高等级!');
+      return;
+    }
+
+    const nextAchievement = TIME_ACHIEVEMENTS[nextLevel - 1];
+
+    try {
+      // 如果是第一次,创建新成就
+      if (currentLevel === 0) {
+        await window.api.createAchievement(
+          parseInt(gameId),
+          nextAchievement.name,
+          '时长成就',
+          nextAchievement.description,
+        );
+      } else {
+        // 否则更新现有成就
+        const timeAchievement = achievementsData?.find((a) => a.achievement_type === '时长成就');
+        if (timeAchievement) {
+          // 删除旧的
+          await window.api.deleteAchievement(timeAchievement.id);
+          // 创建新的
+          await window.api.createAchievement(
+            parseInt(gameId),
+            nextAchievement.name,
+            '时长成就',
+            nextAchievement.description,
+          );
+        }
+      }
+
+      // 标记为完成
+      const newList = await window.api.getGameAchievements(parseInt(gameId));
+      const newTimeAchievement = newList.find((a) => a.achievement_type === '时长成就');
+      if (newTimeAchievement) {
+        await window.api.toggleAchievementStatus(newTimeAchievement.id, 1);
+      }
+
+      // fetchAchievements();
+    } catch (error) {
+      console.error('升级时长成就失败:', error);
+    }
+  };
+
+  //获取当前完成度成就等级
+  const getCurrentCompletionLevel = () => {
+    const completionAchievement = achievementsData?.find((a) => a.achievement_type === '完成度成就');
+    if (!completionAchievement) return 0;
+
+    const desc = completionAchievement.description || '';
+    const match = desc.match(/(\d+)%/);
+    if (match) {
+      const percent = parseInt(match[1]);
+      const level = COMPLETION_ACHIEVEMENTS.find((c) => c.percent === percent);
+      return level?.level || 0;
+    }
+    return 0;
+  };
+
+  //升级完成度成就
+  const upgradeCompletionAchievement = async () => {
+    if (!gameId) return;
+
+    const currentLevel = getCurrentCompletionLevel();
+    const nextLevel = currentLevel + 1;
+
+    if (nextLevel > COMPLETION_ACHIEVEMENTS.length) {
+      toast.success('已达到最高等级!');
+      return;
+    }
+
+    const nextAchievement = COMPLETION_ACHIEVEMENTS[nextLevel - 1];
+
+    try {
+      // 如果是第一次,创建新成就
+      if (currentLevel === 0) {
+        await window.api.createAchievement(
+          parseInt(gameId),
+          nextAchievement.name,
+          '完成度成就',
+          nextAchievement.description,
+        );
+      } else {
+        // 否则更新现有成就
+        const completionAchievement = achievementsData?.find(
+          (a) => a.achievement_type === '完成度成就',
+        );
+        if (completionAchievement) {
+          // 删除旧的
+          await window.api.deleteAchievement(completionAchievement.id);
+          // 创建新的
+          await window.api.createAchievement(
+            parseInt(gameId),
+            nextAchievement.name,
+            '完成度成就',
+            nextAchievement.description,
+          );
+        }
+      }
+
+      // 标记为完成
+      const newList = await window.api.getGameAchievements(parseInt(gameId));
+      const newCompletionAchievement = newList.find((a) => a.achievement_type === '完成度成就');
+      if (newCompletionAchievement) {
+        await window.api.toggleAchievementStatus(newCompletionAchievement.id, 1);
+      }
+
+      // fetchAchievements();
+    } catch (error) {
+      console.error('升级完成度成就失败:', error);
+    }
+  };
+
+  
+
+  //删除成就
+  const handleDeleteAchievement = async (achievementId: number) => {
+    if (confirm('确定要删除这个成就吗?')) {
+      try {
+        await window.api.deleteAchievement(achievementId);
+        // fetchAchievements();
+      } catch (error) {
+        console.error('删除成就失败:', error);
+      }
+    }
+  };
+
+  //切换成就完成状态
+  const handleToggleAchievement = async (achievement: GameAchievement) => {
+    try {
+      const newStatus = achievement.is_completed === 0 ? 1 : 0;
+      await window.api.toggleAchievementStatus(achievement.id, newStatus);
+      // fetchAchievements();
+    } catch (error) {
+      console.error('切换成就状态失败:', error);
+    }
+  };
+
+  if (isPending) return <div>加载中...</div>;
+  if (!achievementsData) return <div>暂无数据</div>;
+
   return (
     <div className="col-span-2 rounded-lg bg-gray-100 p-4">
       <h2 className="mb-4 flex justify-center items-center text-xl font-bold">成就书</h2>
@@ -73,7 +226,7 @@ const Achievements: React.FC<Props> = ({
           )}
           {getCurrentTimeLevel() > 0 && (
             <span className="text-xs text-gray-500">
-              完成于: {formatTimeCalender(achievements.find((a) => a.achievement_type === '时长成就')?.completed_at || null)}
+              完成于: {formatTimeCalender(achievementsData.find((a) => a.achievement_type === '时长成就')?.completed_at || null)}
             </span>
           )}
         </div>
@@ -108,7 +261,7 @@ const Achievements: React.FC<Props> = ({
           )}
           {getCurrentCompletionLevel() > 0 && (
             <span className="text-xs text-gray-500">
-              完成于: {formatTimeCalender(achievements.find((a) => a.achievement_type === '完成度成就')?.completed_at || null)}
+              完成于: {formatTimeCalender(achievementsData?.find((a) => a.achievement_type === '完成度成就')?.completed_at || null)}
             </span>
           )}
         </div>
@@ -116,8 +269,8 @@ const Achievements: React.FC<Props> = ({
 
       {/* 自定义成就列表 */}
       <div className="max-h-[500px] space-y-2 overflow-y-auto">
-        {achievements
-          .filter((a) => a.achievement_type !== '时长成就' && a.achievement_type !== '完成度成就')
+        {achievementsData
+          ?.filter((a) => a.achievement_type !== '时长成就' && a.achievement_type !== '完成度成就')
           .map((achievement) => (
             <div
               key={achievement.id}
@@ -147,7 +300,7 @@ const Achievements: React.FC<Props> = ({
             </div>
           ))}
 
-        {achievements.filter((a) => a.achievement_type !== '时长成就' && a.achievement_type !== '完成度成就').length === 0 && (
+        {achievementsData?.filter((a) => a.achievement_type !== '时长成就' && a.achievement_type !== '完成度成就').length === 0 && (
           <div className="rounded-lg bg-white p-4 text-center text-gray-400">暂无自定义成就,点击上方按钮添加</div>
         )}
       </div>

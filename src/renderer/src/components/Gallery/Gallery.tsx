@@ -2,12 +2,11 @@ import { Snapshot, GameAchievement } from '@renderer/types/Game';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
-import { FaRegCircleXmark, FaPlus } from 'react-icons/fa6';
+import { FaPlus } from 'react-icons/fa6';
 import Masonry from 'react-responsive-masonry';
 import Achievements from './Achievements';
 import toast from 'react-hot-toast';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
-import { DataType } from 'react-photo-view/dist/types';
 
 // 时长成就等级配置
 const TIME_ACHIEVEMENTS = [
@@ -95,13 +94,13 @@ const Gallery = () => {
   };
 
   //删除图
-  const delectSnapshot = async (id: number, relative_path: string) => {
-    //删除数据库记录
-    await window.api.delectSnapshot(id);
-    //删除对应文件
-    await window.api.delectImages(relative_path);
-    fetchSnapshotList();
-  };
+  // const delectSnapshot = async (id: number, relative_path: string) => {
+  //   //删除数据库记录
+  //   await window.api.delectSnapshot(id);
+  //   //删除对应文件
+  //   await window.api.delectImages(relative_path);
+  //   fetchSnapshotList();
+  // };
 
   // 切换选择状态（仅 UI）
   const toggleSelected = (id: number) => {
@@ -111,6 +110,43 @@ const Gallery = () => {
       else next.add(id);
       return next;
     });
+  };
+
+  const [isBatchDeleting, setIsBatchDeleting] = useState(false);
+
+  // 批量删除已选图片（实现）
+  const batchDeleteSelected = async () => {
+    if (selectedSnapshots.size === 0) return;
+
+    if (!confirm(`确定要删除 ${selectedSnapshots.size} 张图片吗？此操作不可恢复`)) return;
+
+    setIsBatchDeleting(true);
+    try {
+      // 把选中的 id 转为数组
+      const ids = Array.from(selectedSnapshots);
+
+      // 从 snapshotList 找到对应的 relative_path
+      const tasks = ids.map(async (id) => {
+        const snap = snapshotList?.find((s) => s.id === id);
+        if (!snap) return;
+        // 删除数据库记录
+        await window.api.delectSnapshot(id);
+        // 删除对应文件
+        await window.api.delectImages(snap.relative_path);
+      });
+
+      await Promise.all(tasks);
+
+      toast.success(`已删除 ${ids.length} 张图片`);
+      // 刷新列表并清空选择
+      await fetchSnapshotList();
+      setSelectedSnapshots(new Set());
+    } catch (error) {
+      console.error('批量删除失败', error);
+      toast.error('批量删除失败');
+    } finally {
+      setIsBatchDeleting(false);
+    }
   };
 
   // ==================== 成就相关功能 ====================
@@ -205,7 +241,6 @@ const Gallery = () => {
     const nextLevel = currentLevel + 1;
 
     if (nextLevel > COMPLETION_ACHIEVEMENTS.length) {
-      // alert('已达到最高等级!');
       toast.success('已达到最高等级!');
       return;
     }
@@ -399,17 +434,15 @@ const Gallery = () => {
               添加图片
             </button>
             <button
-              onClick={() => {
-                // 批量删除实现留空（UI stub）
-                if (selectedSnapshots.size === 0) return;
-                alert(`批量删除 ${selectedSnapshots.size} 张（未实现）`);
-              }}
-              disabled={selectedSnapshots.size === 0}
+              onClick={batchDeleteSelected}
+              disabled={selectedSnapshots.size === 0 || isBatchDeleting}
               className={`rounded px-4 py-2 text-white transition ${
-                selectedSnapshots.size === 0 ? 'bg-gray-300 cursor-not-allowed' : 'bg-red-500 hover:bg-red-600'
+                selectedSnapshots.size === 0 || isBatchDeleting
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-red-500 hover:bg-red-600'
               }`}
             >
-              批量删除{selectedSnapshots.size > 0 ? ` (${selectedSnapshots.size})` : ''}
+              {isBatchDeleting ? '删除中...' : `批量删除${selectedSnapshots.size > 0 ? ` (${selectedSnapshots.size})` : ''}`}
             </button>
             <button
               onClick={() => setShowAddModal(true)}

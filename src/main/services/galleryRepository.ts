@@ -41,11 +41,11 @@ export class GalleryRepository {
     };
   }
 
-  //获取游戏的快照
-  public getGameSnapshot(game_id: number) {
-    return this.db
-      .prepare('SELECT * FROM game_gallery WHERE game_id = ? AND image_type = ?')
-      .all(game_id, 'snapshot');
+  //获取游戏的快照，默认按 created_at 降序（从新到旧）
+  public getGameSnapshot(game_id: number, newestFirst: boolean = true) {
+    const order = newestFirst ? 'DESC' : 'ASC';
+    const sql = `SELECT * FROM game_gallery WHERE game_id = ? AND image_type = ? ORDER BY created_at ${order}`;
+    return this.db.prepare(sql).all(game_id, 'snapshot');
   }
 
   //删除某个游戏的快照

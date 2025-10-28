@@ -30,15 +30,16 @@ export const useGalleryStats = (gameId: number ) => {
 };
 
 //获取图集列表
-export const useGalleryList = (gameId: number) => {
+export const useGalleryList = (gameId: number,newestFirst: boolean=true) => {
   return useQuery({
-    queryKey: queryKeys.galleryList(String(gameId)),
+    queryKey: queryKeys.galleryList(String(gameId),newestFirst),
     queryFn: async () => {
-      return await window.api.getGameSnapshot(gameId);
+      return await window.api.getGameSnapshot(gameId,newestFirst);
     },
     enabled: true,
     staleTime: 0,
     gcTime: 0,
     retry: false,
+    placeholderData: (prevData) => prevData,
   });
 };

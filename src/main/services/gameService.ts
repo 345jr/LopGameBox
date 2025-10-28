@@ -51,8 +51,8 @@ export class GameService {
     return this.galleryRepo.setGameSnapshot(gameId, imagePath, relativePath);
   }
   //获取游戏快照图
-  public getGameSnapshot(gameId: number) {
-    return this.galleryRepo.getGameSnapshot(gameId);
+  public getGameSnapshot(gameId: number,newestFirst: boolean=true) {
+    return this.galleryRepo.getGameSnapshot(gameId,newestFirst);
   }
   //删除游戏快照图
   public delectSnapshot(id: number) {

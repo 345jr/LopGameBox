@@ -499,8 +499,8 @@ app.whenReady().then(() => {
     return gameService.getBanners();
   });
   // 查询Snapshot
-  ipcMain.handle('db:getSnapshot', async (_event, gameId) => {
-    return gameService.getGameSnapshot(gameId);
+  ipcMain.handle('db:getSnapshot', async (_event, gameId, newestFirst) => {
+    return gameService.getGameSnapshot(gameId, newestFirst);
   });
   // 添加Snapshot
   ipcMain.handle('db:addSnapshot', async (_event, { gameId, imagePath, relativePath }) => {

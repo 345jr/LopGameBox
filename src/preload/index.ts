@@ -41,7 +41,9 @@ const api = {
   addBanner: (gameImage: { gameId: number; imagePath: string; relativePath: string }) =>
     ipcRenderer.invoke('db:addBanner', gameImage),
   getBanners: () => ipcRenderer.invoke('db:getBanners'),
-  getGameSnapshot: (gameId: number) => ipcRenderer.invoke('db:getSnapshot', gameId),
+  // getGameSnapshot 支持可选排序参数 newestFirst（默认 true）
+  getGameSnapshot: (gameId: number, newestFirst: boolean = true) =>
+    ipcRenderer.invoke('db:getSnapshot', gameId, newestFirst),
   addGameSnapshot: (gameImage: { gameId: number; imagePath: string; relativePath: string }) =>
     ipcRenderer.invoke('db:addSnapshot', gameImage),
   delectSnapshot: (id: number) => ipcRenderer.invoke('db:delectSnapshot', id),

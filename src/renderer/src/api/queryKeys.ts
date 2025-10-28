@@ -46,5 +46,5 @@ export const queryKeys = {
   // 游戏成就统计
   achievementStats: (gameId: string) => ['achievement-stats', gameId] as const,
   // 图集列表
-  galleryList: (gameId: string) => ['gallery-list', gameId] as const,
+  galleryList: (gameId: string, newestFirst: boolean) => ['gallery-list', gameId, newestFirst] as const,
 };

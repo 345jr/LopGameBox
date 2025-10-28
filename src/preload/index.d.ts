@@ -30,7 +30,7 @@ declare global {
         imagePath: string;
         relativePath: string;
       }) => Promise<GameImage>;
-      getGameSnapshot: (gameId: number) => Promise<Snapshot[]>;
+      getGameSnapshot: (gameId: number, newestFirst?: boolean) => Promise<Snapshot[]>;
       addGameSnapshot: (gameImage: {
         gameId: number;
         imagePath: string;

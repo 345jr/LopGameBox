@@ -1,8 +1,6 @@
-import { Snapshot, GameAchievement } from '@renderer/types/Game';
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaPlus } from 'react-icons/fa6';
+import { FaPlus, FaImage, FaTrash, FaSort } from 'react-icons/fa6';
 import Masonry from 'react-responsive-masonry';
 import Achievements from './Achievements';
 import toast from 'react-hot-toast';
@@ -23,10 +21,11 @@ const Gallery = () => {
   const [isEditingAlt, setIsEditingAlt] = useState(false);
   const [selectedSnapshots, setSelectedSnapshots] = useState<Set<number>>(new Set());
   const [isBatchDeleting, setIsBatchDeleting] = useState(false);
+  const [sortNewestFirst, setSortNewestFirst] = useState(true);
 
   const gameIdNum = parseInt(gameId as string);
   const { data: statsData } = useGalleryStats(gameIdNum);
-  const { data: snapshotList, refetch: refetchSnapshots } = useGalleryList(gameIdNum);
+  const { data: snapshotList, refetch: refetchSnapshots } = useGalleryList(gameIdNum , sortNewestFirst);
 
   
 
@@ -214,26 +213,7 @@ const Gallery = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            {/* 交互按钮区域 */}
-            <button
-              onClick={addSnapshot}
-              className="rounded bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
-            >
-              添加图片
-            </button>
-            <button
-              onClick={batchDeleteSelected}
-              disabled={selectedSnapshots.size === 0 || isBatchDeleting}
-              className={`rounded px-4 py-2 text-white transition ${
-                selectedSnapshots.size === 0 || isBatchDeleting
-                  ? 'cursor-not-allowed bg-gray-300'
-                  : 'bg-red-500 hover:bg-red-600'
-              }`}
-            >
-              {isBatchDeleting
-                ? '删除中...'
-                : `批量删除${selectedSnapshots.size > 0 ? ` (${selectedSnapshots.size})` : ''}`}
-            </button>
+            {/* 保留添加成就按钮在顶部工具区 */}
             <button
               onClick={() => setShowAddModal(true)}
               className="rounded bg-green-500 px-4 py-2 text-white transition hover:bg-green-600"
@@ -241,17 +221,66 @@ const Gallery = () => {
               <FaPlus className="mr-1 inline" />
               添加成就
             </button>
-            <Link to={'/'}>
-              <button className="cursor-pointer rounded bg-gray-500 px-4 py-2 text-white transition hover:bg-gray-600">
-                返回主页
-              </button>
-            </Link>
           </div>
         </div>
       </div>
 
       {/* 第二行左侧：瀑布流图墙 - 占据3列 */}
       <div className="col-span-3">
+        {/* 图集交互区 */}
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-lg font-medium">图集典藏</p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={addSnapshot}
+              className="flex items-center gap-2 rounded  px-3 py-1 text-sm text-black cursor-pointer "
+              aria-label="添加图片"
+              title="添加图片"
+            >
+              <FaImage className="inline text-sm" />
+              <span className="hidden sm:inline">添加</span>
+            </button>
+
+            {/* 排序按钮（样式一致，点击切换文案） */}
+            <button
+              onClick={() => {
+                setSortNewestFirst((v) => !v)
+                // refetchSnapshots()
+                console.log(snapshotList)
+                console.log(sortNewestFirst)
+              }}
+              className="flex items-center gap-2 rounded px-3 py-1 text-sm text-black transition cursor-pointer"
+              aria-label="切换排序"
+              title={sortNewestFirst ? '从新到旧' : '从旧到新'}
+            >
+              <FaSort className="inline text-sm" />
+              <span className="hidden sm:inline">{sortNewestFirst ? '从新到旧' : '从旧到新'}</span>
+            </button>
+
+            <button
+              onClick={batchDeleteSelected}
+              disabled={selectedSnapshots.size === 0 || isBatchDeleting}
+              className={`flex items-center gap-2 rounded px-3 py-1 text-sm text-black transition cursor-pointer ${
+                selectedSnapshots.size === 0 || isBatchDeleting
+                  ? 'cursor-not-allowed '
+                  : ''
+              }`}
+              aria-label="批量删除已选图片"
+              title={
+                selectedSnapshots.size === 0 || isBatchDeleting
+                  ? '无可删除的图片'
+                  : `删除 ${selectedSnapshots.size} 张图片`
+              }
+            >
+              <FaTrash className="inline text-sm" />
+              <span className="hidden sm:inline">
+                {isBatchDeleting
+                  ? '删除中...'
+                  : `删除${selectedSnapshots.size > 0 ? ` (${selectedSnapshots.size})` : ''}`}
+              </span>
+            </button>
+          </div>
+        </div>
         <PhotoProvider overlayRender={({ index }) => <OverlayContent index={index} />}>
           <Masonry columnsCount={2} gutter="15px">
             {snapshotList.map((i) => {
@@ -299,7 +328,7 @@ const Gallery = () => {
         )}
       </div>
       {/* 第二行右侧：成就区域 - 封装为组件 */}
-      <Achievements/>
+      <Achievements />
 
       {/* 添加成就模态框 */}
       {showAddModal && (

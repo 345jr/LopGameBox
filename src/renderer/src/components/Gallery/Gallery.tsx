@@ -50,8 +50,10 @@ const Gallery = () => {
         });
       }
       refetchSnapshots();
+      toast.success('图片添加成功');
     } catch (error) {
-      console.log(error);
+      console.error('添加图片失败', error);
+      toast.error('图片添加失败');
     }
   };
   // 切换选择状态
@@ -136,6 +138,7 @@ const Gallery = () => {
       setShowAltModal(true);
     } catch (error) {
       console.error('获取ALT描述失败:', error);
+
     }
   };
 
@@ -158,9 +161,9 @@ const Gallery = () => {
       await window.api.updateSnapshotAlt(currentSnapshotId, altText.trim());
       closeAltModal();
       refetchSnapshots();
+      toast.success('描述已保存');
     } catch (error) {
-      console.error('保存ALT描述失败:', error);
-      alert('保存失败');
+      toast.error('保存描述失败');
     }
   };
 
@@ -173,9 +176,9 @@ const Gallery = () => {
         await window.api.deleteSnapshotAlt(currentSnapshotId);
         closeAltModal();
         refetchSnapshots;
+        toast.success('描述已删除');
       } catch (error) {
-        console.error('删除ALT描述失败:', error);
-        alert('删除失败');
+        toast.error('删除失败');
       }
     }
   };
@@ -245,7 +248,6 @@ const Gallery = () => {
             <button
               onClick={() => {
                 setSortNewestFirst((v) => !v)
-                // refetchSnapshots()
                 console.log(snapshotList)
                 console.log(sortNewestFirst)
               }}
@@ -446,7 +448,7 @@ const Gallery = () => {
               /* 添加/编辑输入模式 */
               <div className="bg-white p-6 text-black">
                 <h3 className="mb-4 text-lg font-semibold text-black">
-                  {altText ? '编辑描述' : '添加描述'}
+                  编辑描述
                 </h3>
                 <textarea
                   value={altText}

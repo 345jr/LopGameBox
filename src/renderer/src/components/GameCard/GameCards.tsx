@@ -10,7 +10,7 @@ import { RestTimeContent } from '../ModalContent/RestTimeContent';
 import LinksContent from '../ModalContent/LinksContent';
 import FolderManageContent from '../ModalContent/FolderManageContent';
 import { FaArrowUp, FaPersonWalkingArrowRight } from 'react-icons/fa6';
-import { FaGithub, FaList } from "react-icons/fa";
+import { FaGithub, FaList, FaTools } from "react-icons/fa";
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { toast } from 'react-hot-toast';
@@ -210,8 +210,29 @@ const GameCards = () => {
             <button
               onClick={() => window.open('https://github.com/345jr/LopGameBox', '_blank')}
               className="flex cursor-pointer flex-row items-center"
+              title="打开 GitHub 仓库"
             >
               <FaGithub className="text-xl text-gray-700" />
+            </button>
+          </div>
+        </motion.div>
+
+        {/* DevTools 调试按钮 */}
+        <motion.div>
+          <div className="fixed left-4 bottom-20 z-50 rounded-2xl border border-gray-300/50 bg-white px-2 py-2 shadow-md">
+            <button
+              onClick={async () => {
+                try {
+                  await window.api.openDevTools();
+                  toast.success('DevTools 打开成功');
+                } catch (err) {
+                  toast.error('DevTools 打开失败');
+                }
+              }}
+              className="flex cursor-pointer flex-row items-center"
+              title="打开开发者工具"
+            >
+              <FaTools className="text-lg text-gray-700" />
             </button>
           </div>
         </motion.div>

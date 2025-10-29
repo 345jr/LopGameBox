@@ -246,11 +246,7 @@ const Gallery = () => {
 
             {/* 排序按钮（样式一致，点击切换文案） */}
             <button
-              onClick={() => {
-                setSortNewestFirst((v) => !v)
-                console.log(snapshotList)
-                console.log(sortNewestFirst)
-              }}
+              onClick={() => {setSortNewestFirst((v) => !v)}}
               className="flex items-center gap-2 rounded px-3 py-1 text-sm text-black transition cursor-pointer"
               aria-label="切换排序"
               title={sortNewestFirst ? '从新到旧' : '从旧到新'}

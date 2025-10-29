@@ -236,6 +236,10 @@ const api = {
   offScreenshotError: () => {
     ipcRenderer.removeAllListeners('screenshot:error');
   },
+  //开发者
+  openDevTools: () => {
+    ipcRenderer.invoke('window:openDevTools');
+  }
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -125,7 +125,7 @@ declare global {
         versionId: number,
         newDescription: string,
       ) => Promise<{ success: boolean; message: string }>;
-      
+
       // ==================== 成就相关接口 ====================
       // 创建成就
       createAchievement: (
@@ -157,31 +157,31 @@ declare global {
         completed: number;
         completionRate: number;
       }>;
-      
+
       // ==================== 外链管理接口 ====================
       // 添加游戏外链
       addGameLink: (gameId: number, metadata: {
-        url: string;
-        title: string;
-        description: string;
-        favicon: string;
+          url: string;
+          title: string;
+          description: string;
+          favicon: string;
       }) => Promise<any>;
       // 获取游戏外链列表
       getGameLinks: (gameId: number) => Promise<Array<{
-        id: number;
-        game_id: number;
-        url: string;
-        title: string;
-        description: string;
-        icon: string;
-        created_at: number;
-        updated_at: number;
+          id: number;
+          game_id: number;
+          url: string;
+          title: string;
+          description: string;
+          icon: string;
+          created_at: number;
+          updated_at: number;
       }>>;
       // 删除游戏外链
       deleteGameLink: (linkId: number) => Promise<any>;
       // 更新游戏外链
       updateGameLink: (linkId: number, title: string, url: string) => Promise<any>;
-      
+
       // ==================== 存档管理接口 ====================
       // 设置游戏主存档路径
       setGameSavePath: (gameId: number, savePath: string, fileSize?: number) => Promise<{
@@ -205,11 +205,11 @@ declare global {
       updateSavePathSize: (gameId: number, fileSize: number) => Promise<{ success: boolean; message: string }>;
       // 删除游戏主存档路径
       deleteGameSavePath: (gameId: number) => Promise<{ success: boolean; message: string }>;
-      
+
       // ==================== 存档备份接口 ====================
       // 创建存档备份
-      createSaveBackup: (gameId: number) => Promise<{ 
-        success: boolean; 
+      createSaveBackup: (gameId: number) => Promise<{
+        success: boolean;
         message: string;
         backupId?: number;
         backupName?: string;
@@ -217,12 +217,12 @@ declare global {
       }>;
       // 获取存档备份列表
       getSaveBackups: (gameId: number) => Promise<Array<{
-        id: number;
-        game_id: number;
-        backup_name: string;
-        backup_path: string;
-        file_size: number;
-        created_at: number;
+          id: number;
+          game_id: number;
+          backup_name: string;
+          backup_path: string;
+          file_size: number;
+          created_at: number;
       }>>;
       // 恢复存档备份
       restoreSaveBackup: (backupId: number, gameId: number) => Promise<{ success: boolean; message: string }>;
@@ -254,6 +254,8 @@ declare global {
       offScreenshotSuccess: () => void;
       // 移除截图失败监听
       offScreenshotError: () => void;
+      //开发者
+      openDevTools: () => Promise<void>;
     };
   }
 }

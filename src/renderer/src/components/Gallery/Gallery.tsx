@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { FaPlus, FaImage, FaTrash, FaSort } from 'react-icons/fa6';
 import Masonry from 'react-responsive-masonry';
 import Achievements from './Achievements';
+import AltModal from './AltModal';
 import toast from 'react-hot-toast';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { useGalleryList, useGalleryStats } from '@renderer/api/queries/queries.gallery';
@@ -305,6 +306,7 @@ const Gallery = () => {
                   </button>
 
                   <PhotoView key={i.id} src={`lop://` + i.relative_path.replace(/\\/g, '/')}>
+                  {/* 通过自定义协议来确定位置 */}
                     <img
                       src={`lop://` + i.relative_path.replace(/\\/g, '/')}
                       alt=""
@@ -393,91 +395,16 @@ const Gallery = () => {
       )}
 
       {/* ALT描述模态框 */}
-      {showAltModal && (
-        <div
-          className="fixed inset-0 z-5000 flex items-center justify-center bg-black/50"
-          onClick={closeAltModal}
-        >
-          <div
-            className="w-full max-w-lg rounded-lg bg-white text-black shadow-2xl ring-1 ring-black/10"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {isEditingAlt ? (
-              /* 编辑模式 - 白底黑字 */
-              <div className="relative">
-                {/* 描述文本区域 - 白底黑字，左侧细边 */}
-                <div className="border-l-4 border-black/20 bg-white px-8 py-12">
-                  <p className="text-center font-serif text-lg leading-relaxed text-black italic">
-                    "{altText}"
-                  </p>
-                </div>
-
-                {/* 底部操作区域 - 简洁黑白按钮 */}
-                <div className="flex items-center justify-between border-t border-gray-200 bg-white px-6 py-3">
-                  <button
-                    onClick={() => {
-                      setIsEditingAlt(false);
-                    }}
-                    className="cursor-pointer text-sm text-gray-600 transition hover:text-black hover:underline"
-                  >
-                    编辑内容
-                  </button>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={handleDeleteAlt}
-                      className="cursor-pointer rounded bg-transparent px-2 py-1 text-sm text-gray-600 transition hover:text-red-600"
-                      title="删除描述"
-                    >
-                      删除
-                    </button>
-                    <button
-                      onClick={closeAltModal}
-                      className="cursor-pointer rounded border border-gray-200 px-2 py-1 text-sm text-gray-700 transition hover:bg-gray-50"
-                      title="关闭"
-                    >
-                      关闭
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              /* 添加/编辑输入模式 */
-              <div className="bg-white p-6 text-black">
-                <h3 className="mb-4 text-lg font-semibold text-black">
-                  编辑描述
-                </h3>
-                <textarea
-                  value={altText}
-                  onChange={(e) => setAltText(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 font-serif text-black focus:border-black/50 focus:ring-2 focus:ring-black/10 focus:outline-none"
-                  rows={4}
-                  placeholder="在此输入图片描述..."
-                  autoFocus
-                />
-                <div className="mt-4 flex justify-end gap-2">
-                  <button
-                    onClick={closeAltModal}
-                    className="cursor-pointer rounded border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50"
-                  >
-                    取消
-                  </button>
-                  <button
-                    onClick={async () => {
-                      await handleSaveAlt();
-                      if (altText.trim()) {
-                        setIsEditingAlt(true);
-                      }
-                    }}
-                    className="cursor-pointer rounded bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-900"
-                  >
-                    保存
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <AltModal
+        show={showAltModal}
+        altText={altText}
+        setAltText={setAltText}
+        isEditing={isEditingAlt}
+        onClose={closeAltModal}
+        onSave={handleSaveAlt}
+        onDelete={handleDeleteAlt}
+        onToggleEdit={() => setIsEditingAlt(false)}
+      />
     </div>
   );
 };

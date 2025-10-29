@@ -1,11 +1,11 @@
 import { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { VscPassFilled, VscFiles, VscArrowRight, VscClose } from 'react-icons/vsc';
 import { motion } from 'motion/react';
 
 import { Game, GameVersion } from '@renderer/types/Game';
 import gameSizeFormat from '@renderer/util/gameSizeFormat';
 import useInfoStore from '@renderer/store/infoStore';
-import { Button, Modal } from 'antd';
 import { TbSwords } from "react-icons/tb";
 import { FaBookBookmark } from "react-icons/fa6";
 import toast from 'react-hot-toast';
@@ -349,12 +349,18 @@ export default function ModalContent({
           <div>
             <p className="py-2 text-center text-lg">更新版本记录</p>
             <div className="flex flex-row justify-center gap-4">
-              <Button color="primary" variant="filled" onClick={() => openUpdateModal('major')}>
+              <button 
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                onClick={() => openUpdateModal('major')}
+              >
                 大更新
-              </Button>
-              <Button color="primary" variant="filled" onClick={() => openUpdateModal('minor')}>
+              </button>
+              <button 
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                onClick={() => openUpdateModal('minor')}
+              >
                 小更新
-              </Button>
+              </button>
             </div>
             <div className="mt-4">
               <p className="mb-2 text-lg text-center">版本列表</p>
@@ -381,122 +387,173 @@ export default function ModalContent({
         </div>
 
         {/* 版本详情模态框 */}
-        <Modal
-          title={`版本详情`}
-          open={isVersionModalOpen}
-          onCancel={handleVersionModalClose}
-          footer={[
-            isEditingDescription ? (
-              <>
-                <Button key="cancel-edit" onClick={handleCancelEditDescription}>
-                  取消编辑
-                </Button>
-                <Button key="save" type="primary" onClick={handleSaveDescription}>
-                  保存
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button key="edit" type="default" onClick={handleStartEditDescription}>
-                  编辑描述
-                </Button>
-                <Button key="close" onClick={handleVersionModalClose}>
-                  关闭
-                </Button>
-              </>
-            ),
-          ]}
-          width={600}
-        >
-          {selectedVersion && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <p className="font-semibold text-gray-700">版本号</p>
-                  <p className="text-gray-900">{selectedVersion.version}</p>
+        {isVersionModalOpen && selectedVersion && createPortal(
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-800/30"
+            onClick={handleVersionModalClose}
+          >
+            <div
+              className="relative mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">版本详情</h2>
+                <button
+                  onClick={handleVersionModalClose}
+                  className="text-gray-500 hover:text-red-500 transition-colors"
+                >
+                  <VscClose className="text-2xl" />
+                </button>
+              </div>
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <p className="font-semibold text-gray-700">版本号</p>
+                    <p className="text-gray-900">{selectedVersion.version}</p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-700">发布日期</p>
+                    <p className="text-gray-900">
+                      {new Date(selectedVersion.release_date).toLocaleString('zh-CN')}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-700">创建时间</p>
+                    <p className="text-gray-900">
+                      {new Date(selectedVersion.created_at).toLocaleString('zh-CN')}
+                    </p>
+                  </div>
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-700">发布日期</p>
-                  <p className="text-gray-900">
-                    {new Date(selectedVersion.release_date).toLocaleString('zh-CN')}
-                  </p>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-700">创建时间</p>
-                  <p className="text-gray-900">
-                    {new Date(selectedVersion.created_at).toLocaleString('zh-CN')}
-                  </p>
+                  <p className="font-semibold text-gray-700">版本描述</p>
+                  {isEditingDescription ? (
+                    <textarea
+                      value={editedDescription}
+                      onChange={(e) => setEditedDescription(e.target.value)}
+                      className="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      rows={4}
+                      placeholder="请输入版本描述..."
+                    />
+                  ) : (
+                    <p className="text-gray-900">{selectedVersion.description}</p>
+                  )}
                 </div>
               </div>
-              <div>
-                <p className="font-semibold text-gray-700">版本描述</p>
+              <div className="mt-6 flex justify-end gap-2">
                 {isEditingDescription ? (
+                  <>
+                    <button
+                      onClick={handleCancelEditDescription}
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
+                    >
+                      取消编辑
+                    </button>
+                    <button
+                      onClick={handleSaveDescription}
+                      className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    >
+                      保存
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleStartEditDescription}
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
+                    >
+                      编辑描述
+                    </button>
+                    <button
+                      onClick={handleVersionModalClose}
+                      className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+                    >
+                      关闭
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+        {/* 提交更新的模态框 */}
+        {isUpdateModalOpen && createPortal(
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-800/30"
+            onClick={() => setIsUpdateModalOpen(false)}
+          >
+            <div
+              className="relative mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {updateType === 'major' ? '创建大更新' : '创建小更新'}
+                </h2>
+                <button
+                  onClick={() => setIsUpdateModalOpen(false)}
+                  className="text-gray-500 hover:text-red-500 transition-colors"
+                >
+                  <VscClose className="text-2xl" />
+                </button>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <p className="font-medium">新游戏路径：</p>
+                  <p className="text-sm text-gray-600 break-all">{newGamePath || '未选择'}</p>
+                </div>
+                <div>
+                  <p className="font-medium">重新计算游戏大小（可选）：</p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleRecalculateSizeInModal}
+                      className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                    >
+                      {size > 0 ? '重新计算' : '计算游戏大小'}
+                    </button>
+                    {size > 0 && (
+                      <span className="text-sm text-gray-600">
+                        当前大小: {gameSizeFormat(size)}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    提示：如果不计算游戏大小，版本记录将不包含文件大小信息
+                  </p>
+                </div>
+                <div>
+                  <p className="font-medium">更新概述（必填）</p>
                   <textarea
-                    value={editedDescription}
-                    onChange={(e) => setEditedDescription(e.target.value)}
+                    value={updateSummary}
+                    onChange={(e) => setUpdateSummary(e.target.value)}
                     className="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     rows={4}
-                    placeholder="请输入版本描述..."
+                    placeholder="请描述本次更新的内容..."
                   />
-                ) : (
-                  <p className="text-gray-900">{selectedVersion.description}</p>
-                )}
+                </div>
+              </div>
+              <div className="mt-6 flex justify-end gap-2">
+                <button
+                  onClick={() => setIsUpdateModalOpen(false)}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleConfirmUpdate}
+                  disabled={isUpdating}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 transition-colors flex items-center gap-2"
+                >
+                  {isUpdating && (
+                    <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  )}
+                  确定
+                </button>
               </div>
             </div>
-          )}
-        </Modal>
-        {/* 提交更新的模态框 */}
-        <Modal
-          title={updateType === 'major' ? '创建大更新' : '创建小更新'}
-          open={isUpdateModalOpen}
-          onCancel={() => setIsUpdateModalOpen(false)}
-          footer={[
-            <Button key="cancel" onClick={() => setIsUpdateModalOpen(false)}>
-              取消
-            </Button>,
-            <Button
-              key="submit"
-              type="primary"
-              loading={isUpdating}
-              onClick={handleConfirmUpdate}
-            >
-              确定
-            </Button>
-          ]}
-        >
-          <div className="space-y-4">
-            <div>
-              <p className="font-medium">新游戏路径：</p>
-              <p className="text-sm text-gray-600 break-all">{newGamePath || '未选择'}</p>
-            </div>
-            <div>
-              <p className="font-medium">重新计算游戏大小（可选）：</p>
-              <div className="flex items-center gap-2">
-                <Button onClick={handleRecalculateSizeInModal}>
-                  {size > 0 ? '重新计算' : '计算游戏大小'}
-                </Button>
-                {size > 0 && (
-                  <span className="text-sm text-gray-600">
-                    当前大小: {gameSizeFormat(size)}
-                  </span>
-                )}
-              </div>
-              <p className="mt-1 text-xs text-gray-500">
-                提示：如果不计算游戏大小，版本记录将不包含文件大小信息
-              </p>
-            </div>
-            <div>
-              <p className="font-medium">更新概述（必填）</p>
-              <textarea
-                value={updateSummary}
-                onChange={(e) => setUpdateSummary(e.target.value)}
-                className="w-full rounded border p-2"
-                rows={4}
-                placeholder="请描述本次更新的内容..."
-              />
-            </div>
-          </div>
-        </Modal>
+          </div>,
+          document.body
+        )}
         <div className="absolute top-4 right-4">
           <button
             onClick={onClose}

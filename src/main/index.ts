@@ -164,15 +164,13 @@ protocol.registerSchemesAsPrivileged([
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron');
-  //使用自定义协议
+  // 使用自定义协议：仅从 userData 提供资源（用户上传/运行时生成的文件）
   protocol.handle('lop', (request) => {
     let filePath = request.url.slice('lop://'.length);
     filePath = decodeURIComponent(filePath);
-    // console.log(filePath)
-    const projectRoot = path.resolve(__dirname, '../../public');
-    const absPath = path.join(projectRoot, filePath);
-    const cleanPath = absPath.replace(/[\\/]+$/, '');
-    return net.fetch(url.pathToFileURL(path.join(cleanPath)).toString());
+    const userDataPath = path.join(app.getPath('userData'), filePath);
+    const clean = userDataPath.replace(/[\\/]+$/, '');
+    return net.fetch(url.pathToFileURL(path.join(clean)).toString());
   });
 
   // Default open or close DevTools by F12 in development
@@ -465,24 +463,38 @@ app.whenReady().then(() => {
   ipcMain.handle('op:copyImages', async (_event, { origin, target, gameName, oldFilePath }) => {
     try {
       const time = Date.now();
-      //构建游戏名
-      const gameNameExtension = `${gameName}-${time}.jpg`.replace(/\s/g, '');
-      const imageName = path.join(
-        app.isPackaged
-          ? path.join(path.dirname(app.getPath('exe')), target) // 生产环境
-          : path.join(process.cwd(), 'public', target), // 开发环境
-        gameNameExtension,
-      );
+      // 保留原始扩展名（如果没有扩展名则默认 .jpg）
+      const ext = path.extname(origin) || '.jpg';
+      // 构建文件名并去掉空白
+      const gameNameExtension = `${gameName}-${time}${ext}`.replace(/\s/g, '');
+      // 始终使用 userData 存储用户可写资源，避免写入安装目录或打包资源
+      const targetDir = path.join(app.getPath('userData'), target);
+
+      // 确保目标文件夹存在
+      await fs.mkdir(targetDir, { recursive: true });
+
+      const imageName = path.join(targetDir, gameNameExtension);
       const filePath = getDelectPath(oldFilePath) as string;
-      //如果有旧的封面图 ，先删除旧的封面图
-      if (filePath !== 'skip') await fs.unlink(filePath);
-      //复制文件到相对路径文件夹
+      // 如果有旧的封面图，容错删除旧文件（先检查并忽略 ENOENT）
+      if (filePath !== 'skip') {
+        try {
+          await fs.unlink(filePath);
+        } catch (err: any) {
+          if (err?.code && err.code !== 'ENOENT') {
+            console.warn(`删除旧封面时发生非致命错误: ${err.message}`);
+          }
+        }
+      }
+      // 复制文件到目标文件夹（不做格式转换，保留原扩展名）
       await fs.copyFile(origin, imageName);
       console.log(`File Copy Success`);
-      return { relativePath: path.join(target, gameNameExtension) };
-    } catch (error) {
+      // 返回 web-friendly 的相对路径（使用 forward slash）
+      const relativePath = path.posix.join(target.replace(/\\+/g, '/'), gameNameExtension);
+      return { relativePath };
+    } catch (error: any) {
       console.log(`复制错误:${error}`);
-      return { relativePath: path.join(target, 'default.jpg') };
+      const defaultRel = path.posix.join(target.replace(/\\+/g, '/'), 'default.jpg');
+      return { relativePath: defaultRel };
     }
   });
   //添加Banner
@@ -660,6 +672,16 @@ app.whenReady().then(() => {
       mainWindow?.unmaximize();
     } else {
       mainWindow?.maximize();
+    }
+  });
+  // 打开开发者工具（供调试使用，生产环境也可以触发）
+  ipcMain.handle('window:openDevTools', () => {
+    try {
+      mainWindow?.webContents.openDevTools({ mode: 'detach' });
+      return { success: true };
+    } catch (err: any) {
+      console.error('打开 DevTools 失败:', err);
+      return { success: false, error: err?.message ?? String(err) };
     }
   });
   ipcMain.handle('window:close', () => {

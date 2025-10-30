@@ -1,22 +1,15 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaPlus, FaImage, FaTrash, FaSort } from 'react-icons/fa6';
+import { FaImage, FaTrash, FaSort } from 'react-icons/fa6';
 import Masonry from 'react-responsive-masonry';
 import Achievements from './Achievements';
 import AltModal from './AltModal';
-import AddAchievementModal from './AddAchievementModal';
 import toast from 'react-hot-toast';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { useGalleryList, useGalleryStats } from '@renderer/api/queries/queries.gallery';
 
 const Gallery = () => {
   const { gameId } = useParams();
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newAchievement, setNewAchievement] = useState({
-    name: '',
-    type: '自定义成就',
-    description: '',
-  });
   const [showAltModal, setShowAltModal] = useState(false);
   const [currentSnapshotId, setCurrentSnapshotId] = useState<number | null>(null);
   const [altText, setAltText] = useState('');
@@ -100,29 +93,6 @@ const Gallery = () => {
       setIsBatchDeleting(false);
     }
   };
-  //添加自定义成就
-  const handleAddAchievement = async () => {
-    if (!gameId || !newAchievement.name.trim()) {
-      alert('请输入成就名称');
-      return;
-    }
-
-    try {
-      await window.api.createAchievement(
-        parseInt(gameId),
-        newAchievement.name,
-        newAchievement.type,
-        newAchievement.description,
-      );
-
-      setNewAchievement({ name: '', type: '自定义成就', description: '' });
-      setShowAddModal(false);
-      // fetchAchievements();
-    } catch (error) {
-      console.error('添加成就失败:', error);
-    }
-  };
-
   // ==================== ALT描述相关功能 ====================
 
   //打开ALT模态框
@@ -216,16 +186,6 @@ const Gallery = () => {
               </span>
               <span>完成率: {statsData?.completionRate.toFixed(1)}%</span>
             </div>
-          </div>
-          <div className="flex gap-2">
-            {/* 保留添加成就按钮在顶部工具区 */}
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="rounded bg-green-500 px-4 py-2 text-white transition hover:bg-green-600"
-            >
-              <FaPlus className="mr-1 inline" />
-              添加成就
-            </button>
           </div>
         </div>
       </div>
@@ -330,18 +290,6 @@ const Gallery = () => {
       </div>
       {/* 第二行右侧：成就区域 - 封装为组件 */}
       <Achievements />
-
-      {/* 添加成就模态框（封装组件） */}
-      <AddAchievementModal
-        show={showAddModal}
-        newAchievement={newAchievement}
-        setNewAchievement={setNewAchievement}
-        onAdd={handleAddAchievement}
-        onClose={() => {
-          setShowAddModal(false);
-          setNewAchievement({ name: '', type: '自定义成就', description: '' });
-        }}
-      />
 
       {/* ALT描述模态框 */}
       <AltModal

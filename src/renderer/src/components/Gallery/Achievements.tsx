@@ -27,7 +27,7 @@ const COMPLETION_ACHIEVEMENTS = [
 const Achievements: React.FC = () => {
   const { gameId } = useParams();
   const gameIdNum = parseInt(gameId as string);
-  const { data: achievementsData, isPending } = useAchievementList(gameIdNum);
+  const { data: achievementsData, isPending , refetch: refetchAchievements } = useAchievementList(gameIdNum);
   const [showAddModal, setShowAddModal] = React.useState(false);
   const [newAchievement, setNewAchievement] = React.useState({
     name: '',
@@ -55,13 +55,14 @@ const Achievements: React.FC = () => {
     if (!gameId) return;
 
     const currentLevel = getCurrentTimeLevel();
-    const nextLevel = currentLevel + 1;
-
-    if (nextLevel > TIME_ACHIEVEMENTS.length) {
-      alert('已达到最高等级!');
+    
+    // 如果已经到达最高等级，直接返回
+    if (currentLevel >= TIME_ACHIEVEMENTS.length) {
+      toast.success('已达到最高等级!');
       return;
     }
 
+    const nextLevel = currentLevel + 1;
     const nextAchievement = TIME_ACHIEVEMENTS[nextLevel - 1];
 
     try {
@@ -95,8 +96,11 @@ const Achievements: React.FC = () => {
       if (newTimeAchievement) {
         await window.api.toggleAchievementStatus(newTimeAchievement.id, 1);
       }
+      toast.success('时长成就已完成');
+      await refetchAchievements();
     } catch (error) {
       console.error('升级时长成就失败:', error);
+      toast.error('操作失败');
     }
   };
 
@@ -109,7 +113,7 @@ const Achievements: React.FC = () => {
     const match = desc.match(/(\d+)%/);
     if (match) {
       const percent = parseInt(match[1]);
-      const level = COMPLETION_ACHIEVEMENTS.find((c) => c.percent === percent);
+      const level = COMPLETION_ACHIEVEMENTS.find((c) => c.percent === percent);      
       return level?.level || 0;
     }
     return 0;
@@ -120,13 +124,14 @@ const Achievements: React.FC = () => {
     if (!gameId) return;
 
     const currentLevel = getCurrentCompletionLevel();
-    const nextLevel = currentLevel + 1;
-
-    if (nextLevel > COMPLETION_ACHIEVEMENTS.length) {
+    
+    // 如果已经到达最高等级，直接返回
+    if (currentLevel >= COMPLETION_ACHIEVEMENTS.length) {
       toast.success('已达到最高等级!');
       return;
     }
 
+    const nextLevel = currentLevel + 1;
     const nextAchievement = COMPLETION_ACHIEVEMENTS[nextLevel - 1];
 
     try {
@@ -162,8 +167,11 @@ const Achievements: React.FC = () => {
       if (newCompletionAchievement) {
         await window.api.toggleAchievementStatus(newCompletionAchievement.id, 1);
       }
+      toast.success('完成度成就已完成');
+      await refetchAchievements();
     } catch (error) {
       console.error('升级完成度成就失败:', error);
+      toast.error('操作失败');
     }
   };
 
@@ -186,8 +194,12 @@ const Achievements: React.FC = () => {
 
       setNewAchievement({ name: '', type: '自定义成就', description: '' });
       setShowAddModal(false);
+      toast.success('成就添加成功');
+      // 刷新成就列表
+      await refetchAchievements();
     } catch (error) {
       console.error('添加成就失败:', error);
+      toast.error('添加成就失败');
     }
   };
 
@@ -196,8 +208,11 @@ const Achievements: React.FC = () => {
     if (confirm('确定要删除这个成就吗?')) {
       try {
         await window.api.deleteAchievement(achievementId);
+        toast.success('成就已删除');
+        await refetchAchievements();
       } catch (error) {
         console.error('删除成就失败:', error);
+        toast.error('删除成就失败');
       }
     }
   };
@@ -207,8 +222,11 @@ const Achievements: React.FC = () => {
     try {
       const newStatus = achievement.is_completed === 0 ? 1 : 0;
       await window.api.toggleAchievementStatus(achievement.id, newStatus);
+      toast.success(newStatus === 1 ? '已标记完成' : '已取消完成');
+      await refetchAchievements();
     } catch (error) {
       console.error('切换成就状态失败:', error);
+      toast.error('操作失败');
     }
   };
 
@@ -274,17 +292,18 @@ const Achievements: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600">完成度成就</span>
             <span className="font-semibold text-black">
-              {COMPLETION_ACHIEVEMENTS[getCurrentCompletionLevel()]?.name ||
-                COMPLETION_ACHIEVEMENTS[0].name}
+              {/* 成就名 */}
+              {COMPLETION_ACHIEVEMENTS[getCurrentCompletionLevel()-1]?.name}
             </span>
           </div>
           <span className="text-xs text-gray-500">
-            Lv.{getCurrentCompletionLevel() + 1}/{COMPLETION_ACHIEVEMENTS.length}
+            {/* 成就等级 */}
+            Lv.{getCurrentCompletionLevel()}/{COMPLETION_ACHIEVEMENTS.length}
           </span>
         </div>
         <p className="mb-2 text-sm text-gray-700">
-          {COMPLETION_ACHIEVEMENTS[getCurrentCompletionLevel()]?.description ||
-            COMPLETION_ACHIEVEMENTS[0].description}
+          {/* 成就描述 */}
+          {COMPLETION_ACHIEVEMENTS[getCurrentCompletionLevel()-1]?.description}
         </p>
         <div className="flex items-center justify-between">
           {getCurrentCompletionLevel() < COMPLETION_ACHIEVEMENTS.length ? (

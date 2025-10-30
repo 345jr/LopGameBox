@@ -21,3 +21,5 @@ saveBackups/*
 todo.md
 # 文档
 docs/*
+# 脚本
+scripts/*

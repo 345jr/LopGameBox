@@ -43,3 +43,18 @@ export const useGalleryList = (gameId: number,newestFirst: boolean=true) => {
     placeholderData: (prevData) => prevData,
   });
 };
+//获取某个游戏的时长
+export const useGamePlaytime = (gameId: number) => {
+  return useQuery({
+    queryKey: queryKeys.getGamePlaytime(String(gameId)),
+    queryFn: async () => {
+      const res = await window.api.getGameById(gameId);
+      const gameTime = res.total_play_time || 0;
+      return gameTime;
+    },
+    enabled: !!gameId ,
+    staleTime: 0,
+    gcTime : 0,
+    retry: false,
+  });
+}

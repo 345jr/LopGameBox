@@ -1,20 +1,18 @@
 import React from 'react';
 import { FaCheck, FaRegCircleXmark, FaPlus } from 'react-icons/fa6';
 import {formatTimeCalender} from '../../util/timeFormat';
-import { useAchievementList } from '@renderer/api/queries/queries.gallery';
+import { useAchievementList, useGamePlaytime } from '@renderer/api/queries/queries.gallery';
 import { useParams } from 'react-router-dom';
-
 import { GameAchievement } from '@renderer/types/Game';
 import toast from 'react-hot-toast';
 
 // 时长成就等级配置
 const TIME_ACHIEVEMENTS = [
-  { level: 1, hours: 2, name: '初入游戏', description: '游玩时长达到2小时' },
-  { level: 2, hours: 5, name: '渐入佳境', description: '游玩时长达到5小时' },
+  { level: 1, hours: 2, name: '初次体验', description: '游玩时长达到2小时' },
+  { level: 2, hours: 5, name: '', description: '游玩时长达到5小时' },
   { level: 3, hours: 10, name: '深度体验', description: '游玩时长达到10小时' },
   { level: 4, hours: 20, name: '资深玩家', description: '游玩时长达到20小时' },
 ];
-
 // 完成度成就等级配置
 const COMPLETION_ACHIEVEMENTS = [
   { level: 1, percent: 20, name: '略有小成', description: '游戏完成度达到20%' },
@@ -28,6 +26,7 @@ const Achievements: React.FC = () => {
   const { gameId } = useParams();
   const gameIdNum = parseInt(gameId as string);
   const { data: achievementsData, isPending , refetch: refetchAchievements } = useAchievementList(gameIdNum);
+  const { data:gameTime } = useGamePlaytime(gameIdNum);
   const [showAddModal, setShowAddModal] = React.useState(false);
   const [newAchievement, setNewAchievement] = React.useState({
     name: '',
@@ -35,8 +34,8 @@ const Achievements: React.FC = () => {
     description: '',
   });
 
-  //获取当前时长成就等级
-  const getCurrentTimeLevel = () => {
+  // 获取已存储（数据库中的）时长成就等级（0 表示未获得）
+  const getStoredTimeLevel = () => {
     const timeAchievement = achievementsData?.find((a) => a.achievement_type === '时长成就');
     if (!timeAchievement) return 0;
 
@@ -50,59 +49,39 @@ const Achievements: React.FC = () => {
     return 0;
   };
 
-  //升级时长成就
-  const upgradeTimeAchievement = async () => {
-    if (!gameId) return;
+  // 根据游玩时长自动同步“时长成就”，仅在需要升级时执行
+  React.useEffect(() => {
+    if (!gameIdNum || gameTime == null || !achievementsData) return;
 
-    const currentLevel = getCurrentTimeLevel();
-    
-    // 如果已经到达最高等级，直接返回
-    if (currentLevel >= TIME_ACHIEVEMENTS.length) {
-      toast.success('已达到最高等级!');
-      return;
-    }
+    const gameTimeHours = gameTime / 3600;
+    // achievedLevel: 已达成的等级数量（0..N）
+    const idx = TIME_ACHIEVEMENTS.findIndex((a) => gameTimeHours < a.hours);
+    const achievedLevel = idx === -1 ? TIME_ACHIEVEMENTS.length : idx; // 1-based 等级数量
 
-    const nextLevel = currentLevel + 1;
-    const nextAchievement = TIME_ACHIEVEMENTS[nextLevel - 1];
+    const storedLevel = getStoredTimeLevel();
 
-    try {
-      // 如果是第一次,创建新成就
-      if (currentLevel === 0) {
+    if (achievedLevel > 0 && storedLevel < achievedLevel) {
+      (async () => {
+        const achievement = TIME_ACHIEVEMENTS[achievedLevel - 1];
+        const timeAch = achievementsData.find((a) => a.achievement_type === '时长成就');
+
+        // 简单策略：删除旧记录，创建新等级记录，并标记完成
+        if (timeAch) await window.api.deleteAchievement(timeAch.id);
+
         await window.api.createAchievement(
-          parseInt(gameId),
-          nextAchievement.name,
+          gameIdNum,
+          achievement.name,
           '时长成就',
-          nextAchievement.description,
+          achievement.description,
         );
-      } else {
-        // 否则更新现有成就
-        const timeAchievement = achievementsData?.find((a) => a.achievement_type === '时长成就');
-        if (timeAchievement) {
-          // 删除旧的
-          await window.api.deleteAchievement(timeAchievement.id);
-          // 创建新的
-          await window.api.createAchievement(
-            parseInt(gameId),
-            nextAchievement.name,
-            '时长成就',
-            nextAchievement.description,
-          );
-        }
-      }
+        const newList = await window.api.getGameAchievements(gameIdNum);
+        const newAch = newList.find((a) => a.achievement_type === '时长成就');
+        if (newAch) await window.api.toggleAchievementStatus(newAch.id, 1);
 
-      // 标记为完成
-      const newList = await window.api.getGameAchievements(parseInt(gameId));
-      const newTimeAchievement = newList.find((a) => a.achievement_type === '时长成就');
-      if (newTimeAchievement) {
-        await window.api.toggleAchievementStatus(newTimeAchievement.id, 1);
-      }
-      toast.success('时长成就已完成');
-      await refetchAchievements();
-    } catch (error) {
-      console.error('升级时长成就失败:', error);
-      toast.error('操作失败');
+        await refetchAchievements();
+      })();
     }
-  };
+  }, [gameIdNum, gameTime, achievementsData, refetchAchievements]);
 
   //获取当前完成度成就等级
   const getCurrentCompletionLevel = () => {
@@ -233,6 +212,24 @@ const Achievements: React.FC = () => {
   if (isPending) return <div>加载中...</div>;
   if (!achievementsData) return <div>暂无数据</div>;
 
+  // 渲染前的派生数据
+  const storedTimeLevel = getStoredTimeLevel(); // 0..N（与 TIME_ACHIEVEMENTS 的 level 对齐）
+  const playHours = Math.floor((gameTime || 0) / 3600);
+  const nextTimeIdx = TIME_ACHIEVEMENTS.findIndex((a) => playHours < a.hours); // -1 表示已满级
+
+  const completionLevel = (() => {
+    const completionAchievement = achievementsData?.find((a) => a.achievement_type === '完成度成就');
+    if (!completionAchievement) return 0;
+    const desc = completionAchievement.description || '';
+    const match = desc.match(/(\d+)%/);
+    if (match) {
+      const percent = parseInt(match[1]);
+      const level = COMPLETION_ACHIEVEMENTS.find((c) => c.percent === percent);
+      return level?.level || 0;
+    }
+    return 0;
+  })();
+
   return (
     <div className="col-span-2 rounded-lg bg-white">
       <div className="mb-4 flex items-center justify-end">
@@ -249,32 +246,24 @@ const Achievements: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600">时长成就</span>
             <span className="font-semibold text-black">
-              {TIME_ACHIEVEMENTS[getCurrentTimeLevel()]?.name || TIME_ACHIEVEMENTS[0].name}
+              {TIME_ACHIEVEMENTS[Math.max(storedTimeLevel, 1) - 1]?.name || TIME_ACHIEVEMENTS[0].name}
             </span>
           </div>
-          <span className="text-xs text-gray-500">
-            Lv.{getCurrentTimeLevel() + 1}/{TIME_ACHIEVEMENTS.length}
-          </span>
+          <span className="text-xs text-gray-500">Lv.{storedTimeLevel}/{TIME_ACHIEVEMENTS.length}</span>
         </div>
         <p className="mb-2 text-sm text-gray-700">
-          {TIME_ACHIEVEMENTS[getCurrentTimeLevel()]?.description ||
-            TIME_ACHIEVEMENTS[0].description}
+          {TIME_ACHIEVEMENTS[Math.max(storedTimeLevel, 1) - 1]?.description || TIME_ACHIEVEMENTS[0].description}
         </p>
         <div className="flex items-center justify-between">
-          {getCurrentTimeLevel() < TIME_ACHIEVEMENTS.length ? (
-            <button
-              onClick={upgradeTimeAchievement}
-              className="rounded bg-gray-800 px-3 py-1 text-sm text-white transition hover:bg-black"
-            >
-              完成
-            </button>
+          {nextTimeIdx !== -1 ? (
+            <span className="text-xs text-gray-500">还需 {TIME_ACHIEVEMENTS[nextTimeIdx].hours - playHours} 小时即可达成下一阶段</span>
           ) : (
             <span className="text-xs text-gray-500">
               <FaCheck className="mr-1 inline" />
               已完成全部阶段
             </span>
           )}
-          {getCurrentTimeLevel() > 0 && (
+          {storedTimeLevel > 0 && (
             <span className="text-xs text-gray-500">
               完成于:{' '}
               {formatTimeCalender(
@@ -293,17 +282,17 @@ const Achievements: React.FC = () => {
             <span className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600">完成度成就</span>
             <span className="font-semibold text-black">
               {/* 成就名 */}
-              {COMPLETION_ACHIEVEMENTS[getCurrentCompletionLevel()-1]?.name}
+              {COMPLETION_ACHIEVEMENTS[Math.max(completionLevel, 1) - 1]?.name}
             </span>
           </div>
           <span className="text-xs text-gray-500">
             {/* 成就等级 */}
-            Lv.{getCurrentCompletionLevel()}/{COMPLETION_ACHIEVEMENTS.length}
+            Lv.{completionLevel}/{COMPLETION_ACHIEVEMENTS.length}
           </span>
         </div>
         <p className="mb-2 text-sm text-gray-700">
           {/* 成就描述 */}
-          {COMPLETION_ACHIEVEMENTS[getCurrentCompletionLevel()-1]?.description}
+          {COMPLETION_ACHIEVEMENTS[Math.max(completionLevel, 1) - 1]?.description}
         </p>
         <div className="flex items-center justify-between">
           {getCurrentCompletionLevel() < COMPLETION_ACHIEVEMENTS.length ? (

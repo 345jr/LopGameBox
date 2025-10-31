@@ -47,4 +47,6 @@ export const queryKeys = {
   achievementStats: (gameId: string) => ['achievement-stats', gameId] as const,
   // 图集列表
   galleryList: (gameId: string, newestFirst: boolean) => ['gallery-list', gameId, newestFirst] as const,
+  // 游戏时长
+  getGamePlaytime: (gameId: string) => ['game-playtime', gameId] as const,
 };

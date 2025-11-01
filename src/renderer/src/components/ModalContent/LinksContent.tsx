@@ -30,29 +30,35 @@ interface LinkItem {
 
 const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number }) => {
   const [url, setUrl] = useState('');
-  // 元数据查询参数直接使用输入框的 url，避免二次点击的状态竞态
   
   // 编辑模态框状态
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editingLink, setEditingLink] = useState<LinkItem | null>(null);
-  const [editTitle, setEditTitle] = useState('');
-  const [editUrl, setEditUrl] = useState('');
+  const [editModal, setEditModal] = useState<{
+    isOpen: boolean;
+    linkId: number;
+    title: string;
+    url: string;
+  }>({
+    isOpen: false,
+    linkId: 0,
+    title: '',
+    url: '',
+  });
 
-  // 使用 TanStack Query hooks
   const { data: links = [], isLoading: fetchingLinks } = useGameLinks(gameId);
+
   const addLinkMutation = useAddGameLink();
   const updateLinkMutation = useUpdateGameLink();
   const deleteLinkMutation = useDeleteGameLink();
 
-  // 条件性获取元数据（只在需要时触发）
+  // 获取元数据
   const {
     refetch: fetchMetadataQuery,
     isFetching: fetchingMetadata,
-  } = useFetchMetadata(url, false); // 直接使用当前输入的 URL；enabled: false 手动触发
+  } = useFetchMetadata(url, false); 
 
   const LOCAL_FAVICON_PLACEHOLDER = linkIcon;
 
-  // 判断 favicon 是否为“网图”（http/https 或 data:），否则采用本地占位
+  // 判断favicon是否为网图否则采用本地占位
   const resolveFavicon = (fav: string | undefined | null): string => {
     const v = (fav || '').trim();
     if (!v) return LOCAL_FAVICON_PLACEHOLDER;
@@ -72,7 +78,6 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
       toast.error('请输入URL');
       return;
     }
-
     // 简单的URL验证
     try {
       new URL(url);
@@ -85,34 +90,25 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
       (async () => {
         // 手动触发元数据查询
         const { data: result } = await fetchMetadataQuery();
-
-        // 兼容两种返回结构：
-        // 1) { success: true, data: {...} }
-        // 2) 直接返回元数据 {...}
         const payload: any = result && (result as any).data ? (result as any).data : result;
 
         if (payload && (payload.title || payload.ogTitle || payload.url || payload.description || payload.ogDescription)) {
           const metadata: LinkMetadata = {
             title: payload.title || payload.ogTitle || '无标题',
             description: payload.description || payload.ogDescription || '',
-            // 只有当 favicon 不是网图（如 /favicon.ico、/favicon-32x32.png 等）时，替换为本地占位图标
             favicon: resolveFavicon(payload.favicon),
             url: payload.url || url,
           };
-
           // 保存链接
           await addLinkMutation.mutateAsync({
             gameId,
             metadata,
           });
-
           // 清空输入框
           setUrl('');
-
           return metadata;
         }
 
-        // 到这里说明没有拿到有效元数据
         const message = (result as any)?.message || (result as any)?.error || '获取元数据失败';
         throw new Error(message);
       })(),
@@ -140,37 +136,41 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
 
   // 打开编辑模态框
   const handleOpenEdit = (link: LinkItem) => {
-    setEditingLink(link);
-    setEditTitle(link.title);
-    setEditUrl(link.url);
-    setShowEditModal(true);
+    setEditModal({
+      isOpen: true,
+      linkId: link.id,
+      title: link.title,
+      url: link.url,
+    });
   };
 
   // 关闭编辑模态框
   const handleCloseEdit = () => {
-    setShowEditModal(false);
-    setEditingLink(null);
-    setEditTitle('');
-    setEditUrl('');
+    setEditModal({
+      isOpen: false,
+      linkId: 0,
+      title: '',
+      url: '',
+    });
   };
 
   // 保存编辑
   const handleSaveEdit = async () => {
-    if (!editingLink) return;
+    if (!editModal.isOpen) return;
 
-    if (!editTitle.trim()) {
+    if (!editModal.title.trim()) {
       toast.error('请输入标题');
       return;
     }
 
-    if (!editUrl.trim()) {
+    if (!editModal.url.trim()) {
       toast.error('请输入URL');
       return;
     }
 
     // URL验证
     try {
-      new URL(editUrl);
+      new URL(editModal.url);
     } catch {
       toast.error('请输入有效的URL');
       return;
@@ -178,9 +178,9 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
 
     toast.promise(
       updateLinkMutation.mutateAsync({
-        linkId: editingLink.id,
-        title: editTitle.trim(),
-        url: editUrl.trim(),
+        linkId: editModal.linkId,
+        title: editModal.title.trim(),
+        url: editModal.url.trim(),
         gameId,
       }),
       {
@@ -336,7 +336,7 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
       </div>
 
       {/* 编辑链接模态框 */}
-      {showEditModal && (
+      {editModal.isOpen && (
         <div 
           className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50"
           onClick={(e) => {
@@ -358,8 +358,8 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
                 </label>
                 <input
                   type="text"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
+                  value={editModal.title}
+                  onChange={(e) => setEditModal({ ...editModal, title: e.target.value })}
                   className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                   placeholder="输入标题"
                   autoFocus
@@ -373,8 +373,8 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
                 </label>
                 <input
                   type="text"
-                  value={editUrl}
-                  onChange={(e) => setEditUrl(e.target.value)}
+                  value={editModal.url}
+                  onChange={(e) => setEditModal({ ...editModal, url: e.target.value })}
                   className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                   placeholder="输入URL"
                 />

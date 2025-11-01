@@ -357,7 +357,7 @@ const Achievements: React.FC = () => {
                 >
                   {achievement.is_completed ? '取消完成' : '标记完成'}
                 </button>
-                {achievement.is_completed && (
+                {achievement.is_completed === 1 && (
                   <span className="text-xs text-gray-500">
                     完成于: {formatTimeCalender(achievement.completed_at)}
                   </span>

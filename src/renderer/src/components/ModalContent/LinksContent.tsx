@@ -8,6 +8,8 @@ import {
   useDeleteGameLink,
 } from '@renderer/api/queries';
 
+import linkIcon from '@renderer/assets/link.png';
+
 interface LinkMetadata {
   title: string;
   description: string;
@@ -28,7 +30,7 @@ interface LinkItem {
 
 const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number }) => {
   const [url, setUrl] = useState('');
-  const [metadataUrl, setMetadataUrl] = useState('');
+  // 元数据查询参数直接使用输入框的 url，避免二次点击的状态竞态
   
   // 编辑模态框状态
   const [showEditModal, setShowEditModal] = useState(false);
@@ -46,7 +48,23 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
   const {
     refetch: fetchMetadataQuery,
     isFetching: fetchingMetadata,
-  } = useFetchMetadata(metadataUrl, false); // enabled: false，手动触发
+  } = useFetchMetadata(url, false); // 直接使用当前输入的 URL；enabled: false 手动触发
+
+  const LOCAL_FAVICON_PLACEHOLDER = linkIcon;
+
+  // 判断 favicon 是否为“网图”（http/https 或 data:），否则采用本地占位
+  const resolveFavicon = (fav: string | undefined | null): string => {
+    const v = (fav || '').trim();
+    if (!v) return LOCAL_FAVICON_PLACEHOLDER;
+
+    // 仅当非 http/https 且非 data: 才判定为需要替换
+    const isHttp = /^https?:\/\//i.test(v);
+    const isData = /^data:/i.test(v);
+    if (isHttp || isData) return v;
+
+    // 命中诸如 /favicon.ico、/favicon-32x32.png、favicon.svg、C:\\... 等非网图路径时替换
+    return LOCAL_FAVICON_PLACEHOLDER;
+  };
 
   // 获取元数据
   const handleFetchMetadata = async () => {
@@ -63,20 +81,23 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
       return;
     }
 
-    // 设置 URL 并触发查询
-    setMetadataUrl(url);
-
     toast.promise(
       (async () => {
         // 手动触发元数据查询
         const { data: result } = await fetchMetadataQuery();
 
-        if (result?.success && result?.data) {
+        // 兼容两种返回结构：
+        // 1) { success: true, data: {...} }
+        // 2) 直接返回元数据 {...}
+        const payload: any = result && (result as any).data ? (result as any).data : result;
+
+        if (payload && (payload.title || payload.ogTitle || payload.url || payload.description || payload.ogDescription)) {
           const metadata: LinkMetadata = {
-            title: result.data.title || result.data.ogTitle || '无标题',
-            description: result.data.description || result.data.ogDescription || '',
-            favicon: result.data.favicon || '',
-            url: result.data.url || url,
+            title: payload.title || payload.ogTitle || '无标题',
+            description: payload.description || payload.ogDescription || '',
+            // 只有当 favicon 不是网图（如 /favicon.ico、/favicon-32x32.png 等）时，替换为本地占位图标
+            favicon: resolveFavicon(payload.favicon),
+            url: payload.url || url,
           };
 
           // 保存链接
@@ -87,12 +108,13 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
 
           // 清空输入框
           setUrl('');
-          setMetadataUrl('');
 
           return metadata;
-        } else {
-          throw new Error(result?.message || '获取元数据失败');
         }
+
+        // 到这里说明没有拿到有效元数据
+        const message = (result as any)?.message || (result as any)?.error || '获取元数据失败';
+        throw new Error(message);
       })(),
       {
         loading: '正在添加链接...',

@@ -1,22 +1,25 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { motion } from 'motion/react';
 import { VscFileMedia, VscFolder, VscPlay, VscTrash, VscAttach } from 'react-icons/vsc';
 import { GiAchievement } from 'react-icons/gi';
 import { Link } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 
 import type { Game } from '@renderer/types/Game';
 import Portal from '../Portal';
 import useGameStore from '@renderer/store/GameStore';
+import LinksContent from '../ModalContent/LinksContent';
+import FolderManageContent from '../ModalContent/FolderManageContent';
 import { toast } from 'react-hot-toast';
 
 type Props = {
   game: Game;
-  onOpenLinks: (gameId: number) => void;
-  onOpenFolderModal: (folderPath: string, gameId: number) => void;
   onRefresh: () => void;
 };
 
-const GameCardActions: FC<Props> = ({ game, onOpenLinks, onOpenFolderModal,  onRefresh }) => {
+const GameCardActions: FC<Props> = ({ game, onRefresh }) => {
+  const [showLinksModal, setShowLinksModal] = useState(false);
+  const [showFolderModal, setShowFolderModal] = useState(false);
   const setGameTime = useGameStore((state) => state.setGameTime);
   const GameState = useGameStore((state) => state.gameState);
   const setGameState = useGameStore((state) => state.setGameState);
@@ -104,7 +107,7 @@ const GameCardActions: FC<Props> = ({ game, onOpenLinks, onOpenFolderModal,  onR
         </motion.button>
         {/* 文件管理 */}
         <motion.button
-          onClick={() => onOpenFolderModal(game.launch_path, game.id)}
+          onClick={() => setShowFolderModal(true)}
           className="iconBtn-wrapper"
           initial={{ y: 0 }}
           whileHover={{ y: -5 }}
@@ -128,7 +131,7 @@ const GameCardActions: FC<Props> = ({ game, onOpenLinks, onOpenFolderModal,  onR
         </motion.div>
         {/* 链接管理 */}
         <motion.button
-          onClick={() => onOpenLinks(game.id)}
+          onClick={() => setShowLinksModal(true)}
           className="iconBtn-wrapper"
           initial={{ y: 0 }}
           whileHover={{ y: -5 }}
@@ -147,6 +150,26 @@ const GameCardActions: FC<Props> = ({ game, onOpenLinks, onOpenFolderModal,  onR
         {/* 配置页面*/}
         <Portal gameId={game.id}  onRefresh={onRefresh} />
       </div>
+      {/* 模态框部分 */}
+      {/* 外链管理模态框 */}
+      {showLinksModal &&
+        createPortal(
+          <LinksContent 
+            gameId={game.id}
+            onClose={() => setShowLinksModal(false)} 
+          />,
+          document.body,
+        )}
+      {/* 文件管理模态框 */}
+      {showFolderModal &&
+        createPortal(
+          <FolderManageContent 
+            gamePath={game.launch_path}
+            gameId={game.id}
+            onClose={() => setShowFolderModal(false)}
+          />,
+          document.body,
+        )}
     </>
   );
 };

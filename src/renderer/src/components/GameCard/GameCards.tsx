@@ -7,8 +7,6 @@ import { motion, Variants } from 'motion/react';
 import { createPortal } from 'react-dom';
 import Selector from '../GameModeSelector/Selector';
 import { RestTimeContent } from '../ModalContent/RestTimeContent';
-import LinksContent from '../ModalContent/LinksContent';
-import FolderManageContent from '../ModalContent/FolderManageContent';
 import { FaArrowUp, FaPersonWalkingArrowRight } from 'react-icons/fa6';
 import { FaGithub, FaList, FaTools } from "react-icons/fa";
 import { useGSAP } from '@gsap/react';
@@ -24,14 +22,6 @@ const GameCards = () => {
   // #region 状态管理  
   // 控制是否显示休息时间弹窗
   const [showRestTimeModal, setShowRestTimeModal] = useState(false);
-  // 控制是否显示外链管理弹窗
-  const [showLinksModal, setShowLinksModal] = useState(false);
-  // 控制是否显示文件管理弹窗
-  const [showFolderModal, setShowFolderModal] = useState(false);
-  // 当前选择的游戏ID(用于外链管理)
-  const [selectedGameId, setSelectedGameId] = useState<number | null>(null);
-  // 当前选择的游戏路径(用于文件管理)
-  const [selectedGamePath, setSelectedGamePath] = useState<string>('');
   //游戏状态
   const gameState = useGameStore((state) => state.gameState);
   // 当前选择的分类 - 从全局状态获取
@@ -75,12 +65,6 @@ const GameCards = () => {
       window.api.offOpenRestTimeModal();
     };
   }, []);
-  // 打开文件管理模态框 -- 由 Action 触发
-  const handleOpenFolderModal = (folderPath: string, gameId: number) => {
-    setSelectedGamePath(folderPath);
-    setSelectedGameId(gameId);
-    setShowFolderModal(true);
-  };
   //添加游戏 --
   const handleAddGame = async () => {
     const path = await window.api.openFile();
@@ -322,31 +306,6 @@ const GameCards = () => {
             <RestTimeContent onClose={() => setShowRestTimeModal(false)} />,
             document.body,
           )}
-        {/* 外链管理模态框 */}
-        {showLinksModal && selectedGameId &&
-          createPortal(
-            <LinksContent 
-              gameId={selectedGameId}
-              onClose={() => {
-                setShowLinksModal(false);
-                setSelectedGameId(null);
-              }} 
-            />,
-            document.body,
-          )}
-        {/* 文件管理模态框 */}
-        {showFolderModal && selectedGameId &&
-          createPortal(
-            <FolderManageContent 
-              gamePath={selectedGamePath}
-              gameId={selectedGameId}
-              onClose={() => {
-                setShowFolderModal(false);
-                setSelectedGamePath('');
-              }} 
-            />,
-            document.body,
-          )}
         {/*  暂用-休息调试 */}
         {/* <button onClick={() => setShowRestTimeModal(true)} className="text-white">
           休息时间调试
@@ -392,11 +351,6 @@ const GameCards = () => {
                   {/*操作区*/}
                     <GameCardActions
                       game={game}
-                      onOpenLinks={(id) => {
-                        setSelectedGameId(id);
-                        setShowLinksModal(true);
-                      }}
-                      onOpenFolderModal={handleOpenFolderModal}                      
                       onRefresh={refetch}
                     />
                 </motion.div>

@@ -223,9 +223,9 @@ const SettingPage = () => {
           404跳转测试
         </Link>
       </div>
-      <div className="mt-10 text-center">
+      {/* <div className="mt-10 text-center">
         <Link to="/">返回主页</Link>
-      </div>
+      </div> */}
     </>
   );
 };

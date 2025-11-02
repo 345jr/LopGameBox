@@ -329,7 +329,7 @@ const GameCards = () => {
                       ?.relative_path?.replace(/\\/g, '/')
                   }
                   alt="banner图"
-                  className="h-70 w-120 rounded-2xl border-2 border-white bg-cover bg-center"
+                  className="h-70 w-120 rounded-md border-2 border-white bg-cover bg-center"
                   initial={{ opacity: 0, x: 100 }}
                   animate={{ opacity: 1, x: 0, transition: { duration: 0.8 } }}
                 />

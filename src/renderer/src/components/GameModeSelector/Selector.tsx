@@ -4,6 +4,7 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { useRef } from 'react';
 import { FaHourglassEnd, FaGlasses, FaClock, FaFaceLaugh } from 'react-icons/fa6';
+import toast from 'react-hot-toast';
 
 const Selector = () => {
   //游戏模式选择器
@@ -109,9 +110,9 @@ const Selector = () => {
   ];
 
   //选择模式
-  const selectMode = (mode: string) => {
-    console.log(`要切换的模式是${mode}`);
+  const selectMode = (mode: string, label: string) => {
     setGameMode(mode);
+    toast.success(`模式切换为 ${label}`);
     //如果游戏真正运行 ，则视为热切换
     if (gameState === 'run') window.api.setGameMode(mode);
   };
@@ -144,7 +145,7 @@ const Selector = () => {
                   style={{ backgroundColor: config.borderColor, opacity: 0 }}
                 />
                 <button
-                  onClick={() => selectMode(mode.key)}
+                  onClick={() => selectMode(mode.key, mode.label)}
                   className={`flex cursor-pointer flex-row w-full px-2.5 relative z-10 ${
                     mode.key === 'Normal' ? 'py-5' : 'py-7'
                   }`}

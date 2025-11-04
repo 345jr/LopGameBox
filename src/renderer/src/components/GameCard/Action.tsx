@@ -10,6 +10,7 @@ import Portal from '../Portal';
 import useGameStore from '@renderer/store/GameStore';
 import LinksContent from '../ModalContent/LinksContent';
 import FolderManageContent from '../ModalContent/FolderManageContent';
+import BannerSelectContent from '../ModalContent/BannerSelectContent';
 import { toast } from 'react-hot-toast';
 
 type Props = {
@@ -20,6 +21,7 @@ type Props = {
 const GameCardActions: FC<Props> = ({ game, onRefresh }) => {
   const [showLinksModal, setShowLinksModal] = useState(false);
   const [showFolderModal, setShowFolderModal] = useState(false);
+  const [showBannerModal, setShowBannerModal] = useState(false);
   const setGameTime = useGameStore((state) => state.setGameTime);
   const GameState = useGameStore((state) => state.gameState);
   const setGameState = useGameStore((state) => state.setGameState);
@@ -67,30 +69,8 @@ const GameCardActions: FC<Props> = ({ game, onRefresh }) => {
   };
 
   // 添加封面
-  const handleAddBanner = async (game: Game) => {
-    const targetPath = 'banner/';
-    const path = await window.api.openFile();
-    let oldFilePath = (await window.api.getBanners())?.find((i: any) => i.game_id === game.id)
-      ?.relative_path as string;
-    if (!path) return;
-    if (oldFilePath == undefined) oldFilePath = 'skip';
-    try {
-      const result = await window.api.copyImages({
-        origin: path,
-        target: targetPath,
-        gameName: game.game_name,
-        oldFilePath: oldFilePath,
-      });
-      await window.api.addBanner({
-        gameId: game.id,
-        imagePath: path,
-        relativePath: result.relativePath,
-      });
-      toast.success('封面图替换成功');
-      onRefresh();
-    } catch (error: any) {
-      toast.error('封面图替换失败');
-    }
+  const handleAddBanner = () => {
+    setShowBannerModal(true);
   };
   
   return (
@@ -116,7 +96,7 @@ const GameCardActions: FC<Props> = ({ game, onRefresh }) => {
         </motion.button>
         {/* 换封面 */}
         <motion.button
-          onClick={() => handleAddBanner(game)}
+          onClick={() => handleAddBanner()}
           className="iconBtn-wrapper"
           initial={{ y: 0 }}
           whileHover={{ y: -5 }}
@@ -167,6 +147,17 @@ const GameCardActions: FC<Props> = ({ game, onRefresh }) => {
             gamePath={game.launch_path}
             gameId={game.id}
             onClose={() => setShowFolderModal(false)}
+          />,
+          document.body,
+        )}
+      {/* 封面选择模态框 */}
+      {showBannerModal &&
+        createPortal(
+          <BannerSelectContent 
+            gameId={game.id}
+            gameName={game.game_name}
+            onClose={() => setShowBannerModal(false)}
+            onSuccess={onRefresh}
           />,
           document.body,
         )}

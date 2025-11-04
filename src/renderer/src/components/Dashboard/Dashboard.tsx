@@ -84,24 +84,35 @@ const Dashboard = () => {
   return (
     <>
       <div className="mb-4">
-        {/* 统计数据横排展示 */}
-        <div className="mb-5 mx-auto max-w-6xl rounded-lg  bg-white shadow-lg">
-          <div className="grid grid-cols-4 ">
-            <div className="px-6 py-4 text-center">
-              <p className="text-sm text-gray-500 mb-1">游戏总数</p>
-              <p className="text-2xl font-bold text-blue-600">{gameStatistics.gameCount}</p>
+        {/* 统计数据卡片式展示 */}
+        <div className="mb-8 mx-auto max-w-full">
+          <div className="grid grid-cols-4 gap-4 px-4 mt-4">
+            {/* 游戏总数 */}
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200 shadow-md hover:shadow-lg transition-shadow">
+              <p className="text-slate-600 text-xs mb-2">游戏总数</p>
+              <p className="text-3xl font-bold text-slate-900 mb-1">{gameStatistics.gameCount}</p>
+              <p className="text-slate-500 text-xs">总计统计</p>
             </div>
-            <div className="px-6 py-4 text-center">
-              <p className="text-sm text-gray-500 mb-1">总游戏时间</p>
-              <p className="text-2xl font-bold text-blue-600">{formatTimeToHours(gameStatistics.gamePlayTime)}</p>
+
+            {/* 总游戏时间 */}
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200 shadow-md hover:shadow-lg transition-shadow">
+              <p className="text-slate-600 text-xs mb-2">总游戏时间</p>
+              <p className="text-3xl font-bold text-slate-900 mb-1">{formatTimeToHours(gameStatistics.gamePlayTime)}</p>
+              <p className="text-slate-500 text-xs">累计游玩</p>
             </div>
-            <div className="px-6 py-4 text-center">
-              <p className="text-sm text-gray-500 mb-1">总启动次数</p>
-              <p className="text-2xl font-bold text-blue-600">{gameStatistics.launchCount}</p>
+
+            {/* 总启动次数 */}
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200 shadow-md hover:shadow-lg transition-shadow">
+              <p className="text-slate-600 text-xs mb-2">总启动次数</p>
+              <p className="text-3xl font-bold text-slate-900 mb-1">{gameStatistics.launchCount}</p>
+              <p className="text-slate-500 text-xs">启动统计</p>
             </div>
-            <div className="px-6 py-4 text-center">
-              <p className="text-sm text-gray-500 mb-1">总存储占用</p>
-              <p className="text-2xl font-bold text-blue-600">{gameSizeFormat(gameStatistics.totalDiskSize)}</p>
+
+            {/* 总存储占用 */}
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200 shadow-md hover:shadow-lg transition-shadow">
+              <p className="text-slate-600 text-xs mb-2">总存储占用</p>
+              <p className="text-3xl font-bold text-slate-900 mb-1">{gameSizeFormat(gameStatistics.totalDiskSize)}</p>
+              <p className="text-slate-500 text-xs">本地占用空间</p>
             </div>
           </div>
         </div>

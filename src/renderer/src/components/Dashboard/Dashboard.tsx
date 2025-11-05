@@ -83,10 +83,75 @@ const Dashboard = () => {
 
   return (
     <>
-      <div className="mb-4">
+      <div className="mb-4 px-4">
+        {/* 饼图和区域图并排展示 */}
+        <div className="grid grid-cols-[30%_70%]  mb-8 ">
+          {/* 饼图卡片 */}
+          <div className="bg-white rounded-lg border border-slate-200 shadow-md p-6  hover:shadow-lg transition-shadow">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">全模式游玩占比</h3>
+            <div className="flex justify-center items-center">
+              <div className="w-full max-w-sm">
+                <MyPieChart gameStatistics={gameStatistics} />
+              </div>
+            </div>
+          </div>
+
+          {/* 区域图卡片 */}
+          <div className="bg-white rounded-lg border border-slate-200 shadow-md p-6 hover:shadow-lg transition-shadow">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">周游玩总览</h3>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-row justify-center gap-4">
+                {isNowWeek ? (
+                  <>
+                    <button className="text-sm">时间范围:{getWeekRange(isNowWeek)}</button>
+                    <button onClick={switchToLastWeekData} className="text-sm cursor-pointer hover:text-blue-600">
+                      查看上周
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button className="text-sm">时间范围:{getWeekRange(isNowWeek)}</button>
+                    <button onClick={switchToWeekData} className="text-sm cursor-pointer hover:text-blue-600">
+                      查看本周
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className="w-full">
+                <MyAreaChart weekGameLogsData={weekGameLogsData} />
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* 周数据统计卡片 */}
+        <div className="mb-8">
+          <div className="grid grid-cols-3 gap-4">
+            {/* 今日时长 */}
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200 shadow-md hover:shadow-lg transition-shadow">
+              <p className="text-blue-600 text-xs mb-2">今日时长</p>
+              <p className="text-3xl font-bold text-blue-900 mb-1">{gameStatistics.todayHours.toFixed(2)}</p>
+              <p className="text-blue-500 text-xs">小时</p>
+            </div>
+
+            {/* 本周时长 */}
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200 shadow-md hover:shadow-lg transition-shadow">
+              <p className="text-green-600 text-xs mb-2">本周时长</p>
+              <p className="text-3xl font-bold text-green-900 mb-1">{gameStatistics.weekHours.toFixed(2)}</p>
+              <p className="text-green-500 text-xs">小时</p>
+            </div>
+
+            {/* 本月时长 */}
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 border border-purple-200 shadow-md hover:shadow-lg transition-shadow">
+              <p className="text-purple-600 text-xs mb-2">本月时长</p>
+              <p className="text-3xl font-bold text-purple-900 mb-1">{gameStatistics.monthHours.toFixed(2)}</p>
+              <p className="text-purple-500 text-xs">小时</p>
+            </div>
+          </div>
+        </div>
         {/* 统计数据卡片式展示 */}
         <div className="mb-8 mx-auto max-w-full">
-          <div className="grid grid-cols-4 gap-4 px-4 mt-4">
+          <div className="grid grid-cols-4 gap-4 mt-4">
             {/* 游戏总数 */}
             <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200 shadow-md hover:shadow-lg transition-shadow">
               <p className="text-slate-600 text-xs mb-2">游戏总数</p>
@@ -116,33 +181,6 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        {/* 饼图数据看板 */}
-        <MyPieChart gameStatistics={gameStatistics} />
-        {/* 本周在不同模式下的游戏时间分布: */}
-        <div className="flex flex-row justify-center">
-          {isNowWeek ? (
-            <>
-              {/* 本周 */}
-              <button className="ml-2">时间范围:{getWeekRange(isNowWeek)}</button>
-            </>
-          ) : (
-            <>
-              {/* 上周 */}
-              <button className="ml-2">时间范围:{getWeekRange(isNowWeek)}</button>
-            </>
-          )}
-          {isNowWeek ? (
-            <button onClick={switchToLastWeekData} className="ml-2 cursor-pointer">
-              查看上周
-            </button>
-          ) : (
-            <button onClick={switchToWeekData} className="ml-2 cursor-pointer">
-              查看本周
-            </button>
-          )}
-        </div>
-        {/* 周数据看板 */}
-        <MyAreaChart gameStatistics={gameStatistics} weekGameLogsData={weekGameLogsData} />
       </div>
     </>
   );

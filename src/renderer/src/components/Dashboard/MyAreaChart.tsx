@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { GameLog, GameStatistics } from '@renderer/types/Game';
+import type { GameLog } from '@renderer/types/Game';
 import {
   ResponsiveContainer,
   CartesianGrid,
@@ -32,11 +32,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 type Props = {
-  gameStatistics: GameStatistics;
   weekGameLogsData: GameLog[];
 };
 
-const MyAreaChart = ({ gameStatistics, weekGameLogsData }: Props) => {
+const MyAreaChart = ({ weekGameLogsData }: Props) => {
   // 将父组件传来的周日志转换为图表所需的数据结构
   const chartData = useMemo(
     () =>
@@ -55,7 +54,7 @@ const MyAreaChart = ({ gameStatistics, weekGameLogsData }: Props) => {
     <>
       <div className="flex h-75 w-full flex-row">
         {/* 周时长看板 */}
-        <ResponsiveContainer width="75%" height="100%">
+        <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             width={500}
             height={400}
@@ -79,11 +78,6 @@ const MyAreaChart = ({ gameStatistics, weekGameLogsData }: Props) => {
             <Area type="monotone" dataKey="沉浸模式" stackId="1" stroke="#a855f7" fill="#a855f7" />
           </AreaChart>
         </ResponsiveContainer>
-        <div className="flex flex-col">
-          <p>今日时长:{gameStatistics.todayHours.toFixed(2)}</p>
-          <p>本周时长:{gameStatistics.weekHours.toFixed(2)}</p>
-          <p>本月时长:{gameStatistics.monthHours.toFixed(2)}</p>
-        </div>
       </div>
     </>
   );

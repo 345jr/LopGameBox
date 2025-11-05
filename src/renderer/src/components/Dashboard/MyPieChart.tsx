@@ -56,7 +56,7 @@ const MyPieChart = ({ gameStatistics }) => {
     <>
       <div className="flex flex-row justify-center">
         {/* 不同模式的时长比例图 */}
-        <div className="h-80 w-110">
+        <div className="h-64 w-80">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -110,7 +110,6 @@ const MyPieChart = ({ gameStatistics }) => {
                 ))}
               </Pie>
               <Tooltip content={<PieTooltip />} />
-              <Legend align={'right'} layout="vertical" verticalAlign="top" />
             </PieChart>
           </ResponsiveContainer>
         </div>

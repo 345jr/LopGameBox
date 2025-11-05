@@ -58,6 +58,10 @@ const BannerSelectContent = ({ onClose, gameId, gameName, onSuccess }: BannerSel
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    // 只在真正离开拖拽容器时才关闭状态
+    if ((e.currentTarget as HTMLElement).contains(e.relatedTarget as Node)) {
+      return;
+    }
     setIsDragging(false);
   };
 
@@ -99,14 +103,7 @@ const BannerSelectContent = ({ onClose, gameId, gameName, onSuccess }: BannerSel
           };
         }),
       );
-      const res = await window.api.getTempDrop({ files: serializedFiles });
-      // if (inspectRes && inspectRes.success && Array.isArray(inspectRes.results) && inspectRes.results[0]) {
-      //   const r = inspectRes.results[0];
-      //   const originPath = r.path || r.tempPath;
-      //   if (originPath) {
-      //     await handleBannerUpload(originPath);
-      //   }
-      // }
+      const res = await window.api.getTempDrop({ files: serializedFiles });      
       const originPath = res.tempPath;
       if (originPath) {
         await handleBannerUpload(originPath);

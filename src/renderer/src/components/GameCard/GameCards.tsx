@@ -1,4 +1,4 @@
-import { Banners } from '@renderer/types/Game';
+import { Banners, Game } from '@renderer/types/Game';
 import { useEffect, useRef, useState } from 'react';
 import GameCardActions from './Action';
 import GameCardData from './CardData';
@@ -155,6 +155,16 @@ const GameCards = () => {
   // 处理分类选择
   const handleCategoryChange = (category: 'all' | 'playing' | 'archived') => {
     setSelectedCategory(category);
+  };
+  // 获取封面图路径
+  const getSrc = (game: Game) => {
+    const relativePath = bannerListData?.find((i: Banners) => i.game_id === game.id)?.relative_path;    
+    // 判断是否为网络链接（http:// 或 https://）
+    if (relativePath?.startsWith('http://') || relativePath?.startsWith('https://')) {
+      return relativePath;
+    }    
+    // 本地路径使用 lop 协议
+    return 'lop://' + relativePath?.replace(/\\/g, '/');
   };
 
   return (
@@ -322,12 +332,7 @@ const GameCards = () => {
               >
                 {/* 封面图   */}
                 <motion.img
-                  src={
-                    'lop://' +
-                    bannerListData
-                      ?.find((i: Banners) => i.game_id === game.id)
-                      ?.relative_path?.replace(/\\/g, '/')
-                  }
+                  src={getSrc(game)}
                   alt="banner图"
                   className="h-70 w-120 rounded-md border-2 border-white bg-cover bg-center"
                   initial={{ opacity: 0, x: 100 }}

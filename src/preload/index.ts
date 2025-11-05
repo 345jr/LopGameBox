@@ -240,6 +240,9 @@ const api = {
   openDevTools: () => {
     ipcRenderer.invoke('window:openDevTools');
   }
+  ,
+  //获取拖拽的临时路径
+  getTempDrop: (payload: any) => ipcRenderer.invoke('op:getTempDrop', payload),
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

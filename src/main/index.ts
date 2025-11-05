@@ -497,6 +497,32 @@ app.whenReady().then(() => {
       return { relativePath: defaultRel };
     }
   });
+  // 接收渲染器序列化的拖拽数据 ,返回一个临时路径
+  ipcMain.handle('op:getTempDrop', async (_event, payload: any) => {
+    try {
+      const files: any[] = payload?.files || [];
+      for (const f of files) {
+        if (f.buffer) {
+          try {
+            const tempDir = app.getPath('temp');
+            const fileName = `临时图片-${Date.now()}-${(f.name || 'file').replace(/[^a-zA-Z0-9_.-]/g, '_')}`;
+            const dest = path.join(tempDir, fileName);
+            await fs.writeFile(dest, Buffer.from(f.buffer as any));
+            return { success: true, tempPath: dest };
+          } catch (err: any) {
+            return { success: false, error: err?.message ?? String(err) };
+          }
+        } else {
+          console.log('没有可用缓冲区');          
+          return { success: false, error: '没有可用的路径或缓冲区' };
+        }
+      }
+      return { success: false, error: '没有处理的文件' };      
+    } catch (err: any) {
+      return { success: false, error: err?.message ?? String(err) };
+    }
+  });
+
   //添加Banner
   ipcMain.handle('db:addBanner', async (_event, { gameId, imagePath, relativePath }) => {
     try {
@@ -558,7 +584,7 @@ app.whenReady().then(() => {
   });
 
   // ==================== 外链管理相关处理器 ====================
-  
+
   //添加游戏外链
   ipcMain.handle('db:addGameLink', async (_event, { gameId, url, title, description, icon }) => {
     try {
@@ -694,7 +720,7 @@ app.whenReady().then(() => {
   });
 
   // ==================== 截图快捷键控制 ====================
-  
+
   // 启用截图快捷键 (F12)
   ipcMain.handle('screenshot:enableShortcut', () => {
     if (!screenshotShortcutEnabled) {
@@ -795,25 +821,25 @@ app.whenReady().then(() => {
   });
   //更新版本描述
   ipcMain.handle('db:updateVersionDescription', async (_event, versionId: number, newDescription: string) => {
-    try {
-      gameService.updateVersionDescription(versionId, newDescription);
-      return { success: true, message: '版本描述更新成功' };
-    } catch (err: any) {
-      console.error('更新版本描述失败:', err);
-      return { success: false, message: err?.message ?? String(err) };
-    }
+      try {
+        gameService.updateVersionDescription(versionId, newDescription);
+        return { success: true, message: '版本描述更新成功' };
+      } catch (err: any) {
+        console.error('更新版本描述失败:', err);
+        return { success: false, message: err?.message ?? String(err) };
+      }
   });
 
   // ==================== 成就相关 IPC 处理器 ====================
-  
+
   // 创建成就
   ipcMain.handle('db:createAchievement', async (_event, gameId: number, achievementName: string, achievementType: string, description?: string) => {
-    try {
-      return gameService.createAchievement(gameId, achievementName, achievementType, description);
-    } catch (err: any) {
-      console.error('创建成就失败:', err);
-      throw err;
-    }
+      try {
+        return gameService.createAchievement(gameId, achievementName, achievementType, description);
+      } catch (err: any) {
+        console.error('创建成就失败:', err);
+        throw err;
+      }
   });
 
   // 删除成就
@@ -828,12 +854,12 @@ app.whenReady().then(() => {
 
   // 切换成就状态
   ipcMain.handle('db:toggleAchievementStatus', async (_event, achievementId: number, isCompleted: 0 | 1) => {
-    try {
-      gameService.toggleAchievementStatus(achievementId, isCompleted);
-    } catch (err: any) {
-      console.error('切换成就状态失败:', err);
-      throw err;
-    }
+      try {
+        gameService.toggleAchievementStatus(achievementId, isCompleted);
+      } catch (err: any) {
+        console.error('切换成就状态失败:', err);
+        throw err;
+      }
   });
 
   // 获取游戏所有成就
@@ -877,15 +903,15 @@ app.whenReady().then(() => {
   });
 
   // ==================== 存档管理相关处理器 ====================
-  
+
   // 设置游戏主存档路径
   ipcMain.handle('db:setGameSavePath', async (_event, gameId: number, savePath: string, fileSize: number) => {
-    try {
-      return gameService.setGameSavePath(gameId, savePath, fileSize);
-    } catch (err: any) {
-      console.error('设置游戏主存档路径失败:', err);
-      throw err;
-    }
+      try {
+        return gameService.setGameSavePath(gameId, savePath, fileSize);
+      } catch (err: any) {
+        console.error('设置游戏主存档路径失败:', err);
+        throw err;
+      }
   });
 
   // 获取游戏主存档路径
@@ -945,14 +971,14 @@ app.whenReady().then(() => {
       // 2. 生成备份文件名和路径
       const timestamp = Date.now();
       const backupName = `存档备份-${new Date(timestamp).toLocaleString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
         second: '2-digit'
       }).replace(/\//g, '-').replace(/:/g, '-').replace(/\s/g, '_')}`;
-      
+
       // 备份文件夹路径（保存在应用程序根目录的 saveBackups 文件夹下）
       const backupsDir = app.isPackaged
         ? path.join(path.dirname(app.getPath('exe')), 'saveBackups') // 生产环境：exe所在目录
@@ -974,8 +1000,8 @@ app.whenReady().then(() => {
         fileSize
       );
 
-      return { 
-        success: true, 
+      return {
+        success: true,
         message: '备份创建成功',
         backupId: result.id,
         backupName,

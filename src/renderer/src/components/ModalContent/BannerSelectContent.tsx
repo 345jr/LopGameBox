@@ -72,17 +72,50 @@ const BannerSelectContent = ({ onClose, gameId, gameName, onSuccess }: BannerSel
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
+    
+    const dtFiles = e.dataTransfer.files;
+    if (!dtFiles || dtFiles.length === 0) return;
 
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      const file = files[0];
-      // 验证是否为图片文件
-      if (!file.type.startsWith('image/')) {
-        toast.error('请选择图片文件');
-        return;
+    try {
+      setIsLoading(true);
+      const filesArray = Array.from(dtFiles);
+      // 将每个 File 序列化为普通对象
+      const serializedFiles = await Promise.all(
+        filesArray.map(async (f) => {
+          const filePath = (f as any).path as string | undefined;
+          let buffer: Uint8Array | undefined = undefined;
+          try {
+            const ab = await f.arrayBuffer();
+            buffer = new Uint8Array(ab);
+          } catch (err) {
+            buffer = undefined;
+          }
+          return {
+            name: f.name,
+            type: f.type,
+            size: f.size,
+            path: filePath,
+            buffer,
+          };
+        }),
+      );
+      const res = await window.api.getTempDrop({ files: serializedFiles });
+      // if (inspectRes && inspectRes.success && Array.isArray(inspectRes.results) && inspectRes.results[0]) {
+      //   const r = inspectRes.results[0];
+      //   const originPath = r.path || r.tempPath;
+      //   if (originPath) {
+      //     await handleBannerUpload(originPath);
+      //   }
+      // }
+      const originPath = res.tempPath;
+      if (originPath) {
+        await handleBannerUpload(originPath);
       }
-      const filePath = (file as any).path;
-      await handleBannerUpload(filePath);
+    } catch (err) {
+      console.error('handleDrop error', err);
+      toast.error('封面图替换失败');
+    } finally {
+      setIsLoading(false);
     }
   };
 

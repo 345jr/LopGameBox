@@ -1,4 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload';
+import type { DropPayload, DropResult } from './IPCtype';
 declare global {
   interface Window {
     electron: ElectronAPI;
@@ -256,6 +257,8 @@ declare global {
       offScreenshotError: () => void;
       //开发者
       openDevTools: () => Promise<void>;
+      // 获取拖拽的临时路径
+      getTempDrop: (payload: DropPayload) => Promise<DropResult>;
     };
   }
 }

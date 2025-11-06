@@ -1,4 +1,4 @@
-import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { Cell,  Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 // 饼图自定义提示框
 const PieTooltip = ({ active, payload }: any) => {
@@ -57,7 +57,7 @@ const MyPieChart = ({ gameStatistics }) => {
       <div className="flex flex-row justify-center">
         {/* 不同模式的时长比例图 */}
         <div className="h-64 w-80">
-          <ResponsiveContainer width="100%" height="100%">
+          <ResponsiveContainer >
             <PieChart>
               <Pie
                 data={[

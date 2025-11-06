@@ -85,33 +85,75 @@ const Dashboard = () => {
     <>
       <div className="mb-4 px-4">
         {/* 饼图和区域图并排展示 */}
-        <div className="grid grid-cols-[30%_70%]  mb-8 ">
-          {/* 饼图卡片 */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-md p-6  hover:shadow-lg transition-shadow">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">全模式游玩占比</h3>
-            <div className="flex justify-center items-center">
-              <div className="w-full max-w-sm">
-                <MyPieChart gameStatistics={gameStatistics} />
+        <div className="mb-4 grid grid-cols-[30%_70%] gap-2 mt-4">
+          <div className="gird grid-rows-2 gap-4">
+            {/* 饼图卡片 */}
+            <div className="dashboardCard p-6 mb-4">
+              <h3 className="mb-2 text-lg font-semibold text-black">全模式游玩占比</h3>
+              <div className="flex items-center justify-center">
+                <div className="w-full max-w-sm">
+                  <MyPieChart gameStatistics={gameStatistics} />
+                </div>
+              </div>
+            </div>
+            {/* 周数据统计卡片 */}
+            <div className="">
+              <div className="grid grid-cols-1 gap-2">
+                {/* 今日时长 */}
+                <div className="dashboardCard p-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-gray-600">今日时长</p>
+                    <p className="text-lg font-bold text-gray-900">
+                      {gameStatistics.todayHours.toFixed(2)}h
+                    </p>
+                  </div>
+                </div>
+
+                {/* 本周时长 */}
+                <div className="dashboardCard p-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-gray-600">本周时长</p>
+                    <p className="text-lg font-bold text-gray-900">
+                      {gameStatistics.weekHours.toFixed(2)}h
+                    </p>
+                  </div>
+                </div>
+
+                {/* 本月时长 */}
+                <div className="dashboardCard p-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-gray-600">本月时长</p>
+                    <p className="text-lg font-bold text-gray-900">
+                      {gameStatistics.monthHours.toFixed(2)}h
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* 区域图卡片 */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-md p-6 hover:shadow-lg transition-shadow">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">周游玩总览</h3>
+          <div className="dashboardCard p-6">
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">周游玩总览</h3>
             <div className="flex flex-col gap-4">
               <div className="flex flex-row justify-center gap-4">
                 {isNowWeek ? (
                   <>
                     <button className="text-sm">时间范围:{getWeekRange(isNowWeek)}</button>
-                    <button onClick={switchToLastWeekData} className="text-sm cursor-pointer hover:text-blue-600">
+                    <button
+                      onClick={switchToLastWeekData}
+                      className="cursor-pointer text-sm hover:text-blue-600"
+                    >
                       查看上周
                     </button>
                   </>
                 ) : (
                   <>
                     <button className="text-sm">时间范围:{getWeekRange(isNowWeek)}</button>
-                    <button onClick={switchToWeekData} className="text-sm cursor-pointer hover:text-blue-600">
+                    <button
+                      onClick={switchToWeekData}
+                      className="cursor-pointer text-sm hover:text-blue-600"
+                    >
                       查看本周
                     </button>
                   </>
@@ -123,61 +165,40 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        
-        {/* 周数据统计卡片 */}
-        <div className="mb-8">
-          <div className="grid grid-cols-3 gap-4">
-            {/* 今日时长 */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200 shadow-md hover:shadow-lg transition-shadow">
-              <p className="text-blue-600 text-xs mb-2">今日时长</p>
-              <p className="text-3xl font-bold text-blue-900 mb-1">{gameStatistics.todayHours.toFixed(2)}</p>
-              <p className="text-blue-500 text-xs">小时</p>
-            </div>
 
-            {/* 本周时长 */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6 border border-green-200 shadow-md hover:shadow-lg transition-shadow">
-              <p className="text-green-600 text-xs mb-2">本周时长</p>
-              <p className="text-3xl font-bold text-green-900 mb-1">{gameStatistics.weekHours.toFixed(2)}</p>
-              <p className="text-green-500 text-xs">小时</p>
-            </div>
-
-            {/* 本月时长 */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6 border border-purple-200 shadow-md hover:shadow-lg transition-shadow">
-              <p className="text-purple-600 text-xs mb-2">本月时长</p>
-              <p className="text-3xl font-bold text-purple-900 mb-1">{gameStatistics.monthHours.toFixed(2)}</p>
-              <p className="text-purple-500 text-xs">小时</p>
-            </div>
-          </div>
-        </div>
         {/* 统计数据卡片式展示 */}
-        <div className="mb-8 mx-auto max-w-full">
-          <div className="grid grid-cols-4 gap-4 mt-4">
+        <div className="mx-auto mb-8 max-w-full">
+          <div className="mt-4 grid grid-cols-4 gap-4">
             {/* 游戏总数 */}
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200 shadow-md hover:shadow-lg transition-shadow">
-              <p className="text-slate-600 text-xs mb-2">游戏总数</p>
-              <p className="text-3xl font-bold text-slate-900 mb-1">{gameStatistics.gameCount}</p>
-              <p className="text-slate-500 text-xs">总计统计</p>
+            <div className="dashboardCard p-6">
+              <p className="mb-2 text-xs text-slate-600">游戏总数</p>
+              <p className="mb-1 text-3xl font-bold text-slate-900">{gameStatistics.gameCount}</p>
+              <p className="text-xs text-slate-500">总计统计</p>
             </div>
 
             {/* 总游戏时间 */}
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200 shadow-md hover:shadow-lg transition-shadow">
-              <p className="text-slate-600 text-xs mb-2">总游戏时间</p>
-              <p className="text-3xl font-bold text-slate-900 mb-1">{formatTimeToHours(gameStatistics.gamePlayTime)}</p>
-              <p className="text-slate-500 text-xs">累计游玩</p>
+            <div className="dashboardCard p-6">
+              <p className="mb-2 text-xs text-slate-600">总游戏时间</p>
+              <p className="mb-1 text-3xl font-bold text-slate-900">
+                {formatTimeToHours(gameStatistics.gamePlayTime)}
+              </p>
+              <p className="text-xs text-slate-500">累计游玩</p>
             </div>
 
             {/* 总启动次数 */}
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200 shadow-md hover:shadow-lg transition-shadow">
-              <p className="text-slate-600 text-xs mb-2">总启动次数</p>
-              <p className="text-3xl font-bold text-slate-900 mb-1">{gameStatistics.launchCount}</p>
-              <p className="text-slate-500 text-xs">启动统计</p>
+            <div className="dashboardCard p-6">
+              <p className="mb-2 text-xs text-slate-600">总启动次数</p>
+              <p className="mb-1 text-3xl font-bold text-slate-900">{gameStatistics.launchCount}</p>
+              <p className="text-xs text-slate-500">启动统计</p>
             </div>
 
             {/* 总存储占用 */}
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-6 border border-slate-200 shadow-md hover:shadow-lg transition-shadow">
-              <p className="text-slate-600 text-xs mb-2">总存储占用</p>
-              <p className="text-3xl font-bold text-slate-900 mb-1">{gameSizeFormat(gameStatistics.totalDiskSize)}</p>
-              <p className="text-slate-500 text-xs">本地占用空间</p>
+            <div className="dashboardCard p-6">
+              <p className="mb-2 text-xs text-slate-600">总存储占用</p>
+              <p className="mb-1 text-3xl font-bold text-slate-900">
+                {gameSizeFormat(gameStatistics.totalDiskSize)}
+              </p>
+              <p className="text-xs text-slate-500">本地占用空间</p>
             </div>
           </div>
         </div>

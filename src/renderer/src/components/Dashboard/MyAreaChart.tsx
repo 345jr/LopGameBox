@@ -52,12 +52,12 @@ const MyAreaChart = ({ weekGameLogsData }: Props) => {
 
   return (
     <>
-      <div className="flex h-75 w-full flex-row">
+      <div className="h-110 w-full">
         {/* 周时长看板 */}
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            width={500}
-            height={400}
+            // height={600}
+            // width={500}
             data={chartData}
             margin={{
               top: 0,
@@ -65,7 +65,6 @@ const MyAreaChart = ({ weekGameLogsData }: Props) => {
               left: 30,
               bottom: 0,
             }}
-            className="p-2"
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" tick={{ fontSize: 12 }} angle={-30} textAnchor="end" />

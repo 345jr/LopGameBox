@@ -84,11 +84,47 @@ const Dashboard = () => {
   return (
     <>
       <div className="mb-4 px-4">
+        {/* 统计数据卡片式展示 */}
+        <div className="mx-auto mt-4 mb-4 max-w-full">
+          <div className=" grid grid-cols-4 gap-4">
+            {/* 游戏总数 */}
+            <div className="dashboardCard p-6">
+              <p className="mb-2 text-xs text-slate-600">游戏总数</p>
+              <p className="mb-1 text-3xl font-bold text-slate-900">{gameStatistics.gameCount}</p>
+              <p className="text-xs text-slate-500">总计统计</p>
+            </div>
+
+            {/* 总游戏时间 */}
+            <div className="dashboardCard p-6">
+              <p className="mb-2 text-xs text-slate-600">总游戏时间</p>
+              <p className="mb-1 text-3xl font-bold text-slate-900">
+                {formatTimeToHours(gameStatistics.gamePlayTime)}
+              </p>
+              <p className="text-xs text-slate-500">累计游玩</p>
+            </div>
+
+            {/* 总启动次数 */}
+            <div className="dashboardCard p-6">
+              <p className="mb-2 text-xs text-slate-600">总启动次数</p>
+              <p className="mb-1 text-3xl font-bold text-slate-900">{gameStatistics.launchCount}</p>
+              <p className="text-xs text-slate-500">启动统计</p>
+            </div>
+
+            {/* 总存储占用 */}
+            <div className="dashboardCard p-6">
+              <p className="mb-2 text-xs text-slate-600">总存储占用</p>
+              <p className="mb-1 text-3xl font-bold text-slate-900">
+                {gameSizeFormat(gameStatistics.totalDiskSize)}
+              </p>
+              <p className="text-xs text-slate-500">本地占用空间</p>
+            </div>
+          </div>
+        </div>
         {/* 饼图和区域图并排展示 */}
-        <div className="mb-4 grid grid-cols-[30%_70%] gap-2 mt-4">
+        <div className="mt-4 mb-4 grid grid-cols-[30%_70%] gap-2">
           <div className="gird grid-rows-2 gap-4">
             {/* 饼图卡片 */}
-            <div className="dashboardCard p-6 mb-4">
+            <div className="dashboardCard mb-4 p-6">
               <h3 className="mb-2 text-lg font-semibold text-black">全模式游玩占比</h3>
               <div className="flex items-center justify-center">
                 <div className="w-full max-w-sm">
@@ -133,10 +169,11 @@ const Dashboard = () => {
           </div>
 
           {/* 区域图卡片 */}
-          <div className="dashboardCard p-6">
-            <h3 className="mb-4 text-lg font-semibold text-slate-900">周游玩总览</h3>
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-row justify-center gap-4">
+          <div className="dashboardCard flex flex-col p-6">
+            {/* 顶部一排字 */}
+            <div className="flex flex-row">
+              <h3 className="mb-4 text-lg font-semibold text-slate-900">周游玩总览</h3>
+              <div className="mb-2.5 ml-4 flex flex-row justify-center gap-4">
                 {isNowWeek ? (
                   <>
                     <button className="text-sm">时间范围:{getWeekRange(isNowWeek)}</button>
@@ -159,47 +196,8 @@ const Dashboard = () => {
                   </>
                 )}
               </div>
-              <div className="w-full">
-                <MyAreaChart weekGameLogsData={weekGameLogsData} />
-              </div>
             </div>
-          </div>
-        </div>
-
-        {/* 统计数据卡片式展示 */}
-        <div className="mx-auto mb-8 max-w-full">
-          <div className="mt-4 grid grid-cols-4 gap-4">
-            {/* 游戏总数 */}
-            <div className="dashboardCard p-6">
-              <p className="mb-2 text-xs text-slate-600">游戏总数</p>
-              <p className="mb-1 text-3xl font-bold text-slate-900">{gameStatistics.gameCount}</p>
-              <p className="text-xs text-slate-500">总计统计</p>
-            </div>
-
-            {/* 总游戏时间 */}
-            <div className="dashboardCard p-6">
-              <p className="mb-2 text-xs text-slate-600">总游戏时间</p>
-              <p className="mb-1 text-3xl font-bold text-slate-900">
-                {formatTimeToHours(gameStatistics.gamePlayTime)}
-              </p>
-              <p className="text-xs text-slate-500">累计游玩</p>
-            </div>
-
-            {/* 总启动次数 */}
-            <div className="dashboardCard p-6">
-              <p className="mb-2 text-xs text-slate-600">总启动次数</p>
-              <p className="mb-1 text-3xl font-bold text-slate-900">{gameStatistics.launchCount}</p>
-              <p className="text-xs text-slate-500">启动统计</p>
-            </div>
-
-            {/* 总存储占用 */}
-            <div className="dashboardCard p-6">
-              <p className="mb-2 text-xs text-slate-600">总存储占用</p>
-              <p className="mb-1 text-3xl font-bold text-slate-900">
-                {gameSizeFormat(gameStatistics.totalDiskSize)}
-              </p>
-              <p className="text-xs text-slate-500">本地占用空间</p>
-            </div>
+            <MyAreaChart weekGameLogsData={weekGameLogsData} />
           </div>
         </div>
       </div>

@@ -13,7 +13,7 @@ export class GameRepository {
   //查询游戏列表
   public getAllGames() {
     const stmt = this.db.prepare(`
-      SELECT * FROM games ORDER BY last_launch_time DESC, game_name ASC
+      SELECT * FROM games ORDER BY last_launch_time DESC, created_at DESC
     `);
     return stmt.all();
   }
@@ -22,13 +22,13 @@ export class GameRepository {
     // 如果 category 为 'all' 或为空/undefined，返回全部游戏
     if (!category || category.toLowerCase() === 'all') {
       const stmt = this.db.prepare(`
-        SELECT * FROM games ORDER BY last_launch_time DESC, game_name ASC
+        SELECT * FROM games ORDER BY last_launch_time DESC, created_at DESC
       `);
       return stmt.all();
     }
 
     const stmt = this.db.prepare(`
-      SELECT * FROM games WHERE category = ? ORDER BY last_launch_time DESC, game_name ASC
+      SELECT * FROM games WHERE category = ? ORDER BY last_launch_time DESC, created_at DESC
     `);
     return stmt.all(category);
   }
@@ -87,7 +87,7 @@ export class GameRepository {
   //模糊搜索游戏
   public searchGames(keyword: string) {
     const stmt = this.db.prepare(`
-      SELECT * FROM games WHERE game_name LIKE ? ORDER BY last_launch_time DESC
+      SELECT * FROM games WHERE game_name LIKE ? ORDER BY last_launch_time DESC, created_at DESC
     `);
     return stmt.all(`%${keyword}%`);
   }

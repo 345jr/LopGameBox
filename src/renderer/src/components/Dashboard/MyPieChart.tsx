@@ -17,7 +17,7 @@ const PieTooltip = ({ active, payload }: any) => {
 };
 
 // 饼图颜色配置
-const PIE_COLORS = ['#84cc16', '#eab308', '#0ea5e9', '#a855f7'];
+const PIE_COLORS = ['#4ade80', '#facc15', '#60a5fa', '#f472b6'];
 
 // 自定义饼图标签渲染函数
 const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, percent }: any) => {

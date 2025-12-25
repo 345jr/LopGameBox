@@ -98,7 +98,7 @@ const Dashboard = () => {
             <div className="dashboardCard p-6">
               <p className="mb-2 text-xs text-slate-600">总游戏时间</p>
               <p className="mb-1 text-3xl font-bold text-slate-900">
-                {formatTimeToHours(gameStatistics.gamePlayTime)}
+                {formatTimeToHours(gameStatistics.gamePlayTime)}h
               </p>
               <p className="text-xs text-slate-500">累计游玩</p>
             </div>

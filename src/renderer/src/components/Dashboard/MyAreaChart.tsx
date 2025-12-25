@@ -71,10 +71,10 @@ const MyAreaChart = ({ weekGameLogsData }: Props) => {
             <YAxis tickFormatter={(value) => `${value}h`} />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
-            <Area type="monotone" dataKey="普通模式" stackId="1" stroke="#84cc16" fill="#84cc16" />
-            <Area type="monotone" dataKey="快速模式" stackId="1" stroke="#eab308" fill="#eab308" />
-            <Area type="monotone" dataKey="挂机模式" stackId="1" stroke="#0ea5e9" fill="#0ea5e9" />
-            <Area type="monotone" dataKey="沉浸模式" stackId="1" stroke="#a855f7" fill="#a855f7" />
+            <Area type="monotone" dataKey="普通模式" stackId="1" stroke="#4ade80" fill="#4ade80" />
+            <Area type="monotone" dataKey="快速模式" stackId="1" stroke="#facc15" fill="#facc15" />
+            <Area type="monotone" dataKey="挂机模式" stackId="1" stroke="#60a5fa" fill="#60a5fa" />
+            <Area type="monotone" dataKey="沉浸模式" stackId="1" stroke="#f472b6" fill="#f472b6" />
           </AreaChart>
         </ResponsiveContainer>
       </div>

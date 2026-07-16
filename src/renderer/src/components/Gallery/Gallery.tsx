@@ -134,7 +134,7 @@ const Gallery = () => {
       closeAltModal()
       refetchSnapshots()
       toast.success('描述已保存')
-    } catch (error) {
+    } catch {
       toast.error('保存描述失败')
     }
   }
@@ -147,9 +147,9 @@ const Gallery = () => {
       try {
         await window.api.deleteSnapshotAlt(currentSnapshotId)
         closeAltModal()
-        refetchSnapshots
+        void refetchSnapshots()
         toast.success('描述已删除')
-      } catch (error) {
+      } catch {
         toast.error('删除失败')
       }
     }

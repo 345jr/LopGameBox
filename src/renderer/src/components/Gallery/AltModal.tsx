@@ -36,7 +36,7 @@ const AltModal = ({
           <div className="relative">
             <div className="border-l-4 border-black/20 bg-white px-8 py-12">
               <p className="text-center font-serif text-lg leading-relaxed text-black italic">
-                "{altText}"
+                「{altText}」
               </p>
             </div>
 

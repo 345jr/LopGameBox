@@ -299,7 +299,7 @@ const GameCards = () => {
               try {
                 await window.api.openDevTools()
                 toast.success('DevTools 打开成功')
-              } catch (err) {
+              } catch {
                 toast.error('DevTools 打开失败')
               }
             }}

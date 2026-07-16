@@ -22,6 +22,21 @@ const COMPLETION_ACHIEVEMENTS = [
   { level: 5, percent: 100, name: '完美达成', description: '游戏完成度达到100%' }
 ]
 
+/** 从成就列表解析已存储的时长成就等级（0 表示未获得） */
+function getStoredTimeLevel(list: GameAchievement[] | undefined): number {
+  const timeAchievement = list?.find((a) => a.achievement_type === '时长成就')
+  if (!timeAchievement) return 0
+
+  const desc = timeAchievement.description || ''
+  const match = desc.match(/(\d+)小时/)
+  if (match) {
+    const hours = parseInt(match[1])
+    const level = TIME_ACHIEVEMENTS.find((t) => t.hours === hours)
+    return level?.level || 0
+  }
+  return 0
+}
+
 const Achievements: React.FC = () => {
   const { gameId } = useParams()
   const gameIdNum = parseInt(gameId as string)
@@ -38,21 +53,6 @@ const Achievements: React.FC = () => {
     description: ''
   })
 
-  // 获取已存储（数据库中的）时长成就等级（0 表示未获得）
-  const getStoredTimeLevel = () => {
-    const timeAchievement = achievementsData?.find((a) => a.achievement_type === '时长成就')
-    if (!timeAchievement) return 0
-
-    const desc = timeAchievement.description || ''
-    const match = desc.match(/(\d+)小时/)
-    if (match) {
-      const hours = parseInt(match[1])
-      const level = TIME_ACHIEVEMENTS.find((t) => t.hours === hours)
-      return level?.level || 0
-    }
-    return 0
-  }
-
   // 根据游玩时长自动同步“时长成就”，仅在需要升级时执行
   React.useEffect(() => {
     if (!gameIdNum || gameTime == null || !achievementsData) return
@@ -62,10 +62,10 @@ const Achievements: React.FC = () => {
     const idx = TIME_ACHIEVEMENTS.findIndex((a) => gameTimeHours < a.hours)
     const achievedLevel = idx === -1 ? TIME_ACHIEVEMENTS.length : idx // 1-based 等级数量
 
-    const storedLevel = getStoredTimeLevel()
+    const storedLevel = getStoredTimeLevel(achievementsData)
 
     if (achievedLevel > 0 && storedLevel < achievedLevel) {
-      ;(async () => {
+      void (async () => {
         const achievement = TIME_ACHIEVEMENTS[achievedLevel - 1]
         const timeAch = achievementsData.find((a) => a.achievement_type === '时长成就')
 
@@ -215,7 +215,7 @@ const Achievements: React.FC = () => {
   if (!achievementsData) return <div>暂无数据</div>
 
   // 渲染前的派生数据
-  const storedTimeLevel = getStoredTimeLevel() // 0..N（与 TIME_ACHIEVEMENTS 的 level 对齐）
+  const storedTimeLevel = getStoredTimeLevel(achievementsData) // 0..N（与 TIME_ACHIEVEMENTS 的 level 对齐）
   const playHours = Math.floor((gameTime || 0) / 3600)
   const nextTimeIdx = TIME_ACHIEVEMENTS.findIndex((a) => playHours < a.hours) // -1 表示已满级
 

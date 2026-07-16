@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   VscFolder,
   VscFolderOpened,
@@ -13,14 +14,7 @@ import toast from 'react-hot-toast'
 
 import formatFileSize from '@renderer/util/gameSizeFormat'
 import { formatTimeCalender } from '@renderer/util/timeFormat'
-
-interface SaveBackup {
-  id: number
-  backup_name: string
-  backup_path: string
-  file_size: number
-  created_at: number
-}
+import { queryKeys } from '@renderer/api/queryKeys'
 
 interface FolderManageContentProps {
   onClose: () => void
@@ -29,43 +23,31 @@ interface FolderManageContentProps {
 }
 
 const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentProps) => {
-  const [savePath, setSavePath] = useState<string>('')
-  const [savePathSet, setSavePathSet] = useState(false)
-  const [saveFileSize, setSaveFileSize] = useState<number>(0)
-  const [backups, setBackups] = useState<SaveBackup[]>([])
+  const queryClient = useQueryClient()
   const [loading, setLoading] = useState(false)
 
-  // 组件加载时检查是否已设置存档路径
-  useEffect(() => {
-    checkSavePath()
-  }, [gameId])
+  // 存档路径信息（React Query 拉数，避免 effect 内 setState）
+  const { data: saveInfo } = useQuery({
+    queryKey: queryKeys.gameSavePath(gameId),
+    queryFn: () => window.api.getGameSavePath(gameId)
+  })
 
-  // 检查存档路径
-  const checkSavePath = async () => {
-    try {
-      const result = await window.api.getGameSavePath(gameId)
-      if (result) {
-        setSavePath(result.save_path)
-        setSaveFileSize(result.file_size)
-        setSavePathSet(true)
-        // 加载备份列表
-        await loadBackups()
-      }
-    } catch (error) {
-      console.error('检查存档路径失败:', error)
-      toast.error('无法获取存档路径信息')
-    }
+  const savePath = saveInfo?.save_path ?? ''
+  const saveFileSize = saveInfo?.file_size ?? 0
+  const savePathSet = Boolean(saveInfo)
+
+  // 备份列表：有存档路径后才请求
+  const { data: backups = [] } = useQuery({
+    queryKey: queryKeys.saveBackups(gameId),
+    queryFn: () => window.api.getSaveBackups(gameId),
+    enabled: savePathSet
+  })
+
+  const refreshSaveInfo = async () => {
+    await queryClient.invalidateQueries({ queryKey: queryKeys.gameSavePath(gameId) })
   }
-
-  // 加载备份列表
-  const loadBackups = async () => {
-    try {
-      const backupList = await window.api.getSaveBackups(gameId)
-      setBackups(backupList)
-    } catch (error) {
-      console.error('加载备份列表失败:', error)
-      toast.error('无法加载备份列表')
-    }
+  const refreshBackups = async () => {
+    await queryClient.invalidateQueries({ queryKey: queryKeys.saveBackups(gameId) })
   }
 
   // 打开游戏文件夹
@@ -93,9 +75,8 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
         // 保存存档路径到数据库
         await window.api.setGameSavePath(gameId, selectedPath, fileSize)
 
-        setSavePath(selectedPath)
-        setSaveFileSize(fileSize)
-        setSavePathSet(true)
+        await refreshSaveInfo()
+        await refreshBackups()
 
         toast.dismiss(loadingToast)
         toast.success('存档路径设置成功')
@@ -134,8 +115,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
       toast.dismiss(loadingToast)
       toast.success('存档大小已更新')
 
-      // 重新加载存档信息
-      await checkSavePath()
+      await refreshSaveInfo()
     } catch (error) {
       console.error('刷新存档大小失败:', error)
       toast.error('刷新存档大小失败')
@@ -154,8 +134,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
       const result = await window.api.createSaveBackup(gameId)
       if (result.success) {
         toast.success(result.message)
-        // 重新加载备份列表
-        await loadBackups()
+        await refreshBackups()
       } else {
         toast.error(result.message)
       }
@@ -178,8 +157,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
 
       if (result.success) {
         toast.success(result.message)
-        // 刷新存档信息
-        await checkSavePath()
+        await refreshSaveInfo()
       } else {
         toast.error(result.message)
       }
@@ -197,8 +175,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
       const result = await window.api.deleteSaveBackup(backupId)
       if (result.success) {
         toast.success(result.message)
-        // 从列表中移除已删除的备份
-        setBackups(backups.filter((b) => b.id !== backupId))
+        await refreshBackups()
       } else {
         toast.error(result.message)
       }

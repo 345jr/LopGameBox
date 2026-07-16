@@ -7,7 +7,7 @@ function stringifyErr(err: unknown) {
     if (typeof err === 'string') return err
     if (err instanceof Error) return `${err.name}: ${err.message}\n${err.stack || ''}`
     return JSON.stringify(err, null, 2)
-  } catch (e) {
+  } catch {
     return String(err)
   }
 }
@@ -23,7 +23,7 @@ const ErrorPage: React.FC = () => {
       await navigator.clipboard.writeText(text)
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
-    } catch (e) {
+    } catch {
       setCopied(false)
     }
   }, [err])

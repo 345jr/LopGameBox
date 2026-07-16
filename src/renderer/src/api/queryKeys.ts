@@ -25,5 +25,13 @@ export const queryKeys = {
   galleryList: (gameId: string, newestFirst: boolean) =>
     ['gallery-list', gameId, newestFirst] as const,
   // 游戏时长
-  getGamePlaytime: (gameId: string) => ['game-playtime', gameId] as const
+  getGamePlaytime: (gameId: string) => ['game-playtime', gameId] as const,
+  // 仪表盘总览
+  dashboardStats: () => ['dashboard-stats'] as const,
+  // 仪表盘周日志（本周 / 上周）
+  dashboardWeekLogs: (isNowWeek: boolean) => ['dashboard-week-logs', isNowWeek] as const,
+  // 游戏存档路径
+  gameSavePath: (gameId: number) => ['game-save-path', gameId] as const,
+  // 存档备份列表
+  saveBackups: (gameId: number) => ['save-backups', gameId] as const
 }

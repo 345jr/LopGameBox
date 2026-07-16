@@ -70,7 +70,7 @@ const BannerSelectContent = ({
       toast.success('封面图替换成功')
       onSuccess()
       onClose()
-    } catch (error: any) {
+    } catch {
       toast.error('封面图替换失败')
     } finally {
       setIsLoading(false)
@@ -121,7 +121,7 @@ const BannerSelectContent = ({
           try {
             const ab = await f.arrayBuffer()
             buffer = new Uint8Array(ab)
-          } catch (err) {
+          } catch {
             buffer = undefined
           }
           return {
@@ -183,7 +183,7 @@ const BannerSelectContent = ({
       toast.success('封面图链接设置成功')
       onSuccess()
       onClose()
-    } catch (error: any) {
+    } catch {
       toast.error('封面图链接设置失败')
     } finally {
       setIsLoading(false)

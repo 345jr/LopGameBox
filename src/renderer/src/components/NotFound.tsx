@@ -15,7 +15,7 @@ const NotFound: React.FC = () => {
       await navigator.clipboard.writeText(window.location.href)
       setCopied(true)
       setTimeout(() => setCopied(false), 1500)
-    } catch (e) {
+    } catch {
       setCopied(false)
     }
   }, [])

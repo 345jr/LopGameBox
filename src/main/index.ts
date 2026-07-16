@@ -48,7 +48,7 @@ let elapsedTimeSeconds: number = 0
 //模式热切换记录开关
 let modeToggleLog: boolean = false
 //需要切换的模式和未切换前的状态
-let modeToggle: string[] = new Array(2).fill('')
+const modeToggle: string[] = new Array(2).fill('')
 //是否记录?
 let isLoged = false
 //截图快捷键是否启用

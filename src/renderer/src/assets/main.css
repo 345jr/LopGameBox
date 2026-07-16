@@ -1,9 +1,84 @@
 @import 'tailwindcss';
 
+/*
+ * Brand UI font — 霞鹜文楷 (subset → WOFF2)
+ *
+ * Official weights only: Light / Regular / Medium (no separate Bold).
+ * Mapping (aligned with lxgw webfont convention + Tailwind utilities):
+ *   font-light     300  → Light
+ *   font-normal    400  → Regular   (default body)
+ *   font-medium    500  → Medium
+ *   font-semibold  600  → Medium
+ *   font-bold      700  → Medium
+ *
+ * Missing glyphs fall through the system CJK stack (YaHei / PingFang / …).
+ */
+
+/* Light — 100–350 covers thin / extralight / light */
 @font-face {
-  font-family: 'LXGW-M';
-  src: url('../fonts/LXGWWenKai-Medium.ttf') format('truetype');
+  font-family: 'LXGW WenKai';
+  src:
+    local('LXGW WenKai Light'),
+    local('LXGWWenKai-Light'),
+    url('../fonts/LXGWWenKai-Light.woff2') format('woff2');
+  font-weight: 100 350;
+  font-style: normal;
+  font-display: swap;
 }
+
+/* Regular — default UI body */
+@font-face {
+  font-family: 'LXGW WenKai';
+  src:
+    local('LXGW WenKai'),
+    local('LXGW WenKai Regular'),
+    local('LXGWWenKai-Regular'),
+    url('../fonts/LXGWWenKai-Regular.woff2') format('woff2');
+  font-weight: 351 450;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Medium — covers medium / semibold / bold (heaviest official face) */
+@font-face {
+  font-family: 'LXGW WenKai';
+  src:
+    local('LXGW WenKai Medium'),
+    local('LXGWWenKai-Medium'),
+    url('../fonts/LXGWWenKai-Medium.woff2') format('woff2');
+  font-weight: 451 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
+ * Tailwind v4 theme: font-sans / preflight default = brand stack.
+ * Order: brand → Windows CJK UI → macOS CJK → generic system → emoji.
+ */
+@theme {
+  --font-sans:
+    'LXGW WenKai', 'Microsoft YaHei UI', 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB',
+    'Noto Sans SC', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol', 'Noto Color Emoji';
+
+  /* Gallery / literary copy stays on-brand for CJK */
+  --font-serif:
+    'LXGW WenKai', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace;
+}
+
+/* Desktop text rendering polish (Electron/Chromium) */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Explicit default weight so body uses Regular, not inherited medium */
+  font-weight: 400;
+}
+
 @layer components {
   /* 通用 */
   /* 过渡动画效果 */
@@ -34,12 +109,10 @@
     @apply transition-transform duration-200 ease-out hover:-translate-y-1;
   }
 }
+
 @layer components {
   /* 仪表盘卡片 */
   .dashboardCard {
     @apply rounded-lg border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 shadow-md transition-shadow hover:shadow-lg;
   }
-}
-body {
-  font-family: 'LXGW-M';
 }

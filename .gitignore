@@ -6,3 +6,7 @@ db
 .DS_Store
 .eslintcache
 *.log*
+
+# Full-size LXGW WenKai sources only (repo root). Rebuild: npm run build:fonts
+# Runtime subsets in src/renderer/src/fonts/ stay tracked.
+/fonts/

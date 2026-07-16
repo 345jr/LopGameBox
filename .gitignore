@@ -1,24 +1,7 @@
 node_modules
 dist
 out
+db
 .DS_Store
 .eslintcache
 *.log*
-build-default/
-# 封面图以及游戏图集
-public/*
-screenshots/*
-# 杂物
-src/main/misc/*
-misc
-# 数据库
-db/*
-# 备份
-备份/*
-saveBackups/*
-# 计划
-todo.md
-# 文档
-docs/*
-# 脚本
-# scripts/*

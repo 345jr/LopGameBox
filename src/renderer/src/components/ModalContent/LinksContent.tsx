@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import {
-  useFetchMetadata,
   useGameLinks,
   useAddGameLink,
   useUpdateGameLink,
@@ -9,13 +8,6 @@ import {
 } from '@renderer/api/queries';
 
 import linkIcon from '@renderer/assets/link.png';
-
-interface LinkMetadata {
-  title: string;
-  description: string;
-  favicon: string;
-  url: string;
-}
 
 interface LinkItem {
   id: number;
@@ -28,9 +20,19 @@ interface LinkItem {
   updated_at: number;
 }
 
+/** 从 URL 推导本地默认标题（不再请求远端元数据服务） */
+const titleFromUrl = (rawUrl: string): string => {
+  try {
+    const parsed = new URL(rawUrl);
+    return parsed.hostname.replace(/^www\./i, '') || rawUrl;
+  } catch {
+    return rawUrl;
+  }
+};
+
 const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number }) => {
   const [url, setUrl] = useState('');
-  
+
   // 编辑模态框状态
   const [editModal, setEditModal] = useState<{
     isOpen: boolean;
@@ -50,37 +52,20 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
   const updateLinkMutation = useUpdateGameLink();
   const deleteLinkMutation = useDeleteGameLink();
 
-  // 获取元数据
-  const {
-    refetch: fetchMetadataQuery,
-    isFetching: fetchingMetadata,
-  } = useFetchMetadata(url, false); 
-
-  const LOCAL_FAVICON_PLACEHOLDER = linkIcon;
-
-  // 判断favicon是否为网图否则采用本地占位
-  const resolveFavicon = (fav: string | undefined | null): string => {
-    const v = (fav || '').trim();
-    if (!v) return LOCAL_FAVICON_PLACEHOLDER;
-
-    // 仅当非 http/https 且非 data: 才判定为需要替换
-    const isHttp = /^https?:\/\//i.test(v);
-    const isData = /^data:/i.test(v);
-    if (isHttp || isData) return v;
-
-    // 命中诸如 /favicon.ico、/favicon-32x32.png、favicon.svg、C:\\... 等非网图路径时替换
-    return LOCAL_FAVICON_PLACEHOLDER;
-  };
-
-  // 获取元数据
-  const handleFetchMetadata = async () => {
+  // 纯本地添加链接：标题默认取域名，图标使用本地占位，可在编辑中修改
+  const handleAddLink = async () => {
     if (!url.trim()) {
       toast.error('请输入URL');
       return;
     }
-    // 简单的URL验证
+
+    let normalizedUrl = url.trim();
     try {
-      new URL(url);
+      // 允许用户省略协议
+      if (!/^https?:\/\//i.test(normalizedUrl)) {
+        normalizedUrl = `https://${normalizedUrl}`;
+      }
+      new URL(normalizedUrl);
     } catch {
       toast.error('请输入有效的URL');
       return;
@@ -88,35 +73,22 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
 
     toast.promise(
       (async () => {
-        // 手动触发元数据查询
-        const { data: result } = await fetchMetadataQuery();
-        const payload: any = result && (result as any).data ? (result as any).data : result;
-
-        if (payload && (payload.title || payload.ogTitle || payload.url || payload.description || payload.ogDescription)) {
-          const metadata: LinkMetadata = {
-            title: payload.title || payload.ogTitle || '无标题',
-            description: payload.description || payload.ogDescription || '',
-            favicon: resolveFavicon(payload.favicon),
-            url: payload.url || url,
-          };
-          // 保存链接
-          await addLinkMutation.mutateAsync({
-            gameId,
-            metadata,
-          });
-          // 清空输入框
-          setUrl('');
-          return metadata;
-        }
-
-        const message = (result as any)?.message || (result as any)?.error || '获取元数据失败';
-        throw new Error(message);
+        await addLinkMutation.mutateAsync({
+          gameId,
+          metadata: {
+            title: titleFromUrl(normalizedUrl),
+            description: '',
+            favicon: linkIcon,
+            url: normalizedUrl,
+          },
+        });
+        setUrl('');
       })(),
       {
         loading: '正在添加链接...',
-        success: '链接添加成功！',
+        success: '链接添加成功！可点击编辑修改标题',
         error: (err) => `添加失败: ${err instanceof Error ? err.message : '未知错误'}`,
-      }
+      },
     );
   };
 
@@ -219,16 +191,16 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
               className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  handleFetchMetadata();
+                  handleAddLink();
                 }
               }}
             />
             <button
-              onClick={handleFetchMetadata}
-              disabled={addLinkMutation.isPending || fetchingMetadata}
+              onClick={handleAddLink}
+              disabled={addLinkMutation.isPending}
               className="cursor-pointer rounded-lg bg-blue-500 px-6 py-2 text-white transition hover:bg-blue-600 disabled:bg-gray-400"
             >
-              {addLinkMutation.isPending || fetchingMetadata ? '添加中...' : '添加'}
+              {addLinkMutation.isPending ? '添加中...' : '添加'}
             </button>
           </div>
         </div>

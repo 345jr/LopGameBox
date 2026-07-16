@@ -1,27 +1,34 @@
-# LopopGameBox
+# lopbox
 
-A lightweight, practical game manager
+An Electron application with React and TypeScript
 
----
+## Recommended IDE Setup
 
-LopopGameBox 是一个简单且实用的游戏管理器，旨在帮助你集中管理本地游戏并统计使用数据。主要功能包括：
+- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 
-1. 基本的游戏管理：添加、删除、搜索、分类等。
-2. 游戏数据统计：记录游戏时长与启动次数等。
-3. 游戏快照管理：保存与恢复游戏相关截图/状态。
-4. 云端备份与统计：同步并备份统计数据到云端。
-5. 游戏模式与提醒：切换游玩模式并提供休息提醒。
-6. 游戏版本管理：手动更新版本
-7. 相关链接展示:  通过网页元数据展示链接
-8. 成就管理 ：自定义成就
-9. 存档管理 : 轻松备份和覆盖存档,SL大法
+## Project Setup
 
-## 效果展示
+### Install
 
-![效果展示](https://image.lopop.top/github/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-10-20%20103759.png)
-![效果展示](https://image.lopop.top/github/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-11-06%20154809.png)
-![效果展示](https://image.lopop.top/github/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202025-11-06%20154343.png)
+```bash
+$ npm install
+```
 
-## 打包
-从最开始的798MB 缩减到现在的516MB  
-2025.11.1 : 优化到498MB
+### Development
+
+```bash
+$ npm run dev
+```
+
+### Build
+
+```bash
+# For windows
+$ npm run build:win
+
+# For macOS
+$ npm run build:mac
+
+# For Linux
+$ npm run build:linux
+```

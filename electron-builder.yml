@@ -1,6 +1,5 @@
-appId: com.lopgamebox.app
-productName: LopGameBox
-copyright: Copyright © 2025 LopGameBox
+appId: com.lopbox.app
+productName: LopBox
 directories:
   buildResources: build
 files:
@@ -18,15 +17,11 @@ files:
   - '!docs/**'
   - '!scripts/**'
   - '!.github/**'
-  - '!build-defaults/**'
-  - '!dist/**'
   - '!fonts/**'
-# asarUnpack:
-#   - resources/**
+  - '!dist/**'
 win:
-  executableName: lopgamebox
+  executableName: lopbox
   icon: build/icon.ico
-  legalTrademarks: Copyright © 2025 LopGameBox
   target:
     - target: nsis
       arch:
@@ -39,7 +34,6 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
-# 打包名称,从package读取
 portable:
   artifactName: ${name}-${version}-portable.${ext}
 mac:
@@ -65,3 +59,5 @@ npmRebuild: false
 publish:
   provider: generic
   url: https://example.com/auto-updates
+electronDownload:
+  mirror: https://npmmirror.com/mirrors/electron/

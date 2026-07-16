@@ -128,13 +128,9 @@ export class GameService {
   public getGameLogByModeLastWeek() {
     return this.gameLogsRepo.getGameLogByModeLastWeek();
   }
-  //备份数据库
+  // 本地备份数据库
   public async backupDatabase(): Promise<string> {
     return this.backupService.backupDatabase();
-  }
-  // 上传备份文件（转发到 BackupService）
-  public async uploadBackup(backupPath: string, uploadUrl: string, token?: string) {
-    return this.backupService.uploadBackup(backupPath, uploadUrl, token);
   }
   //更新游戏版本
   public updateGameVersion(

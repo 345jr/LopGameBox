@@ -748,18 +748,13 @@ app.whenReady().then(() => {
   });
 
   createWindow();
-  //备份数据库(本地)
+  // 本地备份数据库
   ipcMain.handle('db:backupDatabase', async () => {
-    return gameService.backupDatabase();
-  });
-  //上传备份数据
-  ipcMain.handle('db:backupAndUpload', async (_event, uploadUrl: string, token?: string) => {
     try {
       const backupPath = await gameService.backupDatabase();
-      const uploadResult = await gameService.uploadBackup(backupPath, uploadUrl, token);
-      return { success: true, path: backupPath, uploadResult };
+      return { success: true, path: backupPath };
     } catch (err: any) {
-      console.error('备份并上传失败:', err);
+      console.error('本地备份失败:', err);
       return { success: false, error: err?.message ?? String(err) };
     }
   });

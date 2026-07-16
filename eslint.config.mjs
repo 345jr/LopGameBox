@@ -30,5 +30,12 @@ export default defineConfig(
       'react/prop-types': 'off'
     }
   },
+  {
+    // 渲染层组件/hooks 返回类型交给 TS 推断（React 惯例）
+    files: ['src/renderer/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off'
+    }
+  },
   eslintConfigPrettier
 )

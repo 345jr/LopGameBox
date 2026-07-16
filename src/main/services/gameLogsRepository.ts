@@ -1,7 +1,9 @@
+import type { GameLogDailyModeRow, GameLogDayHours, GameLogModeHours } from '../types/rows'
 import { DatabaseManager } from './databaseManager'
 
 export class GameLogsRepository {
   private db = DatabaseManager.getInstance()
+
   //插入游玩记录
   public insertGameLog(
     gameId: number,
@@ -9,7 +11,7 @@ export class GameLogsRepository {
     endedAt: number,
     launchState: string,
     gameMode: string = ''
-  ) {
+  ): void {
     // 如果游玩时长小于10秒则不记录
     const play_time = Math.round((endedAt - launchedAt) / 1000)
     if (play_time < 10) return
@@ -19,8 +21,9 @@ export class GameLogsRepository {
     `)
     stmt.run(gameId, play_time, launchedAt, endedAt, launchState, gameMode)
   }
+
   //获取今天，本周，本月的游戏时长记录|时间的界限是每天的下午4点
-  public getGameLogDayWeekMonth() {
+  public getGameLogDayWeekMonth(): GameLogDayHours {
     const stmt = this.db.prepare(`
         SELECT
       (
@@ -45,10 +48,11 @@ export class GameLogsRepository {
             AND launched_at / 1000 < CAST(strftime('%s', 'now', 'start of month', '+1 month', 'localtime') AS INTEGER)
       ) AS monthHours;
     `)
-    return stmt.get()
+    return stmt.get() as GameLogDayHours
   }
+
   //获取4种模式下不同的时长分布(总)
-  public getGameLogByMode() {
+  public getGameLogByMode(): GameLogModeHours {
     const stmt = this.db.prepare(`
       SELECT
         (
@@ -72,10 +76,11 @@ export class GameLogsRepository {
           WHERE launch_state = 'success' AND game_mode = 'Infinity'
         ) AS infinityHours;
     `)
-    return stmt.get()
+    return stmt.get() as GameLogModeHours
   }
-  //获取本周的游戏模式时长分布  本周（周一到周日）逐日分组统计，每日分列 Normal/Fast/Afk/Infinity 小时数
-  public getGameLogByModeThisWeek() {
+
+  //获取本周的游戏模式时长分布
+  public getGameLogByModeThisWeek(): GameLogDailyModeRow[] {
     const stmt = this.db.prepare(`     
     WITH RECURSIVE
     bounds AS (
@@ -111,11 +116,11 @@ export class GameLogsRepository {
     GROUP BY d.day
     ORDER BY d.day;
       `)
-    return stmt.all()
+    return stmt.all() as GameLogDailyModeRow[]
   }
 
-  // 获取上周（周一到周日）的游戏模式时长分布：逐日分组，分列 Normal/Fast/Afk/Infinity 小时数
-  public getGameLogByModeLastWeek() {
+  // 获取上周的游戏模式时长分布
+  public getGameLogByModeLastWeek(): GameLogDailyModeRow[] {
     const stmt = this.db.prepare(`
     WITH RECURSIVE
     bounds AS (
@@ -152,6 +157,6 @@ export class GameLogsRepository {
     GROUP BY d.day
     ORDER BY d.day;
     `)
-    return stmt.all()
+    return stmt.all() as GameLogDailyModeRow[]
   }
 }

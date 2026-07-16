@@ -2,7 +2,10 @@ import * as fs from 'fs/promises'
 import path from 'path'
 
 //递归计算文件夹大小的通用函数
-async function getDirectorySizeAsync(dir: string, visitedInodes = new Set()) {
+async function getDirectorySizeAsync(
+  dir: string,
+  visitedInodes: Set<number> = new Set()
+): Promise<number> {
   let totalSize = 0
   try {
     const entries = await fs.readdir(dir, { withFileTypes: true })
@@ -33,12 +36,12 @@ async function getDirectorySizeAsync(dir: string, visitedInodes = new Set()) {
 }
 
 //获取游戏文件夹大小（游戏exe文件所在的父目录）
-export async function getSize(filePath: string) {
+export async function getSize(filePath: string): Promise<number> {
   const dirPath = path.dirname(filePath)
   return getDirectorySizeAsync(dirPath)
 }
 
 //直接获取文件夹大小
-export async function getFolderSize(folderPath: string) {
+export async function getFolderSize(folderPath: string): Promise<number> {
   return getDirectorySizeAsync(folderPath)
 }

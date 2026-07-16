@@ -44,6 +44,60 @@ export interface GameSaveBackupRow {
   created_at: number
 }
 
+export interface GameLinkRow {
+  id: number
+  game_id: number
+  url: string
+  title: string | null
+  description: string | null
+  icon: string | null
+  created_at: number
+  updated_at: number
+}
+
+export interface GameGalleryRow {
+  id: number
+  game_id: number
+  image_path: string
+  image_type: string
+  relative_path: string
+  alt: string | null
+  created_at: number
+}
+
+export interface GameAchievementRow {
+  id: number
+  game_id: number
+  achievement_name: string
+  achievement_type: string
+  description: string | null
+  is_completed: number
+  created_at: number
+  completed_at: number | null
+}
+
+export interface GameLogDayHours {
+  todayHours: number
+  weekHours: number
+  monthHours: number
+}
+
+export interface GameLogModeHours {
+  normalHours: number
+  fastHours: number
+  afkHours: number
+  infinityHours: number
+}
+
+export interface GameLogDailyModeRow {
+  play_date: string
+  normalHours: number
+  fastHours: number
+  afkHours: number
+  infinityHours: number
+  totalHours: number
+}
+
 export interface DropFilePayload {
   name?: string
   type?: string

@@ -38,7 +38,7 @@ export class DatabaseManager {
     return this.dbInstance
   }
   //初始化数据库
-  private static initSchema() {
+  private static initSchema(): void {
     this.dbInstance.exec(`
       -- 游戏表
       CREATE TABLE IF NOT EXISTS games (
@@ -168,7 +168,7 @@ export class DatabaseManager {
     }
   }
   //关闭数据库实例
-  public static close() {
+  public static close(): void {
     if (this.dbInstance?.open) {
       this.dbInstance.close()
     }

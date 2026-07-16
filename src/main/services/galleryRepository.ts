@@ -1,10 +1,15 @@
+import type { GameAchievementRow, GameGalleryRow } from '../types/rows'
 import { DatabaseManager } from './databaseManager'
 
 export class GalleryRepository {
   private db = DatabaseManager.getInstance()
 
   //添加一个新的Banner图
-  public setGameBanner(gameId: number, imagePath: string, relativePath: string) {
+  public setGameBanner(
+    gameId: number,
+    imagePath: string,
+    relativePath: string
+  ): { id: number | bigint; imagePath: string; type: string; relativePath: string } {
     // 先删除旧封面
     this.db
       .prepare('DELETE FROM game_gallery WHERE game_id = ? AND image_type = ?')
@@ -23,12 +28,18 @@ export class GalleryRepository {
   }
 
   //获取全部的Banner图数据
-  public getGameBanner() {
-    return this.db.prepare('SELECT * FROM game_gallery WHERE image_type = ?').all('banner')
+  public getGameBanner(): GameGalleryRow[] {
+    return this.db
+      .prepare('SELECT * FROM game_gallery WHERE image_type = ?')
+      .all('banner') as GameGalleryRow[]
   }
 
   //添加一个新的游戏快照
-  public setGameSnapshot(gameId: number, imagePath: string, relativePath: string) {
+  public setGameSnapshot(
+    gameId: number,
+    imagePath: string,
+    relativePath: string
+  ): { id: number | bigint; imagePath: string; type: string; relativePath: string } {
     const stmt = this.db.prepare(
       'INSERT INTO game_gallery (game_id, image_path, image_type , relative_path) VALUES (?,?,?,?)'
     )
@@ -42,14 +53,14 @@ export class GalleryRepository {
   }
 
   //获取游戏的快照，默认按 created_at 降序（从新到旧）
-  public getGameSnapshot(game_id: number, newestFirst: boolean = true) {
+  public getGameSnapshot(game_id: number, newestFirst: boolean = true): GameGalleryRow[] {
     const order = newestFirst ? 'DESC' : 'ASC'
     const sql = `SELECT * FROM game_gallery WHERE game_id = ? AND image_type = ? ORDER BY created_at ${order}`
-    return this.db.prepare(sql).all(game_id, 'snapshot')
+    return this.db.prepare(sql).all(game_id, 'snapshot') as GameGalleryRow[]
   }
 
   //删除某个游戏的快照
-  public delectSnapshot(id: number) {
+  public delectSnapshot(id: number): void {
     const stmt = this.db.prepare('DELETE FROM game_gallery WHERE id = ?')
     stmt.run(id)
     console.log(`删除成功`)
@@ -57,10 +68,8 @@ export class GalleryRepository {
 
   /**
    * 给快照添加/更新描述信息
-   * @param id 快照ID
-   * @param alt 描述文本
    */
-  public updateSnapshotAlt(id: number, alt: string) {
+  public updateSnapshotAlt(id: number, alt: string): void {
     const stmt = this.db.prepare('UPDATE game_gallery SET alt = ? WHERE id = ?')
     stmt.run(alt, id)
     console.log(`描述更新成功`)
@@ -68,9 +77,8 @@ export class GalleryRepository {
 
   /**
    * 删除快照的描述信息
-   * @param id 快照ID
    */
-  public deleteSnapshotAlt(id: number) {
+  public deleteSnapshotAlt(id: number): void {
     const stmt = this.db.prepare('UPDATE game_gallery SET alt = NULL WHERE id = ?')
     stmt.run(id)
     console.log(`描述删除成功`)
@@ -78,9 +86,8 @@ export class GalleryRepository {
 
   /**
    * 获取快照的描述信息
-   * @param id 快照ID
    */
-  public getSnapshotAlt(id: number) {
+  public getSnapshotAlt(id: number): string | null {
     const result = this.db.prepare('SELECT alt FROM game_gallery WHERE id = ?').get(id) as
       { alt: string | null } | undefined
     return result?.alt || null
@@ -88,19 +95,19 @@ export class GalleryRepository {
 
   // ==================== 成就相关方法 ====================
 
-  /**
-   * 为某个游戏创建成就
-   * @param gameId 游戏ID
-   * @param achievementName 成就名称
-   * @param achievementType 成就类型
-   * @param description 成就描述(可选)
-   */
   public createAchievement(
     gameId: number,
     achievementName: string,
     achievementType: string,
     description?: string
-  ) {
+  ): {
+    id: number | bigint
+    gameId: number
+    achievementName: string
+    achievementType: string
+    description?: string
+    isCompleted: number
+  } {
     const stmt = this.db.prepare(
       'INSERT INTO game_achievements (game_id, achievement_name, achievement_type, description) VALUES (?, ?, ?, ?)'
     )
@@ -115,30 +122,19 @@ export class GalleryRepository {
     }
   }
 
-  /**
-   * 删除某个游戏的成就
-   * @param achievementId 成就ID
-   */
-  public deleteAchievement(achievementId: number) {
+  public deleteAchievement(achievementId: number): void {
     const stmt = this.db.prepare('DELETE FROM game_achievements WHERE id = ?')
     stmt.run(achievementId)
     console.log(`成就删除成功`)
   }
 
-  /**
-   * 切换成就的完成状态
-   * @param achievementId 成就ID
-   * @param isCompleted 是否完成: 0=未完成, 1=已完成
-   */
-  public toggleAchievementStatus(achievementId: number, isCompleted: 0 | 1) {
+  public toggleAchievementStatus(achievementId: number, isCompleted: 0 | 1): void {
     if (isCompleted === 1) {
-      // 标记为已完成,记录完成时间
       const stmt = this.db.prepare(
         "UPDATE game_achievements SET is_completed = 1, completed_at = strftime('%s','now') WHERE id = ?"
       )
       stmt.run(achievementId)
     } else {
-      // 标记为未完成,清除完成时间
       const stmt = this.db.prepare(
         'UPDATE game_achievements SET is_completed = 0, completed_at = NULL WHERE id = ?'
       )
@@ -147,45 +143,33 @@ export class GalleryRepository {
     console.log(`成就状态更新成功`)
   }
 
-  /**
-   * 获取某个游戏的所有成就
-   * @param gameId 游戏ID
-   */
-  public getGameAchievements(gameId: number) {
+  public getGameAchievements(gameId: number): GameAchievementRow[] {
     return this.db
       .prepare('SELECT * FROM game_achievements WHERE game_id = ? ORDER BY created_at DESC')
-      .all(gameId)
+      .all(gameId) as GameAchievementRow[]
   }
 
-  /**
-   * 获取某个游戏已完成的成就
-   * @param gameId 游戏ID
-   */
-  public getCompletedAchievements(gameId: number) {
+  public getCompletedAchievements(gameId: number): GameAchievementRow[] {
     return this.db
       .prepare(
         'SELECT * FROM game_achievements WHERE game_id = ? AND is_completed = 1 ORDER BY completed_at DESC'
       )
-      .all(gameId)
+      .all(gameId) as GameAchievementRow[]
   }
 
-  /**
-   * 获取某个游戏未完成的成就
-   * @param gameId 游戏ID
-   */
-  public getUncompletedAchievements(gameId: number) {
+  public getUncompletedAchievements(gameId: number): GameAchievementRow[] {
     return this.db
       .prepare(
         'SELECT * FROM game_achievements WHERE game_id = ? AND is_completed = 0 ORDER BY created_at DESC'
       )
-      .all(gameId)
+      .all(gameId) as GameAchievementRow[]
   }
 
-  /**
-   * 获取游戏成就统计信息
-   * @param gameId 游戏ID
-   */
-  public getAchievementStats(gameId: number) {
+  public getAchievementStats(gameId: number): {
+    total: number
+    completed: number
+    completionRate: number
+  } {
     const result = this.db
       .prepare(
         'SELECT COUNT(*) as total, SUM(is_completed) as completed FROM game_achievements WHERE game_id = ?'

@@ -1,147 +1,147 @@
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
-import { TextPlugin } from 'gsap/TextPlugin';
-import { useEffect, useRef, useState } from 'react';
-import { FaSearch } from 'react-icons/fa';
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap'
+import { TextPlugin } from 'gsap/TextPlugin'
+import { useEffect, useRef, useState } from 'react'
+import { FaSearch } from 'react-icons/fa'
 import {
   VscChromeMinimize,
   VscChromeMaximize,
   VscChromeRestore,
   VscChromeClose,
-  VscTriangleDown,
-} from 'react-icons/vsc';
-import { Link, useNavigate } from 'react-router-dom';
+  VscTriangleDown
+} from 'react-icons/vsc'
+import { Link, useNavigate } from 'react-router-dom'
 
-import useGameStore from '@renderer/store/GameStore';
-import { formatTime } from '@renderer/util/timeFormat';
-import logo from '../assets/lopgame.png';
+import useGameStore from '@renderer/store/GameStore'
+import { formatTime } from '@renderer/util/timeFormat'
+import logo from '../assets/lopgame.png'
 
 const NavHeader = () => {
   //#region 状态管理
   // 搜索输入框的值
-  const [inputRef, setInputRef] = useState<string>('');
+  const [inputRef, setInputRef] = useState<string>('')
   // 游戏运行的时间
-  const gameTime = useGameStore((state) => state.gameTime);
+  const gameTime = useGameStore((state) => state.gameTime)
   // 游戏当前的运行状态（run stop null）
-  const gameState = useGameStore((state) => state.gameState);
+  const gameState = useGameStore((state) => state.gameState)
   // 控制 Logo 动画的激活状态
-  const [active, setActive] = useState(false);
+  const [active, setActive] = useState(false)
   // 开关模式选择器
-  const setGameModeSelector = useGameStore((state) => state.setGameModeSelector);
+  const setGameModeSelector = useGameStore((state) => state.setGameModeSelector)
   // 当前游戏模式
-  const gameMode = useGameStore((state) => state.gameMode);
+  const gameMode = useGameStore((state) => state.gameMode)
   //打字机效果
-  const typewriterRef = useRef<HTMLParagraphElement>(null);
+  const typewriterRef = useRef<HTMLParagraphElement>(null)
   // 窗口是否最大化状态
-  const [isMaximized, setIsMaximized] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false)
   // 用于导航回到主页
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   // 搜索keyword
-  const setSearchKeyword = useGameStore((state) => state.setSearchKeyword);
+  const setSearchKeyword = useGameStore((state) => state.setSearchKeyword)
   // Logo / 指针
-  const logoRef = useRef<HTMLImageElement>(null);
-  const pointerRef = useRef<HTMLDivElement>(null);
+  const logoRef = useRef<HTMLImageElement>(null)
+  const pointerRef = useRef<HTMLDivElement>(null)
   //#endregion 状态管理
 
   //返回到主页
   const handleBackToHome = () => {
-    navigate('/');
-  };
+    navigate('/')
+  }
 
   //#region 动画配置
 
-  gsap.registerPlugin(TextPlugin);
+  gsap.registerPlugin(TextPlugin)
   //打字机效果
   useGSAP(() => {
     if (typewriterRef.current) {
       gsap.fromTo(
         typewriterRef.current,
         { text: '' },
-        { text: '暂无游戏运行', duration: 1, ease: 'none' },
-      );
+        { text: '暂无游戏运行', duration: 1, ease: 'none' }
+      )
     }
-  });
+  })
   // 流动渐变文字动画
   useGSAP(() => {
     gsap.to('.GSAPanimate-modeText', {
       backgroundPosition: '200% center',
       duration: 3,
       ease: 'none',
-      repeat: -1,
-    });
-  });
-  const flipperRef = useRef<HTMLDivElement>(null);
+      repeat: -1
+    })
+  })
+  const flipperRef = useRef<HTMLDivElement>(null)
   // 文字翻转效果
   useGSAP(
     () => {
-      if (!flipperRef.current) return;
-      const tl = gsap.timeline({ repeat: -1 });
+      if (!flipperRef.current) return
+      const tl = gsap.timeline({ repeat: -1 })
       // 背面停留10秒,正面停留10秒
       tl.to(flipperRef.current, { rotationY: 180, duration: 1 })
         .to(flipperRef.current, {}, '+=10')
         .to(flipperRef.current, { rotationY: 0, duration: 1 })
-        .to(flipperRef.current, {}, '+=10');
-      return () => tl.kill();
+        .to(flipperRef.current, {}, '+=10')
+      return () => tl.kill()
     },
-    { scope: flipperRef, dependencies: [gameState] },
-  );
+    { scope: flipperRef, dependencies: [gameState] }
+  )
 
   // Logo 旋转（模式选择器开关）
   useGSAP(
     () => {
-      if (!logoRef.current) return;
+      if (!logoRef.current) return
       gsap.to(logoRef.current, {
         rotation: active ? 90 : 0,
         duration: 0.4,
-        ease: 'power2.out',
-      });
+        ease: 'power2.out'
+      })
     },
-    { dependencies: [active] },
-  );
+    { dependencies: [active] }
+  )
   //#endregion
 
   // 处理模糊查询
   const handleSearch = async (keyword: string) => {
-    setSearchKeyword(keyword);
-  };
+    setSearchKeyword(keyword)
+  }
 
   // 指针跟随导航项
   const movePointer = (x: number, y: number, rotate: number) => {
-    if (!pointerRef.current) return;
+    if (!pointerRef.current) return
     gsap.to(pointerRef.current, {
       x,
       y,
       rotation: rotate,
       duration: 0.35,
-      ease: 'power2.out',
-    });
-  };
+      ease: 'power2.out'
+    })
+  }
 
   const hoverScale = (el: HTMLElement, scale: number) => {
-    gsap.to(el, { scale, duration: 0.2, ease: 'power2.out' });
-  };
+    gsap.to(el, { scale, duration: 0.2, ease: 'power2.out' })
+  }
 
   // 窗口控制函数
   const handleMinimize = () => {
-    window.api.minimizeWindow();
-  };
+    window.api.minimizeWindow()
+  }
   const handleMaximize = async () => {
-    await window.api.maximizeWindow();
-    const maximized = await window.api.isWindowMaximized();
-    setIsMaximized(maximized);
-  };
+    await window.api.maximizeWindow()
+    const maximized = await window.api.isWindowMaximized()
+    setIsMaximized(maximized)
+  }
   const handleClose = () => {
-    window.api.closeWindow();
-  };
+    window.api.closeWindow()
+  }
 
   // 初始化窗口最大化状态
   useEffect(() => {
     const checkMaximized = async () => {
-      const maximized = await window.api.isWindowMaximized();
-      setIsMaximized(maximized);
-    };
-    checkMaximized();
-  }, []);
+      const maximized = await window.api.isWindowMaximized()
+      setIsMaximized(maximized)
+    }
+    checkMaximized()
+  }, [])
 
   //游戏模式名中文映射
   const gameModeMap: { [key: string]: string } = {
@@ -149,16 +149,16 @@ const NavHeader = () => {
     Fast: '快速模式',
     Afk: '挂机模式',
     Test: '测试模式',
-    Infinity: '沉浸模式',
-  };
+    Infinity: '沉浸模式'
+  }
   // 游戏模式颜色映射
   const gameModeColorMap: { [key: string]: string } = {
     Normal: 'from-lime-500 via-green-500 to-emerald-500',
     Fast: 'from-orange-500 via-amber-500 to-yellow-400',
     Afk: 'from-blue-500 via-cyan-500 to-sky-400',
     Test: 'from-purple-500 via-violet-500 to-fuchsia-500',
-    Infinity: 'from-rose-500 via-pink-500 to-purple-500',
-  };
+    Infinity: 'from-rose-500 via-pink-500 to-purple-500'
+  }
 
   return (
     <div
@@ -176,18 +176,18 @@ const NavHeader = () => {
           alt="logo"
           className="w-12 cursor-pointer rounded-2xl"
           onClick={() => {
-            setActive(!active);
-            setGameModeSelector();
+            setActive(!active)
+            setGameModeSelector()
           }}
           onMouseEnter={() => {
-            movePointer(-50, 20, 90);
+            movePointer(-50, 20, 90)
           }}
         />
       </div>
 
       {/* 添加游戏按钮 - 固定宽度 */}
       <div
-        className="flex items-center justify-center relative"
+        className="relative flex items-center justify-center"
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
         <div ref={pointerRef} className="absolute bottom-9 left-8 z-50">
@@ -199,7 +199,7 @@ const NavHeader = () => {
           onMouseEnter={(e) => hoverScale(e.currentTarget, 1.1)}
           onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
           onMouseMove={() => {
-            movePointer(10, 0, 0);
+            movePointer(10, 0, 0)
           }}
         >
           游戏列表
@@ -217,7 +217,7 @@ const NavHeader = () => {
           to={'/dashboard'}
           className="cursor-pointer px-4 text-stone-900 hover:text-stone-600"
           onMouseMove={() => {
-            movePointer(105, 0, 0);
+            movePointer(105, 0, 0)
           }}
         >
           统计面板
@@ -235,7 +235,7 @@ const NavHeader = () => {
           to={'/setting'}
           className="cursor-pointer px-4 text-stone-900 hover:text-stone-600"
           onMouseMove={() => {
-            movePointer(200, 0, 0);
+            movePointer(200, 0, 0)
           }}
         >
           设置中心
@@ -244,16 +244,16 @@ const NavHeader = () => {
 
       {/* 搜索区域 - 固定宽度 */}
       <div
-        className="flex items-center justify-center relative px-3"
+        className="relative flex items-center justify-center px-3"
         onMouseEnter={() => {
-          movePointer(250, 16, -90);
+          movePointer(250, 16, -90)
         }}
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
-        <div className="flex items-center justify-center h-8 w-40 rounded-full border border-gray-300 bg-white shadow-sm">
+        <div className="flex h-8 w-40 items-center justify-center rounded-full border border-gray-300 bg-white shadow-sm">
           <input
             type="text"
-            className="w-32 text-gray-700 focus:outline-none bg-transparent"
+            className="w-32 bg-transparent text-gray-700 focus:outline-none"
             value={inputRef}
             onChange={(e) => setInputRef(e.target.value)}
           />
@@ -267,12 +267,12 @@ const NavHeader = () => {
       </div>
 
       {/* 可拖拽区域 - 自适应宽度 (1fr) */}
-      <div className="flex items-center justify-center min-w-0 p-1">
+      <div className="flex min-w-0 items-center justify-center p-1">
         <div
-          className="grow border-2 border-dashed rounded-lg  border-gray-400 p-3"
+          className="grow rounded-lg border-2 border-dashed border-gray-400 p-3"
           style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
         >
-          <p className="h-full text-xs text-gray-400 select-none whitespace-nowrap text-center">
+          <p className="h-full text-center text-xs whitespace-nowrap text-gray-400 select-none">
             拖拽区域
           </p>
         </div>
@@ -289,7 +289,7 @@ const NavHeader = () => {
               {/* 文字翻转效果 */}
               <div ref={flipperRef} className="relative transform-3d">
                 {/* 文字正面 */}
-                <p className="absolute text-xs backface-hidden whitespace-nowrap">
+                <p className="absolute text-xs whitespace-nowrap backface-hidden">
                   {formatTime(gameTime) && '游戏运行中'}
                 </p>
                 {/* 文字背面 */}
@@ -322,7 +322,7 @@ const NavHeader = () => {
               <p
                 style={{
                   backgroundSize: '200% 100%',
-                  backgroundPosition: '0% center',
+                  backgroundPosition: '0% center'
                 }}
                 className={`GSAPanimate-modeText bg-gradient-to-bl whitespace-nowrap ${
                   gameModeColorMap[gameMode]
@@ -343,7 +343,7 @@ const NavHeader = () => {
         {/* 最小化按钮 */}
         <button
           onClick={handleMinimize}
-          className="h-full px-4 hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center"
+          className="flex h-full items-center justify-center px-4 transition-colors duration-200 hover:bg-gray-200"
           aria-label="最小化"
         >
           <VscChromeMinimize className="text-lg" />
@@ -351,7 +351,7 @@ const NavHeader = () => {
         {/* 最大化/还原按钮 */}
         <button
           onClick={handleMaximize}
-          className="h-full px-4 hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center"
+          className="flex h-full items-center justify-center px-4 transition-colors duration-200 hover:bg-gray-200"
           aria-label={isMaximized ? '还原' : '最大化'}
         >
           {isMaximized ? (
@@ -363,13 +363,13 @@ const NavHeader = () => {
         {/* 关闭按钮 */}
         <button
           onClick={handleClose}
-          className="h-full px-4 hover:bg-red-500 hover:text-white transition-colors duration-200 flex items-center justify-center"
+          className="flex h-full items-center justify-center px-4 transition-colors duration-200 hover:bg-red-500 hover:text-white"
           aria-label="关闭"
         >
           <VscChromeClose className="text-lg" />
         </button>
       </div>
     </div>
-  );
-};
-export default NavHeader;
+  )
+}
+export default NavHeader

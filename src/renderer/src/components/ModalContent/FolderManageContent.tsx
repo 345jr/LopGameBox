@@ -1,217 +1,224 @@
-import { useState, useEffect } from 'react';
-import { VscFolder, VscFolderOpened, VscSave, VscTrash, VscRefresh, VscClose } from 'react-icons/vsc';
-import { GoGitPullRequest,GoGitBranch,GoDotFill,GoDot } from "react-icons/go";
-import { FiDownload } from 'react-icons/fi';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from 'react'
+import {
+  VscFolder,
+  VscFolderOpened,
+  VscSave,
+  VscTrash,
+  VscRefresh,
+  VscClose
+} from 'react-icons/vsc'
+import { GoGitPullRequest, GoGitBranch, GoDotFill, GoDot } from 'react-icons/go'
+import { FiDownload } from 'react-icons/fi'
+import toast from 'react-hot-toast'
 
-import  formatFileSize  from '@renderer/util/gameSizeFormat';
-import { formatTimeCalender } from '@renderer/util/timeFormat';
+import formatFileSize from '@renderer/util/gameSizeFormat'
+import { formatTimeCalender } from '@renderer/util/timeFormat'
 
 interface SaveBackup {
-  id: number;
-  backup_name: string;
-  backup_path: string;
-  file_size: number;
-  created_at: number;
+  id: number
+  backup_name: string
+  backup_path: string
+  file_size: number
+  created_at: number
 }
 
 interface FolderManageContentProps {
-  onClose: () => void;
-  gamePath: string;
-  gameId: number;
+  onClose: () => void
+  gamePath: string
+  gameId: number
 }
 
 const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentProps) => {
-  const [savePath, setSavePath] = useState<string>('');
-  const [savePathSet, setSavePathSet] = useState(false);
-  const [saveFileSize, setSaveFileSize] = useState<number>(0);
-  const [backups, setBackups] = useState<SaveBackup[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [savePath, setSavePath] = useState<string>('')
+  const [savePathSet, setSavePathSet] = useState(false)
+  const [saveFileSize, setSaveFileSize] = useState<number>(0)
+  const [backups, setBackups] = useState<SaveBackup[]>([])
+  const [loading, setLoading] = useState(false)
 
   // 组件加载时检查是否已设置存档路径
   useEffect(() => {
-    checkSavePath();
-  }, [gameId]);
+    checkSavePath()
+  }, [gameId])
 
   // 检查存档路径
   const checkSavePath = async () => {
     try {
-      const result = await window.api.getGameSavePath(gameId);
+      const result = await window.api.getGameSavePath(gameId)
       if (result) {
-        setSavePath(result.save_path);
-        setSaveFileSize(result.file_size);
-        setSavePathSet(true);
+        setSavePath(result.save_path)
+        setSaveFileSize(result.file_size)
+        setSavePathSet(true)
         // 加载备份列表
-        await loadBackups();
+        await loadBackups()
       }
     } catch (error) {
-      console.error('检查存档路径失败:', error);
-      toast.error('无法获取存档路径信息');
+      console.error('检查存档路径失败:', error)
+      toast.error('无法获取存档路径信息')
     }
-  };
+  }
 
   // 加载备份列表
   const loadBackups = async () => {
     try {
-      const backupList = await window.api.getSaveBackups(gameId);
-      setBackups(backupList);
+      const backupList = await window.api.getSaveBackups(gameId)
+      setBackups(backupList)
     } catch (error) {
-      console.error('加载备份列表失败:', error);
-      toast.error('无法加载备份列表');
+      console.error('加载备份列表失败:', error)
+      toast.error('无法加载备份列表')
     }
-  };
+  }
 
   // 打开游戏文件夹
   const handleOpenGameFolder = async () => {
     try {
-      await window.api.openFolder(gamePath);
+      await window.api.openFolder(gamePath)
     } catch (error) {
-      console.error('打开游戏文件夹失败:', error);
-      toast.error('无法打开游戏文件夹');
+      console.error('打开游戏文件夹失败:', error)
+      toast.error('无法打开游戏文件夹')
     }
-  };
+  }
 
   // 设置存档文件夹
   const handleSetSavePath = async () => {
     try {
       // 调用系统文件夹选择器
-      const selectedPath = await window.api.selectFolder();
+      const selectedPath = await window.api.selectFolder()
       if (selectedPath) {
         // 显示加载提示
-        const loadingToast = toast.loading('正在计算存档大小...');
-        
+        const loadingToast = toast.loading('正在计算存档大小...')
+
         // 计算存档文件夹大小（直接计算文件夹本身）
-        const fileSize = await window.api.getFolderSize(selectedPath);
-        
+        const fileSize = await window.api.getFolderSize(selectedPath)
+
         // 保存存档路径到数据库
-        await window.api.setGameSavePath(gameId, selectedPath, fileSize);
-        
-        setSavePath(selectedPath);
-        setSaveFileSize(fileSize);
-        setSavePathSet(true);
-        
-        toast.dismiss(loadingToast);
-        toast.success('存档路径设置成功');
+        await window.api.setGameSavePath(gameId, selectedPath, fileSize)
+
+        setSavePath(selectedPath)
+        setSaveFileSize(fileSize)
+        setSavePathSet(true)
+
+        toast.dismiss(loadingToast)
+        toast.success('存档路径设置成功')
       }
     } catch (error) {
-      console.error('设置存档路径失败:', error);
-      toast.error('设置存档路径失败');
+      console.error('设置存档路径失败:', error)
+      toast.error('设置存档路径失败')
     }
-  };
+  }
 
   // 打开存档文件夹
   const handleOpenSaveFolder = () => {
     if (savePath) {
       try {
-        window.api.openFolder(savePath);
+        window.api.openFolder(savePath)
       } catch (error) {
-        console.error('打开存档文件夹失败:', error);
-        toast.error('无法打开存档文件夹');
+        console.error('打开存档文件夹失败:', error)
+        toast.error('无法打开存档文件夹')
       }
     }
-  };
+  }
 
   // 刷新存档大小
   const handleRefreshSaveSize = async () => {
-    if (!savePath) return;
-    
+    if (!savePath) return
+
     try {
-      const loadingToast = toast.loading('正在重新计算存档大小...');
-      
+      const loadingToast = toast.loading('正在重新计算存档大小...')
+
       // 重新计算存档文件夹大小（直接计算文件夹本身）
-      const fileSize = await window.api.getFolderSize(savePath);
-      
+      const fileSize = await window.api.getFolderSize(savePath)
+
       // 更新数据库中的大小
-      await window.api.updateSavePathSize(gameId, fileSize);
-      
-      toast.dismiss(loadingToast);
-      toast.success('存档大小已更新');
-      
+      await window.api.updateSavePathSize(gameId, fileSize)
+
+      toast.dismiss(loadingToast)
+      toast.success('存档大小已更新')
+
       // 重新加载存档信息
-      await checkSavePath();
+      await checkSavePath()
     } catch (error) {
-      console.error('刷新存档大小失败:', error);
-      toast.error('刷新存档大小失败');
+      console.error('刷新存档大小失败:', error)
+      toast.error('刷新存档大小失败')
     }
-  };
+  }
 
   // 创建备份
   const handleCreateBackup = async () => {
     if (!savePath) {
-      toast.error('请先设置存档路径');
-      return;
+      toast.error('请先设置存档路径')
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
     try {
-      const result = await window.api.createSaveBackup(gameId);
+      const result = await window.api.createSaveBackup(gameId)
       if (result.success) {
-        toast.success(result.message);
+        toast.success(result.message)
         // 重新加载备份列表
-        await loadBackups();
+        await loadBackups()
       } else {
-        toast.error(result.message);
+        toast.error(result.message)
       }
     } catch (error) {
-      console.error('创建备份失败:', error);
-      toast.error('备份创建失败');
+      console.error('创建备份失败:', error)
+      toast.error('备份创建失败')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // 恢复备份
   const handleRestoreBackup = async (backupId: number) => {
-    if (!confirm('确定要恢复此备份吗?当前存档将被覆盖!')) return;
-    
+    if (!confirm('确定要恢复此备份吗?当前存档将被覆盖!')) return
+
     try {
-      const loadingToast = toast.loading('正在恢复备份...');
-      const result = await window.api.restoreSaveBackup(backupId, gameId);
-      toast.dismiss(loadingToast);
-      
+      const loadingToast = toast.loading('正在恢复备份...')
+      const result = await window.api.restoreSaveBackup(backupId, gameId)
+      toast.dismiss(loadingToast)
+
       if (result.success) {
-        toast.success(result.message);
+        toast.success(result.message)
         // 刷新存档信息
-        await checkSavePath();
+        await checkSavePath()
       } else {
-        toast.error(result.message);
+        toast.error(result.message)
       }
     } catch (error) {
-      console.error('恢复备份失败:', error);
-      toast.error('备份恢复失败');
+      console.error('恢复备份失败:', error)
+      toast.error('备份恢复失败')
     }
-  };
+  }
 
   // 删除备份
   const handleDeleteBackup = async (backupId: number) => {
-    if (!confirm('确定要删除此备份吗?')) return;
-    
+    if (!confirm('确定要删除此备份吗?')) return
+
     try {
-      const result = await window.api.deleteSaveBackup(backupId);
+      const result = await window.api.deleteSaveBackup(backupId)
       if (result.success) {
-        toast.success(result.message);
+        toast.success(result.message)
         // 从列表中移除已删除的备份
-        setBackups(backups.filter(b => b.id !== backupId));
+        setBackups(backups.filter((b) => b.id !== backupId))
       } else {
-        toast.error(result.message);
+        toast.error(result.message)
       }
     } catch (error) {
-      console.error('删除备份失败:', error);
-      toast.error('备份删除失败');
+      console.error('删除备份失败:', error)
+      toast.error('备份删除失败')
     }
-  };
+  }
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
       onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="mx-4 w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-lg bg-white shadow-xl flex flex-col"
+        className="mx-4 flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-white shadow-xl"
       >
         {/* 标题栏 */}
-        <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
           <h2 className="text-xl font-bold">文件管理</h2>
           <button
             onClick={onClose}
@@ -230,7 +237,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
             <div className="mb-4">
               <button
                 onClick={handleOpenGameFolder}
-                className="w-full flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
+                className="flex w-full cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
               >
                 <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
                   <VscFolder className="text-2xl text-gray-700" />
@@ -327,10 +334,10 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
           <h3 className="mb-4 text-lg font-semibold text-gray-900">存档管理</h3>
           {/* 存档管理区域 */}
           <div className="rounded-lg border border-gray-200 p-4">
-              <div className='flex flex-row items-center gap-2'>
-                <h3 className="mb-4 text-base font-semibold text-gray-900">主存档</h3>
-                <GoDotFill className="mb-4 text-lg" />
-              </div>
+            <div className="flex flex-row items-center gap-2">
+              <h3 className="mb-4 text-base font-semibold text-gray-900">主存档</h3>
+              <GoDotFill className="mb-4 text-lg" />
+            </div>
             {!savePathSet ? (
               /* 未设置存档路径 */
               <div className="flex flex-col items-center justify-center py-8">
@@ -358,15 +365,13 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
                     <p className="truncate text-xs text-gray-500" title={savePath}>
                       {savePath}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      大小: {formatFileSize(saveFileSize)}
-                    </p>
+                    <p className="text-xs text-gray-500">大小: {formatFileSize(saveFileSize)}</p>
                   </div>
                 </div>
 
                 {/* 备份列表 */}
                 <div>
-                  <div className='flex flex-row items-center gap-2'>
+                  <div className="flex flex-row items-center gap-2">
                     <h4 className="mb-4 text-base font-semibold text-gray-900">备份存档</h4>
                     <GoDot className="mb-4 text-lg" />
                   </div>
@@ -388,11 +393,15 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
 
                           {/* 备份信息 */}
                           <div className="flex-1 overflow-hidden">
-                            <p className="truncate font-medium text-gray-900" title={backup.backup_name}>
+                            <p
+                              className="truncate font-medium text-gray-900"
+                              title={backup.backup_name}
+                            >
                               {backup.backup_name}
                             </p>
                             <p className="text-xs text-gray-500">
-                              {formatTimeCalender(backup.created_at)} · {formatFileSize(backup.file_size)}
+                              {formatTimeCalender(backup.created_at)} ·{' '}
+                              {formatFileSize(backup.file_size)}
                             </p>
                           </div>
 
@@ -424,7 +433,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default FolderManageContent;
+export default FolderManageContent

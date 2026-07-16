@@ -1,6 +1,11 @@
 out
 dist
+node_modules
+package-lock.json
 pnpm-lock.yaml
 LICENSE.md
 tsconfig.json
 tsconfig.*.json
+db
+fonts
+build

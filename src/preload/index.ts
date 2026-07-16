@@ -1,34 +1,34 @@
-import { contextBridge, ipcRenderer } from 'electron';
-import { electronAPI } from '@electron-toolkit/preload';
+import { contextBridge, ipcRenderer } from 'electron'
+import { electronAPI } from '@electron-toolkit/preload'
 // Custom APIs for renderer
 const api = {
   openFile: (): Promise<string | null> => ipcRenderer.invoke('dialog:openFile'),
   selectFolder: (): Promise<string | null> => ipcRenderer.invoke('dialog:openFolder'),
   executeFile: (game: {
-    id: number;
-    path: string;
-    gameMode: string;
+    id: number
+    path: string
+    gameMode: string
   }): Promise<{ success: boolean; message?: string }> =>
     ipcRenderer.invoke('shell:executeFile', game),
   //监听计时器更新
   onTimerUpdate: (callback: (elapsedTime: number) => void) => {
     ipcRenderer.on('timer:update', (_event, elapsedTime) => {
-      callback(elapsedTime);
-    });
+      callback(elapsedTime)
+    })
   },
 
   //监听计时器停止
   onTimerStopped: (callback: (result: { code: number; finalElapsedTime: number }) => void) => {
     ipcRenderer.on('timer:stopped', (_event, result) => {
-      callback(result);
-    });
+      callback(result)
+    })
   },
   //移除计时器监听器
   offTimerUpdate: (callback: (_event: any, elapsedTime: number) => void) =>
     ipcRenderer.removeListener('timer:update', callback),
   //移除计时器监听器
   offTimerStopped: (
-    callback: (_event: any, result: { code: number; finalElapsedTime: number }) => void,
+    callback: (_event: any, result: { code: number; finalElapsedTime: number }) => void
   ) => ipcRenderer.removeListener('timer:stopped', callback),
 
   //数据库操作
@@ -47,18 +47,15 @@ const api = {
   addGameSnapshot: (gameImage: { gameId: number; imagePath: string; relativePath: string }) =>
     ipcRenderer.invoke('db:addSnapshot', gameImage),
   delectSnapshot: (id: number) => ipcRenderer.invoke('db:delectSnapshot', id),
-  updateSnapshotAlt: (id: number, alt: string) => 
+  updateSnapshotAlt: (id: number, alt: string) =>
     ipcRenderer.invoke('db:updateSnapshotAlt', id, alt),
-  deleteSnapshotAlt: (id: number) => 
-    ipcRenderer.invoke('db:deleteSnapshotAlt', id),
-  getSnapshotAlt: (id: number) => 
-    ipcRenderer.invoke('db:getSnapshotAlt', id),
+  deleteSnapshotAlt: (id: number) => ipcRenderer.invoke('db:deleteSnapshotAlt', id),
+  getSnapshotAlt: (id: number) => ipcRenderer.invoke('db:getSnapshotAlt', id),
   modifyGameName: (id: number, newName: string) =>
     ipcRenderer.invoke('db:modifyGameName', id, newName),
   updateGameSize: (id: number, launch_path: string) =>
     ipcRenderer.invoke('db:updateGameSize', id, launch_path),
-  getFolderSize: (folderPath: string) =>
-    ipcRenderer.invoke('util:getFolderSize', folderPath),
+  getFolderSize: (folderPath: string) => ipcRenderer.invoke('util:getFolderSize', folderPath),
   updateGamePath: (gameId: number, newPath: string) =>
     ipcRenderer.invoke('db:updateGamePath', gameId, newPath),
   updateGameCategory: (gameId: number, category: string) =>
@@ -81,15 +78,15 @@ const api = {
   setGameMode: (mode: string) => ipcRenderer.invoke('op:setGameMode', mode),
   //打开休息模态框监听器
   onOpenRestTimeModal: (callback: () => void) => {
-    ipcRenderer.on('open-rest-time-modal', callback);
+    ipcRenderer.on('open-rest-time-modal', callback)
   },
   //移除监听器
   offOpenRestTimeModal: () => {
-    ipcRenderer.removeAllListeners('open-rest-time-modal');
+    ipcRenderer.removeAllListeners('open-rest-time-modal')
   },
   //设置休息状态
   setResting: (resting: boolean) => {
-    ipcRenderer.invoke('op:setResting', resting);
+    ipcRenderer.invoke('op:setResting', resting)
   },
   //获取4种模式下的游戏时长分布
   getGameLogByMode: () => ipcRenderer.invoke('db:getGameLogByMode'),
@@ -104,7 +101,7 @@ const api = {
     gameId: number,
     type: 'minor' | 'major',
     summary: string,
-    fileSize?: number,
+    fileSize?: number
   ) => ipcRenderer.invoke('db:updateGameVersion', gameId, type, summary, fileSize),
   // 根据版本ID查询版本概述
   getVersionSummary: (versionId: number) => ipcRenderer.invoke('db:getVersionSummary', versionId),
@@ -113,88 +110,90 @@ const api = {
   // 更新版本描述
   updateVersionDescription: (versionId: number, newDescription: string) =>
     ipcRenderer.invoke('db:updateVersionDescription', versionId, newDescription),
-  
+
   // ==================== 成就相关接口 ====================
   // 创建成就
   createAchievement: (
     gameId: number,
     achievementName: string,
     achievementType: string,
-    description?: string,
-  ) => ipcRenderer.invoke('db:createAchievement', gameId, achievementName, achievementType, description),
+    description?: string
+  ) =>
+    ipcRenderer.invoke(
+      'db:createAchievement',
+      gameId,
+      achievementName,
+      achievementType,
+      description
+    ),
   // 删除成就
-  deleteAchievement: (achievementId: number) => 
+  deleteAchievement: (achievementId: number) =>
     ipcRenderer.invoke('db:deleteAchievement', achievementId),
   // 切换成就状态 (0=未完成, 1=已完成)
-  toggleAchievementStatus: (achievementId: number, isCompleted: 0 | 1) => 
+  toggleAchievementStatus: (achievementId: number, isCompleted: 0 | 1) =>
     ipcRenderer.invoke('db:toggleAchievementStatus', achievementId, isCompleted),
   // 获取游戏所有成就
-  getGameAchievements: (gameId: number) => 
-    ipcRenderer.invoke('db:getGameAchievements', gameId),
+  getGameAchievements: (gameId: number) => ipcRenderer.invoke('db:getGameAchievements', gameId),
   // 获取已完成的成就
-  getCompletedAchievements: (gameId: number) => 
+  getCompletedAchievements: (gameId: number) =>
     ipcRenderer.invoke('db:getCompletedAchievements', gameId),
   // 获取未完成的成就
-  getUncompletedAchievements: (gameId: number) => 
+  getUncompletedAchievements: (gameId: number) =>
     ipcRenderer.invoke('db:getUncompletedAchievements', gameId),
   // 获取成就统计
-  getAchievementStats: (gameId: number) => 
-    ipcRenderer.invoke('db:getAchievementStats', gameId),
-  
+  getAchievementStats: (gameId: number) => ipcRenderer.invoke('db:getAchievementStats', gameId),
+
   // ==================== 外链管理接口 ====================
   // 添加游戏外链
-  addGameLink: (gameId: number, metadata: {
-    url: string;
-    title: string;
-    description: string;
-    favicon: string;
-  }) => ipcRenderer.invoke('db:addGameLink', {
-    gameId,
-    url: metadata.url,
-    title: metadata.title,
-    description: metadata.description,
-    icon: metadata.favicon,
-  }),
+  addGameLink: (
+    gameId: number,
+    metadata: {
+      url: string
+      title: string
+      description: string
+      favicon: string
+    }
+  ) =>
+    ipcRenderer.invoke('db:addGameLink', {
+      gameId,
+      url: metadata.url,
+      title: metadata.title,
+      description: metadata.description,
+      icon: metadata.favicon
+    }),
   // 获取游戏外链列表
-  getGameLinks: (gameId: number) => 
-    ipcRenderer.invoke('db:getGameLinks', gameId),
+  getGameLinks: (gameId: number) => ipcRenderer.invoke('db:getGameLinks', gameId),
   // 删除游戏外链
-  deleteGameLink: (linkId: number) => 
-    ipcRenderer.invoke('db:deleteGameLink', linkId),
+  deleteGameLink: (linkId: number) => ipcRenderer.invoke('db:deleteGameLink', linkId),
   // 更新游戏外链
-  updateGameLink: (linkId: number, title: string, url: string) => 
+  updateGameLink: (linkId: number, title: string, url: string) =>
     ipcRenderer.invoke('db:updateGameLink', { linkId, title, url }),
-  
+
   // ==================== 存档管理接口 ====================
   // 设置游戏主存档路径
-  setGameSavePath: (gameId: number, savePath: string, fileSize: number = 0) => 
+  setGameSavePath: (gameId: number, savePath: string, fileSize: number = 0) =>
     ipcRenderer.invoke('db:setGameSavePath', gameId, savePath, fileSize),
   // 获取游戏主存档路径
-  getGameSavePath: (gameId: number) => 
-    ipcRenderer.invoke('db:getGameSavePath', gameId),
+  getGameSavePath: (gameId: number) => ipcRenderer.invoke('db:getGameSavePath', gameId),
   // 更新游戏主存档路径
-  updateGameSavePath: (gameId: number, savePath: string) => 
+  updateGameSavePath: (gameId: number, savePath: string) =>
     ipcRenderer.invoke('db:updateGameSavePath', gameId, savePath),
   // 更新主存档文件夹大小
-  updateSavePathSize: (gameId: number, fileSize: number) => 
+  updateSavePathSize: (gameId: number, fileSize: number) =>
     ipcRenderer.invoke('db:updateSavePathSize', gameId, fileSize),
   // 删除游戏主存档路径
-  deleteGameSavePath: (gameId: number) => 
-    ipcRenderer.invoke('db:deleteGameSavePath', gameId),
-  
+  deleteGameSavePath: (gameId: number) => ipcRenderer.invoke('db:deleteGameSavePath', gameId),
+
   // ==================== 存档备份接口 ====================
   // 创建存档备份
-  createSaveBackup: (gameId: number) => 
-    ipcRenderer.invoke('db:createSaveBackup', gameId),
+  createSaveBackup: (gameId: number) => ipcRenderer.invoke('db:createSaveBackup', gameId),
   // 获取存档备份列表
-  getSaveBackups: (gameId: number) => 
-    ipcRenderer.invoke('db:getSaveBackups', gameId),
+  getSaveBackups: (gameId: number) => ipcRenderer.invoke('db:getSaveBackups', gameId),
   // 恢复存档备份
-  restoreSaveBackup: (backupId: number, gameId: number) => 
+  restoreSaveBackup: (backupId: number, gameId: number) =>
     ipcRenderer.invoke('db:restoreSaveBackup', backupId, gameId),
   // 删除存档备份
-  deleteSaveBackup: (backupId: number) => 
-    ipcRenderer.invoke('db:deleteSaveBackup', backupId),
+  deleteSaveBackup: (backupId: number) => ipcRenderer.invoke('db:deleteSaveBackup', backupId),
 
   // ==================== 窗口控制接口 ====================
   // 最小化窗口
@@ -216,45 +215,44 @@ const api = {
   // 监听截图成功事件
   onScreenshotSuccess: (callback: (data: { path: string; filename: string }) => void) => {
     ipcRenderer.on('screenshot:success', (_event, data) => {
-      callback(data);
-    });
+      callback(data)
+    })
   },
   // 监听截图失败事件
   onScreenshotError: (callback: (data: { error: string }) => void) => {
     ipcRenderer.on('screenshot:error', (_event, data) => {
-      callback(data);
-    });
+      callback(data)
+    })
   },
   // 移除截图成功监听
   offScreenshotSuccess: () => {
-    ipcRenderer.removeAllListeners('screenshot:success');
+    ipcRenderer.removeAllListeners('screenshot:success')
   },
   // 移除截图失败监听
   offScreenshotError: () => {
-    ipcRenderer.removeAllListeners('screenshot:error');
+    ipcRenderer.removeAllListeners('screenshot:error')
   },
   //开发者
   openDevTools: () => {
-    ipcRenderer.invoke('window:openDevTools');
-  }
-  ,
+    ipcRenderer.invoke('window:openDevTools')
+  },
   //获取拖拽的临时路径
-  getTempDrop: (payload: any) => ipcRenderer.invoke('op:getTempDrop', payload),
-};
+  getTempDrop: (payload: any) => ipcRenderer.invoke('op:getTempDrop', payload)
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
 if (process.contextIsolated) {
   try {
-    contextBridge.exposeInMainWorld('electron', electronAPI);
-    contextBridge.exposeInMainWorld('api', api);
+    contextBridge.exposeInMainWorld('electron', electronAPI)
+    contextBridge.exposeInMainWorld('api', api)
   } catch (error) {
-    console.error(error);
+    console.error(error)
   }
 } else {
   // @ts-ignore (define in dts)
-  window.electron = electronAPI;
+  window.electron = electronAPI
   // @ts-ignore (define in dts)
-  window.api = api;
+  window.api = api
 }

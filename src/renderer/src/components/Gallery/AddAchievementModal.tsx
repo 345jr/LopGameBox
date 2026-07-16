@@ -1,21 +1,27 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from 'react'
 
 type Achievement = {
-  name: string;
-  type: string;
-  description: string;
-};
+  name: string
+  type: string
+  description: string
+}
 
 type Props = {
-  show: boolean;
-  newAchievement: Achievement;
-  setNewAchievement: Dispatch<SetStateAction<Achievement>>;
-  onAdd: () => Promise<void> | void;
-  onClose: () => void;
-};
+  show: boolean
+  newAchievement: Achievement
+  setNewAchievement: Dispatch<SetStateAction<Achievement>>
+  onAdd: () => Promise<void> | void
+  onClose: () => void
+}
 
-const AddAchievementModal = ({ show, newAchievement, setNewAchievement, onAdd, onClose }: Props) => {
-  if (!show) return null;
+const AddAchievementModal = ({
+  show,
+  newAchievement,
+  setNewAchievement,
+  onAdd,
+  onClose
+}: Props) => {
+  if (!show) return null
 
   return (
     <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
@@ -50,7 +56,9 @@ const AddAchievementModal = ({ show, newAchievement, setNewAchievement, onAdd, o
             <label className="mb-1 block text-sm font-medium">成就描述(可选)</label>
             <textarea
               value={newAchievement.description}
-              onChange={(e) => setNewAchievement({ ...newAchievement, description: e.target.value })}
+              onChange={(e) =>
+                setNewAchievement({ ...newAchievement, description: e.target.value })
+              }
               className="w-full rounded border px-3 py-2"
               rows={3}
               placeholder="描述这个成就..."
@@ -73,7 +81,7 @@ const AddAchievementModal = ({ show, newAchievement, setNewAchievement, onAdd, o
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AddAchievementModal;
+export default AddAchievementModal

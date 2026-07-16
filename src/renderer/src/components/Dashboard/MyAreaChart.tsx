@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import type { GameLog } from '@renderer/types/Game';
+import { useMemo } from 'react'
+import type { GameLog } from '@renderer/types/Game'
 import {
   ResponsiveContainer,
   CartesianGrid,
@@ -8,8 +8,8 @@ import {
   Tooltip,
   Legend,
   AreaChart,
-  Area,
-} from 'recharts';
+  Area
+} from 'recharts'
 
 // 自定义提示框组件
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -27,13 +27,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         ))}
         <p>当日总时长 :{payload[0].payload.总时长}小时</p>
       </div>
-    );
+    )
   }
-  return null;
-};
+  return null
+}
 type Props = {
-  weekGameLogsData: GameLog[];
-};
+  weekGameLogsData: GameLog[]
+}
 
 const MyAreaChart = ({ weekGameLogsData }: Props) => {
   // 将父组件传来的周日志转换为图表所需的数据结构
@@ -45,10 +45,10 @@ const MyAreaChart = ({ weekGameLogsData }: Props) => {
         快速模式: d.fastHours.toFixed(1) ?? 0,
         挂机模式: d.afkHours.toFixed(1) ?? 0,
         沉浸模式: d.infinityHours.toFixed(1) ?? 0,
-        总时长: d.totalHours.toFixed(1) ?? 0,
+        总时长: d.totalHours.toFixed(1) ?? 0
       })),
-    [weekGameLogsData],
-  );
+    [weekGameLogsData]
+  )
 
   return (
     <>
@@ -63,7 +63,7 @@ const MyAreaChart = ({ weekGameLogsData }: Props) => {
               top: 0,
               right: 0,
               left: 30,
-              bottom: 0,
+              bottom: 0
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
@@ -79,7 +79,7 @@ const MyAreaChart = ({ weekGameLogsData }: Props) => {
         </ResponsiveContainer>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default MyAreaChart;
+export default MyAreaChart

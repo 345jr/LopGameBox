@@ -25,5 +25,5 @@ export const queryKeys = {
   galleryList: (gameId: string, newestFirst: boolean) =>
     ['gallery-list', gameId, newestFirst] as const,
   // 游戏时长
-  getGamePlaytime: (gameId: string) => ['game-playtime', gameId] as const,
-};
+  getGamePlaytime: (gameId: string) => ['game-playtime', gameId] as const
+}

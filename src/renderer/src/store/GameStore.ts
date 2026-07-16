@@ -1,24 +1,24 @@
-import { Game } from '@renderer/types/Game';
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { Game } from '@renderer/types/Game'
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 interface GameStore {
-  gameId: number;
-  gameTime: number;
-  gameState: string;
-  searchResults: Game[];
-  searchKeyword: string;
-  gameModeSelector: boolean;
-  gameMode: string;
-  selectedCategory: 'all' | 'playing' | 'archived';
+  gameId: number
+  gameTime: number
+  gameState: string
+  searchResults: Game[]
+  searchKeyword: string
+  gameModeSelector: boolean
+  gameMode: string
+  selectedCategory: 'all' | 'playing' | 'archived'
 
-  setGameList: (newGameList: number) => void;
-  setGameTime: (elapsedTime: number) => void;
-  setGameState: (states: string) => void;
-  setSearchResults: (results: Game[]) => void;
-  setSearchKeyword: (keyword: string) => void;
-  setGameModeSelector: () => void;
-  setGameMode: (mode: string) => void;
-  setSelectedCategory: (category: 'all' | 'playing' | 'archived') => void;
+  setGameList: (newGameList: number) => void
+  setGameTime: (elapsedTime: number) => void
+  setGameState: (states: string) => void
+  setSearchResults: (results: Game[]) => void
+  setSearchKeyword: (keyword: string) => void
+  setGameModeSelector: () => void
+  setGameMode: (mode: string) => void
+  setSelectedCategory: (category: 'all' | 'playing' | 'archived') => void
 }
 //柯里化函数
 const useGameStore = create<GameStore>()(
@@ -42,20 +42,20 @@ const useGameStore = create<GameStore>()(
       setSearchKeyword: (keyword) => set({ searchKeyword: keyword }),
       setGameModeSelector: () =>
         set((state) => ({
-          gameModeSelector: !state.gameModeSelector,
+          gameModeSelector: !state.gameModeSelector
         })),
       setGameMode: (mode) => set({ gameMode: mode }),
-      setSelectedCategory: (category) => set({ selectedCategory: category }),
+      setSelectedCategory: (category) => set({ selectedCategory: category })
     }),
     //persist的配置项
     {
       name: 'gameMode',
-      partialize: (state) => ({ 
+      partialize: (state) => ({
         gameMode: state.gameMode,
-        selectedCategory: state.selectedCategory,
-      }),
-    },
-  ),
-);
+        selectedCategory: state.selectedCategory
+      })
+    }
+  )
+)
 
-export default useGameStore;
+export default useGameStore

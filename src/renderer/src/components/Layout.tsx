@@ -1,6 +1,6 @@
-import { Outlet } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-import NavHeader from './NavHeader';
+import { Outlet } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
+import NavHeader from './NavHeader'
 
 const Layout = () => {
   return (
@@ -9,7 +9,7 @@ const Layout = () => {
       <Toaster position="bottom-center" reverseOrder={true} />
       <Outlet />
     </>
-  );
-};
+  )
+}
 
-export default Layout;
+export default Layout

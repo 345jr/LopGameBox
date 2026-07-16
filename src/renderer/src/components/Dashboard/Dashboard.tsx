@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { GameStatistics } from '@renderer/types/Game';
-import { GameLog } from '@renderer/types/Game';
-import MyAreaChart from './MyAreaChart';
-import MyPieChart from './MyPieChart';
-import { getWeekRange, formatTimeToHours } from '@renderer/util/timeFormat';
-import gameSizeFormat from '@renderer/util/gameSizeFormat';
+import { useEffect, useState } from 'react'
+import { GameStatistics } from '@renderer/types/Game'
+import { GameLog } from '@renderer/types/Game'
+import MyAreaChart from './MyAreaChart'
+import MyPieChart from './MyPieChart'
+import { getWeekRange, formatTimeToHours } from '@renderer/util/timeFormat'
+import gameSizeFormat from '@renderer/util/gameSizeFormat'
 
 const Dashboard = () => {
   const [gameStatistics, setGameStatistics] = useState<GameStatistics>({
@@ -18,11 +18,11 @@ const Dashboard = () => {
     fastHours: 0,
     afkHours: 0,
     infinityHours: 0,
-    totalDiskSize: 0,
-  });
-  const [weekGameLogsData, setWeekGameLogsData] = useState<GameLog[]>([]);
+    totalDiskSize: 0
+  })
+  const [weekGameLogsData, setWeekGameLogsData] = useState<GameLog[]>([])
 
-  const [isNowWeek, setIsNowWeek] = useState(false);
+  const [isNowWeek, setIsNowWeek] = useState(false)
 
   //饼图数据
 
@@ -32,21 +32,21 @@ const Dashboard = () => {
     const [{ count }, { timeCount }, { launchCount }] = await Promise.all([
       window.api.countGames(),
       window.api.countGameTime(),
-      window.api.countLaunchTimes(),
-    ]);
+      window.api.countLaunchTimes()
+    ])
     //获取本日 ，本周 ，本月的记录
-    const { todayHours, weekHours, monthHours } = await window.api.countDayWeekMonth();
+    const { todayHours, weekHours, monthHours } = await window.api.countDayWeekMonth()
     //获取4种模式下的游戏时长分布
-    const { normalHours, fastHours, afkHours, infinityHours } = await window.api.getGameLogByMode();
+    const { normalHours, fastHours, afkHours, infinityHours } = await window.api.getGameLogByMode()
 
     //获取所有游戏数据，计算总存储占用
-    const allGames = await window.api.getAllGames();
-    const totalDiskSize = allGames.reduce((sum, game) => sum + (game.disk_size || 0), 0);
+    const allGames = await window.api.getAllGames()
+    const totalDiskSize = allGames.reduce((sum, game) => sum + (game.disk_size || 0), 0)
 
     //获取本周的时长分布
     // const weekGameLogs = await window.api.getGameLogByModeThisWeek();
     //获取上周的时长分布
-    const lastWeekGameLogs = await window.api.getGameLogByModeLastWeek();
+    const lastWeekGameLogs = await window.api.getGameLogByModeLastWeek()
 
     const StatisticsObject: GameStatistics = {
       gameCount: count,
@@ -59,34 +59,34 @@ const Dashboard = () => {
       fastHours: fastHours,
       afkHours: afkHours,
       infinityHours: infinityHours,
-      totalDiskSize: totalDiskSize,
-    };
-    setGameStatistics(StatisticsObject);
-    setWeekGameLogsData(lastWeekGameLogs);
-  };
+      totalDiskSize: totalDiskSize
+    }
+    setGameStatistics(StatisticsObject)
+    setWeekGameLogsData(lastWeekGameLogs)
+  }
   //切换本周数据
   const switchToWeekData = async () => {
-    setIsNowWeek(true);
-    const weekGameLogs = await window.api.getGameLogByModeThisWeek();
-    setWeekGameLogsData(weekGameLogs);
-  };
+    setIsNowWeek(true)
+    const weekGameLogs = await window.api.getGameLogByModeThisWeek()
+    setWeekGameLogsData(weekGameLogs)
+  }
   //切换回上周
   const switchToLastWeekData = async () => {
-    setIsNowWeek(false);
-    const lastWeekGameLogs = await window.api.getGameLogByModeLastWeek();
-    setWeekGameLogsData(lastWeekGameLogs);
-  };
+    setIsNowWeek(false)
+    const lastWeekGameLogs = await window.api.getGameLogByModeLastWeek()
+    setWeekGameLogsData(lastWeekGameLogs)
+  }
   //获取统计数据
   useEffect(() => {
-    getData();
-  }, []);
+    getData()
+  }, [])
 
   return (
     <>
       <div className="mb-4 px-4">
         {/* 统计数据卡片式展示 */}
         <div className="mx-auto mt-4 mb-4 max-w-full">
-          <div className=" grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-4">
             {/* 游戏总数 */}
             <div className="dashboardCard p-6">
               <p className="mb-2 text-xs text-slate-600">游戏总数</p>
@@ -202,7 +202,7 @@ const Dashboard = () => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard

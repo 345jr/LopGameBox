@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
-import { FaCircleCheck } from 'react-icons/fa6';
-import { FaClock } from 'react-icons/fa6';
+import { Link } from 'react-router-dom'
+import { FaCircleCheck } from 'react-icons/fa6'
+import { FaClock } from 'react-icons/fa6'
 const Updata = () => {
   return (
     <>
@@ -94,7 +94,7 @@ const Updata = () => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Updata;
+export default Updata

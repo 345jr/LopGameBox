@@ -1,27 +1,27 @@
-import { useRef } from 'react';
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
-import { VscTriangleUp } from 'react-icons/vsc';
-import useInfoStore from '@renderer/store/infoStore';
+import { useRef } from 'react'
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap'
+import { VscTriangleUp } from 'react-icons/vsc'
+import useInfoStore from '@renderer/store/infoStore'
 
 const InfoBox = () => {
-  const info = useInfoStore((state) => state.info);
-  const display = useInfoStore((state) => state.display);
-  const boxRef = useRef<HTMLDivElement>(null);
+  const info = useInfoStore((state) => state.info)
+  const display = useInfoStore((state) => state.display)
+  const boxRef = useRef<HTMLDivElement>(null)
 
   useGSAP(
     () => {
-      if (!display || !boxRef.current) return;
+      if (!display || !boxRef.current) return
       gsap.fromTo(
         boxRef.current,
         { opacity: 0, y: -20 },
-        { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' },
-      );
+        { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' }
+      )
     },
-    { dependencies: [display, info] },
-  );
+    { dependencies: [display, info] }
+  )
 
-  if (!display) return null;
+  if (!display) return null
 
   return (
     <div ref={boxRef} className="flex-col-v">
@@ -30,7 +30,7 @@ const InfoBox = () => {
         {info || '「暂无信息」'}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default InfoBox;
+export default InfoBox

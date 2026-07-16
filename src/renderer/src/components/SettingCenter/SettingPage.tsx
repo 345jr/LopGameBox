@@ -1,79 +1,79 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 /**
  * 本地设置页：仅保留不依赖远端服务的功能。
  */
 const SettingPage = () => {
-  const [screenshotEnabled, setScreenshotEnabled] = useState(false);
+  const [screenshotEnabled, setScreenshotEnabled] = useState(false)
 
   useEffect(() => {
     const initScreenshotStatus = async () => {
       try {
-        const status = await window.api.getScreenshotShortcutStatus();
-        setScreenshotEnabled(status.enabled);
+        const status = await window.api.getScreenshotShortcutStatus()
+        setScreenshotEnabled(status.enabled)
       } catch (error) {
-        console.error('获取截图快捷键状态失败:', error);
+        console.error('获取截图快捷键状态失败:', error)
       }
-    };
-    initScreenshotStatus();
+    }
+    initScreenshotStatus()
 
     window.api.onScreenshotSuccess((data) => {
-      toast.success(`截图已保存: ${data.filename}`);
-    });
+      toast.success(`截图已保存: ${data.filename}`)
+    })
 
     window.api.onScreenshotError((data) => {
-      toast.error(`截图失败: ${data.error}`);
-    });
+      toast.error(`截图失败: ${data.error}`)
+    })
 
     return () => {
-      window.api.offScreenshotSuccess();
-      window.api.offScreenshotError();
-    };
-  }, []);
+      window.api.offScreenshotSuccess()
+      window.api.offScreenshotError()
+    }
+  }, [])
 
   const handleScreenshotToggle = async () => {
     if (screenshotEnabled) {
       toast.promise(
         window.api.disableScreenshotShortcut().then(() => {
-          setScreenshotEnabled(false);
+          setScreenshotEnabled(false)
         }),
         {
           loading: '正在禁用截图快捷键...',
           success: '截图快捷键已禁用',
-          error: (err) => `禁用失败: ${err.message || String(err)}`,
-        },
-      );
+          error: (err) => `禁用失败: ${err.message || String(err)}`
+        }
+      )
     } else {
       toast.promise(
         window.api.enableScreenshotShortcut().then(() => {
-          setScreenshotEnabled(true);
+          setScreenshotEnabled(true)
         }),
         {
           loading: '正在启用截图快捷键...',
           success: '截图快捷键已启用（按 F12 截图）',
-          error: (err) => `启用失败: ${err.message || String(err)}`,
-        },
-      );
+          error: (err) => `启用失败: ${err.message || String(err)}`
+        }
+      )
     }
-  };
+  }
 
   const handleLocalBackup = async () => {
     toast.promise(
       window.api.backupDatabase().then((result) => {
         if (!result.success) {
-          throw new Error(result.error || '备份失败');
+          throw new Error(result.error || '备份失败')
         }
-        return result.path || '';
+        return result.path || ''
       }),
       {
         loading: '正在备份数据库...',
         success: (path) => (path ? `备份成功：${path}` : '备份成功'),
-        error: (err) => `备份失败: ${err.message || String(err)}`,
-      },
-    );
-  };
+        error: (err) => `备份失败: ${err.message || String(err)}`
+      }
+    )
+  }
 
   return (
     <div className="p-6">
@@ -82,7 +82,9 @@ const SettingPage = () => {
       <div className="max-w-xl space-y-4">
         <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
           <h2 className="mb-2 text-lg font-semibold text-gray-800">本地功能</h2>
-          <p className="mb-4 text-sm text-gray-500">本应用为纯本地工具，不依赖任何在线账号或云服务。</p>
+          <p className="mb-4 text-sm text-gray-500">
+            本应用为纯本地工具，不依赖任何在线账号或云服务。
+          </p>
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
@@ -116,7 +118,7 @@ const SettingPage = () => {
         </section>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SettingPage;
+export default SettingPage

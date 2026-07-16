@@ -1,60 +1,60 @@
-import { useQuery } from '@tanstack/react-query';
-import { queryKeys } from '../queryKeys';
+import { useQuery } from '@tanstack/react-query'
+import { queryKeys } from '../queryKeys'
 
 // 获取某游戏成就列表
 export const useAchievementList = (gameId: number) => {
   return useQuery({
     queryKey: queryKeys.gameAchievements(String(gameId)),
     queryFn: async () => {
-      return await window.api.getGameAchievements(gameId);
+      return await window.api.getGameAchievements(gameId)
     },
-    enabled: !!gameId ,
+    enabled: !!gameId,
     staleTime: 0,
     gcTime: 0,
-    retry: false,
-  });
-};
+    retry: false
+  })
+}
 
 // 获取某游戏成就统计
-export const useGalleryStats = (gameId: number ) => {
+export const useGalleryStats = (gameId: number) => {
   return useQuery({
     queryKey: queryKeys.achievementStats(String(gameId)),
     queryFn: async () => {
-      return await window.api.getAchievementStats(gameId);
+      return await window.api.getAchievementStats(gameId)
     },
-    enabled: !!gameId ,
+    enabled: !!gameId,
     staleTime: 0,
     gcTime: 0,
-    retry: false,
-  });
-};
+    retry: false
+  })
+}
 
 //获取图集列表
-export const useGalleryList = (gameId: number,newestFirst: boolean=true) => {
+export const useGalleryList = (gameId: number, newestFirst: boolean = true) => {
   return useQuery({
-    queryKey: queryKeys.galleryList(String(gameId),newestFirst),
+    queryKey: queryKeys.galleryList(String(gameId), newestFirst),
     queryFn: async () => {
-      return await window.api.getGameSnapshot(gameId,newestFirst);
+      return await window.api.getGameSnapshot(gameId, newestFirst)
     },
     enabled: true,
     staleTime: 0,
     gcTime: 0,
     retry: false,
-    placeholderData: (prevData) => prevData,
-  });
-};
+    placeholderData: (prevData) => prevData
+  })
+}
 //获取某个游戏的时长
 export const useGamePlaytime = (gameId: number) => {
   return useQuery({
     queryKey: queryKeys.getGamePlaytime(String(gameId)),
     queryFn: async () => {
-      const res = await window.api.getGameById(gameId);
-      const gameTime = res.total_play_time || 0;
-      return gameTime;
+      const res = await window.api.getGameById(gameId)
+      const gameTime = res.total_play_time || 0
+      return gameTime
     },
-    enabled: !!gameId ,
+    enabled: !!gameId,
     staleTime: 0,
-    gcTime : 0,
-    retry: false,
-  });
+    gcTime: 0,
+    retry: false
+  })
 }

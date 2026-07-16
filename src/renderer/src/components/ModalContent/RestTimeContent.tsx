@@ -1,61 +1,61 @@
-import useGameStore from '@renderer/store/GameStore';
-import { useRef, useState } from 'react';
-import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
+import useGameStore from '@renderer/store/GameStore'
+import { useRef, useState } from 'react'
+import gsap from 'gsap'
+import { useGSAP } from '@gsap/react'
 
-import { formatTimeToMinutes } from '@renderer/util/timeFormat';
+import { formatTimeToMinutes } from '@renderer/util/timeFormat'
 export function RestTimeContent({ onClose }: { onClose: () => void }) {
   //#region 状态管理
-  const gameMode = useGameStore((state) => state.gameMode);
-  const [restTime, setRestTime] = useState(0);
-  const [isResting, setIsResting] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const gameMode = useGameStore((state) => state.gameMode)
+  const [restTime, setRestTime] = useState(0)
+  const [isResting, setIsResting] = useState(false)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
   //文本动画
-  const context = useRef(null);
+  const context = useRef(null)
   //按钮动画
-  const btn = useRef(null);
+  const btn = useRef(null)
   //设置游戏模式
-  const setGameMode = useGameStore((state) => state.setGameMode);
+  const setGameMode = useGameStore((state) => state.setGameMode)
   //#endregion
   //开始休息
   const startRest = () => {
     // 防止多次点击创建多个定时器
-    if (timerRef.current) return;
+    if (timerRef.current) return
     timerRef.current = setInterval(() => {
-      setRestTime((prev) => prev + 1);
-    }, 1000);
-    setIsResting(true); // 设置为休息状态
-    window.api.setResting(true);
-  };
+      setRestTime((prev) => prev + 1)
+    }, 1000)
+    setIsResting(true) // 设置为休息状态
+    window.api.setResting(true)
+  }
   //结束休息清理定时器
   const endRest = () => {
     if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
+      clearInterval(timerRef.current)
+      timerRef.current = null
     }
-    setIsResting(false); // 重置休息状态
-    window.api.setResting(false);
-    onClose();
-  };
+    setIsResting(false) // 重置休息状态
+    window.api.setResting(false)
+    onClose()
+  }
   //不休息，进入沉浸模式
   const skipRest = async () => {
     //切换模式+关闭窗口+脱离休息期
-    await window.api.setResting(false);
-    await window.api.setGameMode('Infinity');
-    setGameMode('Infinity');
-    onClose();
-  };
+    await window.api.setResting(false)
+    await window.api.setGameMode('Infinity')
+    setGameMode('Infinity')
+    onClose()
+  }
   //#region GSAP动画
   //4段小文本
   useGSAP(
     () => {
-      const timeline = gsap.timeline();
+      const timeline = gsap.timeline()
       timeline
         .from('.GSAPanimate-p1', {
           opacity: 0,
           x: -100,
           duration: 0.8,
-          ease: 'power2.out',
+          ease: 'power2.out'
         })
         .from(
           '.GSAPanimate-p2',
@@ -63,9 +63,9 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
             opacity: 0,
             x: 100,
             duration: 0.8,
-            ease: 'power2.out',
+            ease: 'power2.out'
           },
-          '-=0.5',
+          '-=0.5'
         )
         .from(
           '.GSAPanimate-p3',
@@ -73,9 +73,9 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
             opacity: 0,
             x: -100,
             duration: 0.8,
-            ease: 'power2.out',
+            ease: 'power2.out'
           },
-          '-=0.5',
+          '-=0.5'
         )
         .from(
           '.GSAPanimate-p4',
@@ -83,34 +83,34 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
             opacity: 0,
             x: 100,
             duration: 0.8,
-            ease: 'power2.out',
+            ease: 'power2.out'
           },
-          '-=0.5',
-        );
+          '-=0.5'
+        )
     },
-    { scope: context },
-  );
+    { scope: context }
+  )
   //按钮入场动画
   useGSAP(
     () => {
       //由gsap接管背景色
-      const startRestBtn = document.querySelector('.GSAPanimate-btnStartRest');
-      const endRestBtn = document.querySelector('.GSAPanimate-btnEndRest');
-      const skipRestBtn = document.querySelector('.GSAPanimate-btnSkipRest');
+      const startRestBtn = document.querySelector('.GSAPanimate-btnStartRest')
+      const endRestBtn = document.querySelector('.GSAPanimate-btnEndRest')
+      const skipRestBtn = document.querySelector('.GSAPanimate-btnSkipRest')
 
-      if (startRestBtn) gsap.set('.GSAPanimate-btnStartRest', { backgroundColor: '#22c55e' });
-      if (endRestBtn) gsap.set('.GSAPanimate-btnEndRest', { backgroundColor: '#ef4444' });
-      if (skipRestBtn) gsap.set('.GSAPanimate-btnSkipRest', { backgroundColor: '#a855f7' });
+      if (startRestBtn) gsap.set('.GSAPanimate-btnStartRest', { backgroundColor: '#22c55e' })
+      if (endRestBtn) gsap.set('.GSAPanimate-btnEndRest', { backgroundColor: '#ef4444' })
+      if (skipRestBtn) gsap.set('.GSAPanimate-btnSkipRest', { backgroundColor: '#a855f7' })
 
-      const timeline = gsap.timeline();
+      const timeline = gsap.timeline()
 
       if (startRestBtn) {
         timeline.from('.GSAPanimate-btnStartRest', {
           opacity: 0,
           y: 20,
           duration: 0.8,
-          ease: 'power2.out',
-        });
+          ease: 'power2.out'
+        })
       }
 
       if (endRestBtn) {
@@ -120,10 +120,10 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
             opacity: 0,
             y: 20,
             duration: 0.8,
-            ease: 'power2.out',
+            ease: 'power2.out'
           },
-          '-=0.5',
-        );
+          '-=0.5'
+        )
       }
 
       if (skipRestBtn) {
@@ -133,46 +133,46 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
             opacity: 0,
             y: 20,
             duration: 0.8,
-            ease: 'power2.out',
+            ease: 'power2.out'
           },
-          '-=0.5',
-        );
+          '-=0.5'
+        )
       }
     },
-    { scope: btn, dependencies: [isResting] },
-  );
+    { scope: btn, dependencies: [isResting] }
+  )
   const handleOnMouseDown = (btnClassName: string) => {
     gsap.to(`.${btnClassName}`, {
       y: 4,
-      duration: 0.1,
-    });
-  };
+      duration: 0.1
+    })
+  }
   const handleOnMouseUp = (btnClassName: string) => {
     gsap.to(`.${btnClassName}`, {
       y: 0,
-      duration: 0.2,
-    });
-  };
+      duration: 0.2
+    })
+  }
   const handleOnMouseEnter = (btnClassName: string, color: string) => {
     gsap.to(`.${btnClassName}`, {
       backgroundColor: color,
-      duration: 0.3,
-    });
-  };
+      duration: 0.3
+    })
+  }
   const handleOnMouseLeave = (btnClassName: string, color: string) => {
     gsap.to(`.${btnClassName}`, {
       backgroundColor: color,
-      duration: 0.3,
-    });
-  };
+      duration: 0.3
+    })
+  }
   //#endregion
   //模式中文映射
   const modeMap: Record<string, string> = {
     Normal: '普通模式',
     Fast: '快速模式',
     Afk: '挂机模式',
-    Test: '测试',
-  };
+    Test: '测试'
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800/30">
@@ -231,5 +231,5 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
         </div>
       </div>
     </div>
-  );
+  )
 }

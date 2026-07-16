@@ -1,16 +1,10 @@
-import { useState } from 'react';
-import { createPortal } from 'react-dom';
-import ModalContent from './ModalContent/ModalContent';
-import { VscGear } from 'react-icons/vsc';
+import { useState } from 'react'
+import { createPortal } from 'react-dom'
+import ModalContent from './ModalContent/ModalContent'
+import { VscGear } from 'react-icons/vsc'
 
-export default function Portal({
-  gameId,
-  onRefresh,
-}: {
-  gameId: number;
-  onRefresh: () => void;
-}) {
-  const [showModal, setShowModal] = useState(false);
+export default function Portal({ gameId, onRefresh }: { gameId: number; onRefresh: () => void }) {
+  const [showModal, setShowModal] = useState(false)
   return (
     <>
       <button onClick={() => setShowModal(true)} className="iconBtn iconBtn-wrapper">
@@ -23,8 +17,8 @@ export default function Portal({
             gameId={gameId}
             onRefresh={onRefresh}
           />,
-          document.body,
+          document.body
         )}
     </>
-  );
+  )
 }

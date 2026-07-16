@@ -1,9 +1,9 @@
-import { Cell,  Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 
 // 饼图自定义提示框
 const PieTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
-    const data = payload[0];
+    const data = payload[0]
     return (
       <div className="max-w-32 rounded border border-gray-300 bg-white p-2 text-sm shadow-md">
         <p className={`font-medium`} style={{ color: data.payload.color }}>
@@ -11,23 +11,23 @@ const PieTooltip = ({ active, payload }: any) => {
         </p>
         <p className="text-xs">{`${data.value.toFixed(2)}小时`}</p>
       </div>
-    );
+    )
   }
-  return null;
-};
+  return null
+}
 
 // 饼图颜色配置
-const PIE_COLORS = ['#4ade80', '#facc15', '#60a5fa', '#f472b6'];
+const PIE_COLORS = ['#4ade80', '#facc15', '#60a5fa', '#f472b6']
 
 // 自定义饼图标签渲染函数
 const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, percent }: any) => {
   // 如果小于8%，则不显示标签
-  if (Number((percent * 100).toFixed(1)) < 8) return null;
-  const RADIAN = Math.PI / 180;
+  if (Number((percent * 100).toFixed(1)) < 8) return null
+  const RADIAN = Math.PI / 180
   // 在饼图外部25像素的位置
-  const radius = outerRadius + 10;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  const radius = outerRadius + 10
+  const x = cx + radius * Math.cos(-midAngle * RADIAN)
+  const y = cy + radius * Math.sin(-midAngle * RADIAN)
 
   return (
     <text
@@ -41,8 +41,8 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, percent }: any) 
     >
       {`${(percent * 100).toFixed(1)}%`}
     </text>
-  );
-};
+  )
+}
 
 const MyPieChart = ({ gameStatistics }) => {
   //饼图数据
@@ -50,14 +50,14 @@ const MyPieChart = ({ gameStatistics }) => {
     { name: '普通模式', value: gameStatistics.normalHours },
     { name: '快速模式', value: gameStatistics.fastHours },
     { name: '挂机模式', value: gameStatistics.afkHours },
-    { name: '沉浸模式', value: gameStatistics.infinityHours },
-  ];
+    { name: '沉浸模式', value: gameStatistics.infinityHours }
+  ]
   return (
     <>
       <div className="flex flex-row justify-center">
         {/* 不同模式的时长比例图 */}
         <div className="h-64 w-80">
-          <ResponsiveContainer >
+          <ResponsiveContainer>
             <PieChart>
               <Pie
                 data={[
@@ -68,7 +68,7 @@ const MyPieChart = ({ gameStatistics }) => {
                     fastHours: gameStatistics.fastHours,
                     afkHours: gameStatistics.afkHours,
                     infinityHours: gameStatistics.infinityHours,
-                    color: PIE_COLORS[0],
+                    color: PIE_COLORS[0]
                   },
                   {
                     name: '快速模式',
@@ -77,7 +77,7 @@ const MyPieChart = ({ gameStatistics }) => {
                     fastHours: gameStatistics.fastHours,
                     afkHours: gameStatistics.afkHours,
                     infinityHours: gameStatistics.infinityHours,
-                    color: PIE_COLORS[1],
+                    color: PIE_COLORS[1]
                   },
                   {
                     name: '挂机模式',
@@ -86,7 +86,7 @@ const MyPieChart = ({ gameStatistics }) => {
                     fastHours: gameStatistics.fastHours,
                     afkHours: gameStatistics.afkHours,
                     infinityHours: gameStatistics.infinityHours,
-                    color: PIE_COLORS[2],
+                    color: PIE_COLORS[2]
                   },
                   {
                     name: '沉浸模式',
@@ -95,8 +95,8 @@ const MyPieChart = ({ gameStatistics }) => {
                     fastHours: gameStatistics.fastHours,
                     afkHours: gameStatistics.afkHours,
                     infinityHours: gameStatistics.infinityHours,
-                    color: PIE_COLORS[3],
-                  },
+                    color: PIE_COLORS[3]
+                  }
                 ]}
                 cx="50%"
                 cy="50%"
@@ -115,7 +115,7 @@ const MyPieChart = ({ gameStatistics }) => {
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default MyPieChart;
+export default MyPieChart

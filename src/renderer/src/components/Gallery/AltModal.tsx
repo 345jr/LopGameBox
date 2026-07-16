@@ -1,15 +1,15 @@
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from 'react'
 
 type AltModalProps = {
-  show: boolean;
-  altText: string;
-  setAltText: Dispatch<SetStateAction<string>>;
-  isEditing: boolean;
-  onClose: () => void;
-  onSave: () => Promise<void> | void;
-  onDelete: () => Promise<void> | void;
-  onToggleEdit: () => void;
-};
+  show: boolean
+  altText: string
+  setAltText: Dispatch<SetStateAction<string>>
+  isEditing: boolean
+  onClose: () => void
+  onSave: () => Promise<void> | void
+  onDelete: () => Promise<void> | void
+  onToggleEdit: () => void
+}
 
 const AltModal = ({
   show,
@@ -19,9 +19,9 @@ const AltModal = ({
   onClose,
   onSave,
   onDelete,
-  onToggleEdit,
+  onToggleEdit
 }: AltModalProps) => {
-  if (!show) return null;
+  if (!show) return null
 
   return (
     <div
@@ -85,7 +85,7 @@ const AltModal = ({
               </button>
               <button
                 onClick={async () => {
-                  await onSave();
+                  await onSave()
                 }}
                 className="cursor-pointer rounded bg-black px-4 py-2 text-sm text-white transition hover:bg-gray-900"
               >
@@ -96,7 +96,7 @@ const AltModal = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default AltModal;
+export default AltModal

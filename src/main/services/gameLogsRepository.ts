@@ -1,23 +1,23 @@
-import { DatabaseManager } from './databaseManager';
+import { DatabaseManager } from './databaseManager'
 
 export class GameLogsRepository {
-  private db = DatabaseManager.getInstance();
+  private db = DatabaseManager.getInstance()
   //插入游玩记录
   public insertGameLog(
     gameId: number,
     launchedAt: number,
     endedAt: number,
     launchState: string,
-    gameMode: string = '',
+    gameMode: string = ''
   ) {
     // 如果游玩时长小于10秒则不记录
-    const play_time = Math.round((endedAt - launchedAt) / 1000);
-    if (play_time < 10) return;
+    const play_time = Math.round((endedAt - launchedAt) / 1000)
+    if (play_time < 10) return
     const stmt = this.db.prepare(`
       INSERT INTO game_logs (game_id, play_time, launched_at, ended_at, launch_state, game_mode)
       VALUES (?, ?, ?, ?, ?, ?)
-    `);
-    stmt.run(gameId, play_time, launchedAt, endedAt, launchState, gameMode);
+    `)
+    stmt.run(gameId, play_time, launchedAt, endedAt, launchState, gameMode)
   }
   //获取今天，本周，本月的游戏时长记录|时间的界限是每天的下午4点
   public getGameLogDayWeekMonth() {
@@ -44,8 +44,8 @@ export class GameLogsRepository {
             AND launched_at / 1000 >= CAST(strftime('%s', 'now', 'start of month', 'localtime') AS INTEGER)
             AND launched_at / 1000 < CAST(strftime('%s', 'now', 'start of month', '+1 month', 'localtime') AS INTEGER)
       ) AS monthHours;
-    `);
-    return stmt.get();
+    `)
+    return stmt.get()
   }
   //获取4种模式下不同的时长分布(总)
   public getGameLogByMode() {
@@ -71,8 +71,8 @@ export class GameLogsRepository {
           FROM game_logs
           WHERE launch_state = 'success' AND game_mode = 'Infinity'
         ) AS infinityHours;
-    `);
-    return stmt.get();
+    `)
+    return stmt.get()
   }
   //获取本周的游戏模式时长分布  本周（周一到周日）逐日分组统计，每日分列 Normal/Fast/Afk/Infinity 小时数
   public getGameLogByModeThisWeek() {
@@ -110,8 +110,8 @@ export class GameLogsRepository {
     LEFT JOIN agg a ON a.day = d.day
     GROUP BY d.day
     ORDER BY d.day;
-      `);
-    return stmt.all();
+      `)
+    return stmt.all()
   }
 
   // 获取上周（周一到周日）的游戏模式时长分布：逐日分组，分列 Normal/Fast/Afk/Infinity 小时数
@@ -151,7 +151,7 @@ export class GameLogsRepository {
     LEFT JOIN agg a ON a.day = d.day
     GROUP BY d.day
     ORDER BY d.day;
-    `);
-    return stmt.all();
+    `)
+    return stmt.all()
   }
 }

@@ -3,5 +3,5 @@
  *
  * 仅保留本地 Electron IPC / 本地数据相关 hooks。
  */
-export * from './queryKeys';
-export * from './queries/queries.gamelinks';
+export * from './queryKeys'
+export * from './queries/queries.gamelinks'

@@ -1,32 +1,32 @@
-import { useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { VscPassFilled, VscFiles, VscArrowRight, VscClose } from 'react-icons/vsc';
+import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { VscPassFilled, VscFiles, VscArrowRight, VscClose } from 'react-icons/vsc'
 
-import { Game, GameVersion } from '@renderer/types/Game';
-import gameSizeFormat from '@renderer/util/gameSizeFormat';
-import useInfoStore from '@renderer/store/infoStore';
-import { TbSwords } from "react-icons/tb";
-import { FaBookBookmark } from "react-icons/fa6";
-import toast from 'react-hot-toast';
+import { Game, GameVersion } from '@renderer/types/Game'
+import gameSizeFormat from '@renderer/util/gameSizeFormat'
+import useInfoStore from '@renderer/store/infoStore'
+import { TbSwords } from 'react-icons/tb'
+import { FaBookBookmark } from 'react-icons/fa6'
+import toast from 'react-hot-toast'
 export default function ModalContent({
   onClose,
   gameId,
-  onRefresh,
+  onRefresh
 }: {
-  onClose: () => void;
-  gameId: number;
-  onRefresh: () => void;
+  onClose: () => void
+  gameId: number
+  onRefresh: () => void
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [size, setSize] = useState<number>(0);
-  const [currentCategory, setCurrentCategory] = useState<'playing' | 'archived' | 'all'>('all');
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [size, setSize] = useState<number>(0)
+  const [currentCategory, setCurrentCategory] = useState<'playing' | 'archived' | 'all'>('all')
 
-  const [gameVersions, setGameVersions] = useState<GameVersion[]>([]);
+  const [gameVersions, setGameVersions] = useState<GameVersion[]>([])
 
   // 从后端加载版本列表
   const loadVersions = async () => {
     try {
-      const rows: any[] = await window.api.getVersionsByGame(gameId);
+      const rows: any[] = await window.api.getVersionsByGame(gameId)
       const mapped: GameVersion[] = rows.map(
         (r) =>
           ({
@@ -35,212 +35,213 @@ export default function ModalContent({
             version: r.version,
             description: r.summary || r.description || '',
             release_date: (r.created_at || Date.now()) * 1000,
-            created_at: (r.created_at || Date.now()) * 1000,
-          }) as GameVersion,
-      );
-      setGameVersions(mapped);
+            created_at: (r.created_at || Date.now()) * 1000
+          }) as GameVersion
+      )
+      setGameVersions(mapped)
     } catch (err) {
-      console.error('加载版本列表失败', err);
+      console.error('加载版本列表失败', err)
     }
-  };
+  }
   // 加载游戏当前分类
   const loadGameCategory = async () => {
     try {
-      const game: Game = await window.api.getGameById(gameId);
-      const category = (game as any).category;
+      const game: Game = await window.api.getGameById(gameId)
+      const category = (game as any).category
       if (category === 'playing' || category === 'archived') {
-        setCurrentCategory(category);
+        setCurrentCategory(category)
       } else {
-        setCurrentCategory('all');
+        setCurrentCategory('all')
       }
     } catch (err) {
-      console.error('加载游戏分类失败', err);
+      console.error('加载游戏分类失败', err)
     }
-  };
+  }
 
   // 在组件挂载时加载版本列表和游戏分类
   useState(() => {
-    loadVersions();
-    loadGameCategory();
-  });
+    loadVersions()
+    loadGameCategory()
+  })
 
-  
-
-  const [selectedVersion, setSelectedVersion] = useState<GameVersion | null>(null);
-  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false);
+  const [selectedVersion, setSelectedVersion] = useState<GameVersion | null>(null)
+  const [isVersionModalOpen, setIsVersionModalOpen] = useState(false)
   // 更新版本模态框状态
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const [updateType, setUpdateType] = useState<'minor' | 'major'>('minor');
-  const [updateSummary, setUpdateSummary] = useState('');
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [newGamePath, setNewGamePath] = useState<string>('');
-  const [shouldRecalculateSize, setShouldRecalculateSize] = useState<boolean>(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false)
+  const [updateType, setUpdateType] = useState<'minor' | 'major'>('minor')
+  const [updateSummary, setUpdateSummary] = useState('')
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [newGamePath, setNewGamePath] = useState<string>('')
+  const [shouldRecalculateSize, setShouldRecalculateSize] = useState<boolean>(false)
   // 编辑版本描述相关状态
-  const [isEditingDescription, setIsEditingDescription] = useState(false);
-  const [editedDescription, setEditedDescription] = useState('');
+  const [isEditingDescription, setIsEditingDescription] = useState(false)
+  const [editedDescription, setEditedDescription] = useState('')
 
-  const setInfo = useInfoStore((state) => state.setInfo);
+  const setInfo = useInfoStore((state) => state.setInfo)
 
   // 打开版本详情模态框
   const handleVersionClick = (version: GameVersion) => {
-    setSelectedVersion(version);
-    setIsVersionModalOpen(true);
-    setIsEditingDescription(false);
-    setEditedDescription(version.description);
-  };
+    setSelectedVersion(version)
+    setIsVersionModalOpen(true)
+    setIsEditingDescription(false)
+    setEditedDescription(version.description)
+  }
 
   // 打开更新模态框（要求选择新的游戏路径）
   const openUpdateModal = async (type: 'minor' | 'major') => {
     // 打开文件选择对话框
-    const selectedPath = await window.api.openFile();
-    
+    const selectedPath = await window.api.openFile()
+
     if (!selectedPath) {
-      setInfo('未选择游戏路径，已取消更新');
-      return;
+      setInfo('未选择游戏路径，已取消更新')
+      return
     }
-    
-    setUpdateType(type);
-    setUpdateSummary('');
-    setNewGamePath(selectedPath);
-    setShouldRecalculateSize(false);
-    setSize(0);
-    setIsUpdateModalOpen(true);
-  };
+
+    setUpdateType(type)
+    setUpdateSummary('')
+    setNewGamePath(selectedPath)
+    setShouldRecalculateSize(false)
+    setSize(0)
+    setIsUpdateModalOpen(true)
+  }
 
   // 关闭版本详情模态框
   const handleVersionModalClose = () => {
-    setIsVersionModalOpen(false);
-    setSelectedVersion(null);
-    setIsEditingDescription(false);
-    setEditedDescription('');
-  };
+    setIsVersionModalOpen(false)
+    setSelectedVersion(null)
+    setIsEditingDescription(false)
+    setEditedDescription('')
+  }
 
   // 开始编辑版本描述
   const handleStartEditDescription = () => {
-    setIsEditingDescription(true);
-  };
+    setIsEditingDescription(true)
+  }
 
   // 取消编辑版本描述
   const handleCancelEditDescription = () => {
-    setIsEditingDescription(false);
-    setEditedDescription(selectedVersion?.description || '');
-  };
+    setIsEditingDescription(false)
+    setEditedDescription(selectedVersion?.description || '')
+  }
 
   // 保存版本描述
   const handleSaveDescription = async () => {
-    if (!selectedVersion) return;
-    
+    if (!selectedVersion) return
+
     if (!editedDescription.trim()) {
-      setInfo('版本描述不能为空');
-      return;
+      setInfo('版本描述不能为空')
+      return
     }
 
     try {
-      const result = await window.api.updateVersionDescription(selectedVersion.id, editedDescription);
+      const result = await window.api.updateVersionDescription(
+        selectedVersion.id,
+        editedDescription
+      )
       if (result.success) {
-        setInfo('版本描述更新成功');
-        setIsEditingDescription(false);
+        setInfo('版本描述更新成功')
+        setIsEditingDescription(false)
         // 更新本地版本数据
-        setSelectedVersion({ ...selectedVersion, description: editedDescription });
+        setSelectedVersion({ ...selectedVersion, description: editedDescription })
         // 重新加载版本列表
-        await loadVersions();
+        await loadVersions()
       } else {
-        setInfo(`更新失败: ${result.message}`);
+        setInfo(`更新失败: ${result.message}`)
       }
     } catch (err: any) {
-      console.error('保存版本描述失败', err);
-      setInfo(`保存失败: ${err?.message ?? String(err)}`);
+      console.error('保存版本描述失败', err)
+      setInfo(`保存失败: ${err?.message ?? String(err)}`)
     }
-  };
+  }
 
   //修改游戏名
   const handleConfirm = async () => {
-    const newName = inputRef.current?.value;
+    const newName = inputRef.current?.value
     if (newName) {
       // 调用修改游戏名的API
-      await window.api.modifyGameName(gameId, newName);
-      onRefresh();
+      await window.api.modifyGameName(gameId, newName)
+      onRefresh()
       // onClose();
-      toast.success(`游戏名已修改为: ${newName}`);
+      toast.success(`游戏名已修改为: ${newName}`)
     } else {
       // onClose();
-      toast.error(`游戏名不能为空!`);
+      toast.error(`游戏名不能为空!`)
     }
-  };
+  }
   //重新计算游戏大小
   const handleGetGameSize = async (gameId: number) => {
-    const game: Game = await window.api.getGameById(gameId);
+    const game: Game = await window.api.getGameById(gameId)
     //更新游戏大小
-    const newSize = await window.api.updateGameSize(gameId, game.launch_path);
-    setSize(newSize);
-    onRefresh();
-    toast.success('游戏大小已更新');
-  };
+    const newSize = await window.api.updateGameSize(gameId, game.launch_path)
+    setSize(newSize)
+    onRefresh()
+    toast.success('游戏大小已更新')
+  }
 
   // 更新游戏分类
   const handleUpdateCategory = async (category: 'playing' | 'archived') => {
     try {
-      const result = await window.api.updateGameCategory(gameId, category);
+      const result = await window.api.updateGameCategory(gameId, category)
       if (result.success) {
-        setCurrentCategory(category);
-        toast.success(`分类已更新为: ${category === 'playing' ? '攻略中' : '已归档'}`);
-        onRefresh();
+        setCurrentCategory(category)
+        toast.success(`分类已更新为: ${category === 'playing' ? '攻略中' : '已归档'}`)
+        onRefresh()
       } else {
-        toast.error(`更新失败: ${result.message}`);
+        toast.error(`更新失败: ${result.message}`)
       }
     } catch (err: any) {
-      console.error('更新游戏分类失败', err);
-      toast.error(`更新失败: ${err?.message ?? String(err)}`);
+      console.error('更新游戏分类失败', err)
+      toast.error(`更新失败: ${err?.message ?? String(err)}`)
     }
-  };
+  }
 
   // 手动计算游戏大小（在模态框中触发）
   const handleRecalculateSizeInModal = async () => {
     if (!newGamePath) {
-      setInfo('未选择游戏路径');
-      return;
+      setInfo('未选择游戏路径')
+      return
     }
     try {
-      const calculatedSize = await window.api.updateGameSize(gameId, newGamePath);
-      setSize(calculatedSize);
-      setShouldRecalculateSize(true);
-      toast.success('游戏大小计算完成');
+      const calculatedSize = await window.api.updateGameSize(gameId, newGamePath)
+      setSize(calculatedSize)
+      setShouldRecalculateSize(true)
+      toast.success('游戏大小计算完成')
     } catch (err: any) {
-      toast.error(`计算失败: ${err?.message ?? String(err)}`);
+      toast.error(`计算失败: ${err?.message ?? String(err)}`)
     }
-  };
+  }
 
   // 确认提交更新（调用主进程接口）
   const handleConfirmUpdate = async () => {
     if (!updateSummary) {
-      setInfo('请填写更新概述');
-      return;
+      setInfo('请填写更新概述')
+      return
     }
     if (!newGamePath) {
-      setInfo('未选择游戏路径');
-      return;
+      setInfo('未选择游戏路径')
+      return
     }
-    setIsUpdating(true);
+    setIsUpdating(true)
     try {
       // 如果用户选择了重新计算游戏大小，则传入 size，否则传 undefined
-      const gameSizeToSubmit = shouldRecalculateSize ? size : undefined;
-      
+      const gameSizeToSubmit = shouldRecalculateSize ? size : undefined
+
       // 先更新游戏路径
-      const pathUpdateResult = await window.api.updateGamePath(gameId, newGamePath);
+      const pathUpdateResult = await window.api.updateGamePath(gameId, newGamePath)
       if (!pathUpdateResult.success) {
-        toast.error(`路径更新失败: ${pathUpdateResult.message}`);
-        setIsUpdating(false);
-        return;
+        toast.error(`路径更新失败: ${pathUpdateResult.message}`)
+        setIsUpdating(false)
+        return
       }
-      
+
       // 然后创建新版本
       const inserted: any = await window.api.updateGameVersion(
         gameId,
         updateType,
         updateSummary,
-        gameSizeToSubmit,
-      );
-      
+        gameSizeToSubmit
+      )
+
       // 插入到本地版本列表（前端使用的字段名与后端可能不同，做映射）
       const newVersion: GameVersion = {
         id: inserted.id || Date.now(),
@@ -248,21 +249,21 @@ export default function ModalContent({
         version: inserted.version || `${inserted.version}`,
         description: inserted.summary || updateSummary,
         release_date: Date.now(),
-        created_at: inserted.created_at ? inserted.created_at * 1000 : Date.now(),
-      } as any;
-      
+        created_at: inserted.created_at ? inserted.created_at * 1000 : Date.now()
+      } as any
+
       // 重新拉取所有版本并刷新游戏列表
-      await loadVersions();
-      onRefresh();
-      toast.success(`已创建新版本 ${newVersion.version}，游戏路径已更新`);
-      setIsUpdateModalOpen(false);
+      await loadVersions()
+      onRefresh()
+      toast.success(`已创建新版本 ${newVersion.version}，游戏路径已更新`)
+      setIsUpdateModalOpen(false)
     } catch (err: any) {
-      console.error('更新版本失败', err);
-      toast.error(`更新失败: ${err?.message ?? String(err)}`);
+      console.error('更新版本失败', err)
+      toast.error(`更新失败: ${err?.message ?? String(err)}`)
     } finally {
-      setIsUpdating(false);
+      setIsUpdating(false)
     }
-  };
+  }
   return (
     // 遮罩层
     <div
@@ -278,7 +279,7 @@ export default function ModalContent({
         <p className="mb-1 text-2xl font-semibold text-gray-800">配置区域</p>
         {/* 修改游戏名 */}
         <div className="grid grid-cols-[3fr_2fr] gap-4">
-          <div className='grid-'>
+          <div className="grid-">
             <div>
               <p className="py-2 text-lg">修改游戏名</p>
               <div className="relative">
@@ -307,61 +308,62 @@ export default function ModalContent({
               {size > 0 && (
                 <>
                   <VscArrowRight className="mx-2 mt-2.5 text-base" />
-                  <p className="mt-2.5 ml-2 text-base text-black whitespace-nowrap">游戏大小:{gameSizeFormat(size)}</p>
+                  <p className="mt-2.5 ml-2 text-base whitespace-nowrap text-black">
+                    游戏大小:{gameSizeFormat(size)}
+                  </p>
                 </>
               )}
             </div>
             {/* 设置游戏分类 */}
-              <p className="py-2 text-lg">设置游戏分类</p>
-              <div className="flex gap-2">
-                
-                <button
-                  onClick={() => handleUpdateCategory('playing')}
-                  className={`flex flex-1 flex-row rounded-md px-3 py-2 text-sm transition-all ${
-                    currentCategory === 'playing'
-                      ? 'bg-gray-800 text-white '
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  <div className='flex-center mr-4'>
-                    <TbSwords className='text-lg text-center' />
-                  </div>
-                  攻略中
-                </button>
-                <button
-                  onClick={() => handleUpdateCategory('archived')}
-                  className={`flex flex-row flex-1 rounded-md px-3 py-2 text-sm transition-all ${
-                    currentCategory === 'archived'
-                      ? 'bg-gray-600 text-white '
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  <div className='flex-center mr-4'>
-                    <FaBookBookmark className='text-lg text-center' />
-                  </div>
-                  已归档
-                </button>
-              </div>
+            <p className="py-2 text-lg">设置游戏分类</p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleUpdateCategory('playing')}
+                className={`flex flex-1 flex-row rounded-md px-3 py-2 text-sm transition-all ${
+                  currentCategory === 'playing'
+                    ? 'bg-gray-800 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <div className="flex-center mr-4">
+                  <TbSwords className="text-center text-lg" />
+                </div>
+                攻略中
+              </button>
+              <button
+                onClick={() => handleUpdateCategory('archived')}
+                className={`flex flex-1 flex-row rounded-md px-3 py-2 text-sm transition-all ${
+                  currentCategory === 'archived'
+                    ? 'bg-gray-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <div className="flex-center mr-4">
+                  <FaBookBookmark className="text-center text-lg" />
+                </div>
+                已归档
+              </button>
+            </div>
           </div>
           {/* 版本管理 */}
           <div>
             <p className="py-2 text-center text-lg">更新版本记录</p>
             <div className="flex flex-row justify-center gap-4">
-              <button 
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900 transition-colors"
+              <button
+                className="rounded bg-gray-800 px-4 py-2 text-white transition-colors hover:bg-gray-900"
                 onClick={() => openUpdateModal('major')}
               >
                 大更新
               </button>
-              <button 
-                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+              <button
+                className="rounded bg-gray-600 px-4 py-2 text-white transition-colors hover:bg-gray-700"
                 onClick={() => openUpdateModal('minor')}
               >
                 小更新
               </button>
             </div>
             <div className="mt-4">
-              <p className="mb-2 text-lg text-center">版本列表</p>
+              <p className="mb-2 text-center text-lg">版本列表</p>
               {gameVersions && gameVersions.length > 0 ? (
                 <div className="space-y-1">
                   {gameVersions.map((version) => (
@@ -370,7 +372,7 @@ export default function ModalContent({
                       className="flex cursor-pointer items-center justify-center py-1 transition-colors hover:text-blue-600"
                       onClick={() => handleVersionClick(version)}
                     >
-                      <span className="font-medium mr-2">版本 {version.version}</span>
+                      <span className="mr-2 font-medium">版本 {version.version}</span>
                       <span className="text-sm text-gray-500">
                         {new Date(version.release_date).toLocaleDateString('zh-CN')}
                       </span>
@@ -385,173 +387,176 @@ export default function ModalContent({
         </div>
 
         {/* 版本详情模态框 */}
-        {isVersionModalOpen && selectedVersion && createPortal(
-          <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-800/30"
-            onClick={handleVersionModalClose}
-          >
+        {isVersionModalOpen &&
+          selectedVersion &&
+          createPortal(
             <div
-              className="relative mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
-              onClick={(e) => e.stopPropagation()}
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-800/30"
+              onClick={handleVersionModalClose}
             >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">版本详情</h2>
-                <button
-                  onClick={handleVersionModalClose}
-                  className="text-gray-500 hover:text-red-500 transition-colors"
-                >
-                  <VscClose className="text-2xl" />
-                </button>
-              </div>
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <p className="font-semibold text-gray-700">版本号</p>
-                    <p className="text-gray-900">{selectedVersion.version}</p>
+              <div
+                className="relative mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-gray-800">版本详情</h2>
+                  <button
+                    onClick={handleVersionModalClose}
+                    className="text-gray-500 transition-colors hover:text-red-500"
+                  >
+                    <VscClose className="text-2xl" />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <p className="font-semibold text-gray-700">版本号</p>
+                      <p className="text-gray-900">{selectedVersion.version}</p>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-700">发布日期</p>
+                      <p className="text-gray-900">
+                        {new Date(selectedVersion.release_date).toLocaleString('zh-CN')}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-700">创建时间</p>
+                      <p className="text-gray-900">
+                        {new Date(selectedVersion.created_at).toLocaleString('zh-CN')}
+                      </p>
+                    </div>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-700">发布日期</p>
-                    <p className="text-gray-900">
-                      {new Date(selectedVersion.release_date).toLocaleString('zh-CN')}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-700">创建时间</p>
-                    <p className="text-gray-900">
-                      {new Date(selectedVersion.created_at).toLocaleString('zh-CN')}
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-700">版本描述</p>
-                  {isEditingDescription ? (
-                    <textarea
-                      value={editedDescription}
-                      onChange={(e) => setEditedDescription(e.target.value)}
-                      className="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                      rows={4}
-                      placeholder="请输入版本描述..."
-                    />
-                  ) : (
-                    <p className="text-gray-900">{selectedVersion.description}</p>
-                  )}
-                </div>
-              </div>
-              <div className="mt-6 flex justify-end gap-2">
-                {isEditingDescription ? (
-                  <>
-                    <button
-                      onClick={handleCancelEditDescription}
-                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
-                    >
-                      取消编辑
-                    </button>
-                    <button
-                      onClick={handleSaveDescription}
-                      className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                    >
-                      保存
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={handleStartEditDescription}
-                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
-                    >
-                      编辑描述
-                    </button>
-                    <button
-                      onClick={handleVersionModalClose}
-                      className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
-                    >
-                      关闭
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
-        {/* 提交更新的模态框 */}
-        {isUpdateModalOpen && createPortal(
-          <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-800/30"
-            onClick={() => setIsUpdateModalOpen(false)}
-          >
-            <div
-              className="relative mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  {updateType === 'major' ? '创建大更新' : '创建小更新'}
-                </h2>
-                <button
-                  onClick={() => setIsUpdateModalOpen(false)}
-                  className="text-gray-500 hover:text-red-500 transition-colors"
-                >
-                  <VscClose className="text-2xl" />
-                </button>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <p className="font-medium">新游戏路径：</p>
-                  <p className="text-sm text-gray-600 break-all">{newGamePath || '未选择'}</p>
-                </div>
-                <div>
-                  <p className="font-medium">重新计算游戏大小（可选）：</p>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleRecalculateSizeInModal}
-                      className="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                    >
-                      {size > 0 ? '重新计算' : '计算游戏大小'}
-                    </button>
-                    {size > 0 && (
-                      <span className="text-sm text-gray-600">
-                        当前大小: {gameSizeFormat(size)}
-                      </span>
+                    <p className="font-semibold text-gray-700">版本描述</p>
+                    {isEditingDescription ? (
+                      <textarea
+                        value={editedDescription}
+                        onChange={(e) => setEditedDescription(e.target.value)}
+                        className="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        rows={4}
+                        placeholder="请输入版本描述..."
+                      />
+                    ) : (
+                      <p className="text-gray-900">{selectedVersion.description}</p>
                     )}
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">
-                    提示：如果不计算游戏大小，版本记录将不包含文件大小信息
-                  </p>
                 </div>
-                <div>
-                  <p className="font-medium">更新概述（必填）</p>
-                  <textarea
-                    value={updateSummary}
-                    onChange={(e) => setUpdateSummary(e.target.value)}
-                    className="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                    rows={4}
-                    placeholder="请描述本次更新的内容..."
-                  />
-                </div>
-              </div>
-              <div className="mt-6 flex justify-end gap-2">
-                <button
-                  onClick={() => setIsUpdateModalOpen(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors"
-                >
-                  取消
-                </button>
-                <button
-                  onClick={handleConfirmUpdate}
-                  disabled={isUpdating}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 transition-colors flex items-center gap-2"
-                >
-                  {isUpdating && (
-                    <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <div className="mt-6 flex justify-end gap-2">
+                  {isEditingDescription ? (
+                    <>
+                      <button
+                        onClick={handleCancelEditDescription}
+                        className="rounded bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
+                      >
+                        取消编辑
+                      </button>
+                      <button
+                        onClick={handleSaveDescription}
+                        className="rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600"
+                      >
+                        保存
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={handleStartEditDescription}
+                        className="rounded bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
+                      >
+                        编辑描述
+                      </button>
+                      <button
+                        onClick={handleVersionModalClose}
+                        className="rounded bg-gray-500 px-4 py-2 text-white transition-colors hover:bg-gray-600"
+                      >
+                        关闭
+                      </button>
+                    </>
                   )}
-                  确定
-                </button>
+                </div>
               </div>
-            </div>
-          </div>,
-          document.body
-        )}
+            </div>,
+            document.body
+          )}
+        {/* 提交更新的模态框 */}
+        {isUpdateModalOpen &&
+          createPortal(
+            <div
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-800/30"
+              onClick={() => setIsUpdateModalOpen(false)}
+            >
+              <div
+                className="relative mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    {updateType === 'major' ? '创建大更新' : '创建小更新'}
+                  </h2>
+                  <button
+                    onClick={() => setIsUpdateModalOpen(false)}
+                    className="text-gray-500 transition-colors hover:text-red-500"
+                  >
+                    <VscClose className="text-2xl" />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <p className="font-medium">新游戏路径：</p>
+                    <p className="text-sm break-all text-gray-600">{newGamePath || '未选择'}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium">重新计算游戏大小（可选）：</p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleRecalculateSizeInModal}
+                        className="rounded bg-blue-500 px-3 py-2 text-white transition-colors hover:bg-blue-600"
+                      >
+                        {size > 0 ? '重新计算' : '计算游戏大小'}
+                      </button>
+                      {size > 0 && (
+                        <span className="text-sm text-gray-600">
+                          当前大小: {gameSizeFormat(size)}
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500">
+                      提示：如果不计算游戏大小，版本记录将不包含文件大小信息
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-medium">更新概述（必填）</p>
+                    <textarea
+                      value={updateSummary}
+                      onChange={(e) => setUpdateSummary(e.target.value)}
+                      className="w-full rounded border border-gray-300 p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      rows={4}
+                      placeholder="请描述本次更新的内容..."
+                    />
+                  </div>
+                </div>
+                <div className="mt-6 flex justify-end gap-2">
+                  <button
+                    onClick={() => setIsUpdateModalOpen(false)}
+                    className="rounded bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={handleConfirmUpdate}
+                    disabled={isUpdating}
+                    className="flex items-center gap-2 rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600 disabled:bg-gray-400"
+                  >
+                    {isUpdating && (
+                      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                    )}
+                    确定
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
         <div className="absolute top-4 right-4">
           <button
             onClick={onClose}
@@ -562,5 +567,5 @@ export default function ModalContent({
         </div>
       </div>
     </div>
-  );
+  )
 }

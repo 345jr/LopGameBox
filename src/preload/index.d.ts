@@ -1,126 +1,128 @@
-import { ElectronAPI } from '@electron-toolkit/preload';
-import type { DropPayload, DropResult } from './IPCtype';
+import { ElectronAPI } from '@electron-toolkit/preload'
+import type { DropPayload, DropResult } from './IPCtype'
 declare global {
   interface Window {
-    electron: ElectronAPI;
+    electron: ElectronAPI
     api: {
-      openFile: () => Promise<string>;
-      selectFolder: () => Promise<string | null>;
+      openFile: () => Promise<string>
+      selectFolder: () => Promise<string | null>
       executeFile: (game: {
-        id: number;
-        path: string;
-        gameMode: string;
-      }) => Promise<{ success: boolean; message?: string }>;
-      onTimerUpdate: (callback: (elapsedTime: number) => void) => void;
+        id: number
+        path: string
+        gameMode: string
+      }) => Promise<{ success: boolean; message?: string }>
+      onTimerUpdate: (callback: (elapsedTime: number) => void) => void
       onTimerStopped: (
-        callback: (result: { code: number; finalElapsedTime: number }) => void,
-      ) => void;
-      offTimerUpdate: (callback: (elapsedTime: number) => void) => void;
+        callback: (result: { code: number; finalElapsedTime: number }) => void
+      ) => void
+      offTimerUpdate: (callback: (elapsedTime: number) => void) => void
       offTimerStopped: (
-        callback: (result: { code: number; finalElapsedTime: number }) => void,
-      ) => void;
+        callback: (result: { code: number; finalElapsedTime: number }) => void
+      ) => void
       // 数据库
-      getAllGames: () => Promise<Game[]>;
-      getGamesByCategory: (category: string) => Promise<Game[]>;
-      getGameById: (id: number) => Promise<Game>;
-      addGame: (game: { gameName: string; launchPath: string }) => Promise<Game>;
-      deleteGame: (id: number) => Promise<{ changes: number }>;
-      getBanners: () => Promise<Banners[]>;
+      getAllGames: () => Promise<Game[]>
+      getGamesByCategory: (category: string) => Promise<Game[]>
+      getGameById: (id: number) => Promise<Game>
+      addGame: (game: { gameName: string; launchPath: string }) => Promise<Game>
+      deleteGame: (id: number) => Promise<{ changes: number }>
+      getBanners: () => Promise<Banners[]>
       addBanner: (gameImage: {
-        gameId: number;
-        imagePath: string;
-        relativePath: string;
-      }) => Promise<GameImage>;
-      getGameSnapshot: (gameId: number, newestFirst?: boolean) => Promise<Snapshot[]>;
+        gameId: number
+        imagePath: string
+        relativePath: string
+      }) => Promise<GameImage>
+      getGameSnapshot: (gameId: number, newestFirst?: boolean) => Promise<Snapshot[]>
       addGameSnapshot: (gameImage: {
-        gameId: number;
-        imagePath: string;
-        relativePath: string;
-      }) => Promise<GameImage>;
-      delectSnapshot: (id: number) => Promise<{ changes: number }>;
-      updateSnapshotAlt: (id: number, alt: string) => Promise<void>;
-      deleteSnapshotAlt: (id: number) => Promise<void>;
-      getSnapshotAlt: (id: number) => Promise<string | null>;
-      modifyGameName: (id: number, newName: string) => Promise<void>;
-      updateGameSize: (id: number, launch_path: string) => Promise<number>;
-      getFolderSize: (folderPath: string) => Promise<number>;
-      updateGamePath: (gameId: number, newPath: string) => Promise<{ success: boolean; message: string }>;
-      updateGameCategory: (gameId: number, category: string) => Promise<{ success: boolean; message: string }>;
-      searchGames: (keyword: string) => Promise<Game[]>;
-      countGames: () => Promise<{ count: number }>;
-      countGameTime: () => Promise<{ timeCount: number }>;
-      countLaunchTimes: () => Promise<{ launchCount: number }>;
+        gameId: number
+        imagePath: string
+        relativePath: string
+      }) => Promise<GameImage>
+      delectSnapshot: (id: number) => Promise<{ changes: number }>
+      updateSnapshotAlt: (id: number, alt: string) => Promise<void>
+      deleteSnapshotAlt: (id: number) => Promise<void>
+      getSnapshotAlt: (id: number) => Promise<string | null>
+      modifyGameName: (id: number, newName: string) => Promise<void>
+      updateGameSize: (id: number, launch_path: string) => Promise<number>
+      getFolderSize: (folderPath: string) => Promise<number>
+      updateGamePath: (
+        gameId: number,
+        newPath: string
+      ) => Promise<{ success: boolean; message: string }>
+      updateGameCategory: (
+        gameId: number,
+        category: string
+      ) => Promise<{ success: boolean; message: string }>
+      searchGames: (keyword: string) => Promise<Game[]>
+      countGames: () => Promise<{ count: number }>
+      countGameTime: () => Promise<{ timeCount: number }>
+      countLaunchTimes: () => Promise<{ launchCount: number }>
       countDayWeekMonth: () => Promise<{
-        todayHours: number;
-        weekHours: number;
-        monthHours: number;
-      }>;
+        todayHours: number
+        weekHours: number
+        monthHours: number
+      }>
       //操作本地
       copyImages: (move: {
-        origin: string;
-        target: string;
-        gameName: string;
-        oldFilePath: string;
-      }) => Promise<{ relativePath: string }>;
-      delectImages: (relative_path: string) => Promise<string>;
-      openFolder: (folderPath: string) => Promise<void>;
+        origin: string
+        target: string
+        gameName: string
+        oldFilePath: string
+      }) => Promise<{ relativePath: string }>
+      delectImages: (relative_path: string) => Promise<string>
+      openFolder: (folderPath: string) => Promise<void>
       //消息通知
-      sendNotification: (title: string, body: string) => Promise<void>;
+      sendNotification: (title: string, body: string) => Promise<void>
       //切换游戏模式
-      setGameMode: (mode: string) => Promise<void>;
+      setGameMode: (mode: string) => Promise<void>
       //打开休息模态框
-      onOpenRestTimeModal: (callback: () => void) => Promise<void>;
-      offOpenRestTimeModal: () => Promise<void>;
+      onOpenRestTimeModal: (callback: () => void) => Promise<void>
+      offOpenRestTimeModal: () => Promise<void>
       //设置休息状态
-      setResting: (resting: boolean) => Promise<void>;
+      setResting: (resting: boolean) => Promise<void>
       //获取4种模式下的游戏时长分布
       getGameLogByMode: () => Promise<{
-        normalHours: number;
-        fastHours: number;
-        afkHours: number;
-        infinityHours: number;
-      }>;
+        normalHours: number
+        fastHours: number
+        afkHours: number
+        infinityHours: number
+      }>
       //获取本周的时长分布
-      getGameLogByModeThisWeek: () => Promise<GameLog[]>;
+      getGameLogByModeThisWeek: () => Promise<GameLog[]>
       //获取上周的时长分布
-      getGameLogByModeLastWeek: () => Promise<GameLog[]>;
+      getGameLogByModeLastWeek: () => Promise<GameLog[]>
       // 本地备份数据库
-      backupDatabase: () => Promise<{ success: boolean; path?: string; error?: string }>;
+      backupDatabase: () => Promise<{ success: boolean; path?: string; error?: string }>
       // 更新游戏版本：gameId, type ('minor'|'major'), summary, fileSize?
       updateGameVersion: (
         gameId: number,
         type: 'minor' | 'major',
         summary: string,
-        fileSize?: number,
-      ) => Promise<any>;
+        fileSize?: number
+      ) => Promise<any>
       // 根据版本ID查询版本概述
-      getVersionSummary: (
-        versionId: number,
-      ) => Promise<{
-        id: number;
-        game_id: number;
-        version: string;
-        summary: string;
-        created_at: number;
-      } | null>;
+      getVersionSummary: (versionId: number) => Promise<{
+        id: number
+        game_id: number
+        version: string
+        summary: string
+        created_at: number
+      } | null>
       // 根据游戏ID查询其所有的版本信息
-      getVersionsByGame: (
-        gameId: number,
-      ) => Promise<
+      getVersionsByGame: (gameId: number) => Promise<
         Array<{
-          id: number;
-          game_id: number;
-          version: string;
-          summary: string;
-          file_size?: number;
-          created_at: number;
+          id: number
+          game_id: number
+          version: string
+          summary: string
+          file_size?: number
+          created_at: number
         }>
-      >;
+      >
       // 更新版本描述
       updateVersionDescription: (
         versionId: number,
-        newDescription: string,
-      ) => Promise<{ success: boolean; message: string }>;
+        newDescription: string
+      ) => Promise<{ success: boolean; message: string }>
 
       // ==================== 成就相关接口 ====================
       // 创建成就
@@ -128,132 +130,152 @@ declare global {
         gameId: number,
         achievementName: string,
         achievementType: string,
-        description?: string,
+        description?: string
       ) => Promise<{
-        id: number;
-        gameId: number;
-        achievementName: string;
-        achievementType: string;
-        description?: string;
-        isCompleted: 0;
-      }>;
+        id: number
+        gameId: number
+        achievementName: string
+        achievementType: string
+        description?: string
+        isCompleted: 0
+      }>
       // 删除成就
-      deleteAchievement: (achievementId: number) => Promise<void>;
+      deleteAchievement: (achievementId: number) => Promise<void>
       // 切换成就状态
-      toggleAchievementStatus: (achievementId: number, isCompleted: 0 | 1) => Promise<void>;
+      toggleAchievementStatus: (achievementId: number, isCompleted: 0 | 1) => Promise<void>
       // 获取游戏所有成就
-      getGameAchievements: (gameId: number) => Promise<GameAchievement[]>;
+      getGameAchievements: (gameId: number) => Promise<GameAchievement[]>
       // 获取已完成的成就
-      getCompletedAchievements: (gameId: number) => Promise<GameAchievement[]>;
+      getCompletedAchievements: (gameId: number) => Promise<GameAchievement[]>
       // 获取未完成的成就
-      getUncompletedAchievements: (gameId: number) => Promise<GameAchievement[]>;
+      getUncompletedAchievements: (gameId: number) => Promise<GameAchievement[]>
       // 获取成就统计
       getAchievementStats: (gameId: number) => Promise<{
-        total: number;
-        completed: number;
-        completionRate: number;
-      }>;
+        total: number
+        completed: number
+        completionRate: number
+      }>
 
       // ==================== 外链管理接口 ====================
       // 添加游戏外链
-      addGameLink: (gameId: number, metadata: {
-          url: string;
-          title: string;
-          description: string;
-          favicon: string;
-      }) => Promise<any>;
+      addGameLink: (
+        gameId: number,
+        metadata: {
+          url: string
+          title: string
+          description: string
+          favicon: string
+        }
+      ) => Promise<any>
       // 获取游戏外链列表
-      getGameLinks: (gameId: number) => Promise<Array<{
-          id: number;
-          game_id: number;
-          url: string;
-          title: string;
-          description: string;
-          icon: string;
-          created_at: number;
-          updated_at: number;
-      }>>;
+      getGameLinks: (gameId: number) => Promise<
+        Array<{
+          id: number
+          game_id: number
+          url: string
+          title: string
+          description: string
+          icon: string
+          created_at: number
+          updated_at: number
+        }>
+      >
       // 删除游戏外链
-      deleteGameLink: (linkId: number) => Promise<any>;
+      deleteGameLink: (linkId: number) => Promise<any>
       // 更新游戏外链
-      updateGameLink: (linkId: number, title: string, url: string) => Promise<any>;
+      updateGameLink: (linkId: number, title: string, url: string) => Promise<any>
 
       // ==================== 存档管理接口 ====================
       // 设置游戏主存档路径
-      setGameSavePath: (gameId: number, savePath: string, fileSize?: number) => Promise<{
-        id: number;
-        gameId: number;
-        savePath: string;
-        fileSize: number;
-      }>;
+      setGameSavePath: (
+        gameId: number,
+        savePath: string,
+        fileSize?: number
+      ) => Promise<{
+        id: number
+        gameId: number
+        savePath: string
+        fileSize: number
+      }>
       // 获取游戏主存档路径
       getGameSavePath: (gameId: number) => Promise<{
-        id: number;
-        game_id: number;
-        save_path: string;
-        file_size: number;
-        created_at: number;
-        updated_at: number;
-      } | null>;
+        id: number
+        game_id: number
+        save_path: string
+        file_size: number
+        created_at: number
+        updated_at: number
+      } | null>
       // 更新游戏主存档路径
-      updateGameSavePath: (gameId: number, savePath: string) => Promise<{ success: boolean; message: string }>;
+      updateGameSavePath: (
+        gameId: number,
+        savePath: string
+      ) => Promise<{ success: boolean; message: string }>
       // 更新主存档文件夹大小
-      updateSavePathSize: (gameId: number, fileSize: number) => Promise<{ success: boolean; message: string }>;
+      updateSavePathSize: (
+        gameId: number,
+        fileSize: number
+      ) => Promise<{ success: boolean; message: string }>
       // 删除游戏主存档路径
-      deleteGameSavePath: (gameId: number) => Promise<{ success: boolean; message: string }>;
+      deleteGameSavePath: (gameId: number) => Promise<{ success: boolean; message: string }>
 
       // ==================== 存档备份接口 ====================
       // 创建存档备份
       createSaveBackup: (gameId: number) => Promise<{
-        success: boolean;
-        message: string;
-        backupId?: number;
-        backupName?: string;
-        fileSize?: number;
-      }>;
+        success: boolean
+        message: string
+        backupId?: number
+        backupName?: string
+        fileSize?: number
+      }>
       // 获取存档备份列表
-      getSaveBackups: (gameId: number) => Promise<Array<{
-          id: number;
-          game_id: number;
-          backup_name: string;
-          backup_path: string;
-          file_size: number;
-          created_at: number;
-      }>>;
+      getSaveBackups: (gameId: number) => Promise<
+        Array<{
+          id: number
+          game_id: number
+          backup_name: string
+          backup_path: string
+          file_size: number
+          created_at: number
+        }>
+      >
       // 恢复存档备份
-      restoreSaveBackup: (backupId: number, gameId: number) => Promise<{ success: boolean; message: string }>;
+      restoreSaveBackup: (
+        backupId: number,
+        gameId: number
+      ) => Promise<{ success: boolean; message: string }>
       // 删除存档备份
-      deleteSaveBackup: (backupId: number) => Promise<{ success: boolean; message: string }>;
+      deleteSaveBackup: (backupId: number) => Promise<{ success: boolean; message: string }>
 
       // ==================== 窗口控制接口 ====================
       // 最小化窗口
-      minimizeWindow: () => Promise<void>;
+      minimizeWindow: () => Promise<void>
       // 最大化/还原窗口
-      maximizeWindow: () => Promise<void>;
+      maximizeWindow: () => Promise<void>
       // 关闭窗口
-      closeWindow: () => Promise<void>;
+      closeWindow: () => Promise<void>
       // 检查窗口是否最大化
-      isWindowMaximized: () => Promise<boolean>;
+      isWindowMaximized: () => Promise<boolean>
 
       // ==================== 截图功能接口 ====================
       // 启用 F12 截图快捷键
-      enableScreenshotShortcut: () => Promise<{ success: boolean; message: string }>;
+      enableScreenshotShortcut: () => Promise<{ success: boolean; message: string }>
       // 禁用 F12 截图快捷键
-      disableScreenshotShortcut: () => Promise<{ success: boolean; message: string }>;
+      disableScreenshotShortcut: () => Promise<{ success: boolean; message: string }>
       // 获取截图快捷键状态
-      getScreenshotShortcutStatus: () => Promise<{ enabled: boolean }>;
+      getScreenshotShortcutStatus: () => Promise<{ enabled: boolean }>
       // 监听截图成功事件
-      onScreenshotSuccess: (callback: (data: { path: string; filename: string }) => void) => void;
+      onScreenshotSuccess: (callback: (data: { path: string; filename: string }) => void) => void
       // 监听截图失败事件
-      onScreenshotError: (callback: (data: { error: string }) => void) => void;
+      onScreenshotError: (callback: (data: { error: string }) => void) => void
       // 移除截图成功监听
-      offScreenshotSuccess: () => void;
+      offScreenshotSuccess: () => void
       // 移除截图失败监听
-      offScreenshotError: () => void;
+      offScreenshotError: () => void
       //开发者
-      openDevTools: () => Promise<void>;
+      openDevTools: () => Promise<void>
       // 获取拖拽的临时路径
-      getTempDrop: (payload: DropPayload) => Promise<DropResult>;
-    };
+      getTempDrop: (payload: DropPayload) => Promise<DropResult>
+    }
   }
 }

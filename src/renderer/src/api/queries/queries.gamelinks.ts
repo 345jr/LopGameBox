@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '../queryKeys';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '../queryKeys'
 
 /**
  * 获取某个游戏的链接列表 Hook
@@ -12,12 +12,12 @@ export const useGameLinks = (gameId: number, enabled: boolean = true) => {
   return useQuery({
     queryKey: queryKeys.gameLinks(gameId),
     queryFn: async () => {
-      return await window.api.getGameLinks(gameId);
+      return await window.api.getGameLinks(gameId)
     },
     enabled: !!gameId && enabled,
-    staleTime: 5 * 60 * 1000,
-  });
-};
+    staleTime: 5 * 60 * 1000
+  })
+}
 
 /**
  * 添加游戏链接的 Mutation Hook
@@ -26,30 +26,30 @@ export const useGameLinks = (gameId: number, enabled: boolean = true) => {
  * onSuccess 会使对应游戏的链接列表缓存失效以触发重新获取。
  */
 export const useAddGameLink = () => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async ({
       gameId,
-      metadata,
+      metadata
     }: {
-      gameId: number;
+      gameId: number
       metadata: {
-        title: string;
-        description: string;
-        favicon: string;
-        url: string;
-      };
+        title: string
+        description: string
+        favicon: string
+        url: string
+      }
     }) => {
-      return await window.api.addGameLink(gameId, metadata);
+      return await window.api.addGameLink(gameId, metadata)
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.gameLinks(variables.gameId),
-      });
-    },
-  });
-};
+        queryKey: queryKeys.gameLinks(variables.gameId)
+      })
+    }
+  })
+}
 
 /**
  * 更新单条游戏链接的 Mutation Hook
@@ -58,28 +58,28 @@ export const useAddGameLink = () => {
  * onSuccess 会让对应游戏的链接缓存失效。
  */
 export const useUpdateGameLink = () => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async ({
       linkId,
       title,
-      url,
+      url
     }: {
-      linkId: number;
-      title: string;
-      url: string;
-      gameId: number;
+      linkId: number
+      title: string
+      url: string
+      gameId: number
     }) => {
-      return await window.api.updateGameLink(linkId, title, url);
+      return await window.api.updateGameLink(linkId, title, url)
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.gameLinks(variables.gameId),
-      });
-    },
-  });
-};
+        queryKey: queryKeys.gameLinks(variables.gameId)
+      })
+    }
+  })
+}
 
 /**
  * 删除游戏链接的 Mutation Hook
@@ -88,16 +88,16 @@ export const useUpdateGameLink = () => {
  * onSuccess 会让对应游戏的链接缓存失效。
  */
 export const useDeleteGameLink = () => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async ({ linkId }: { linkId: number; gameId: number }) => {
-      return await window.api.deleteGameLink(linkId);
+      return await window.api.deleteGameLink(linkId)
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: queryKeys.gameLinks(variables.gameId),
-      });
-    },
-  });
-};
+        queryKey: queryKeys.gameLinks(variables.gameId)
+      })
+    }
+  })
+}

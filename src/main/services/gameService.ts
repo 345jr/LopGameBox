@@ -1,106 +1,106 @@
-import { GameRepository } from './gameRepository';
-import { GalleryRepository } from './galleryRepository';
-import { GameLogsRepository } from './gameLogsRepository';
-import { BackupService } from './backup';
+import { GameRepository } from './gameRepository'
+import { GalleryRepository } from './galleryRepository'
+import { GameLogsRepository } from './gameLogsRepository'
+import { BackupService } from './backup'
 export class GameService {
   constructor(
     private gameRepo: GameRepository,
     private galleryRepo: GalleryRepository,
     private gameLogsRepo: GameLogsRepository,
-    private backupService: BackupService,
+    private backupService: BackupService
   ) {}
   //添加游戏
   public addGame(gameName: string, launchPath: string, diskSize: number) {
-    return this.gameRepo.addGame(gameName, launchPath, diskSize);
+    return this.gameRepo.addGame(gameName, launchPath, diskSize)
   }
   //获取全部游戏
   public getAllGames() {
-    return this.gameRepo.getAllGames();
+    return this.gameRepo.getAllGames()
   }
   //根据分类获取游戏
   public getGamesByCategory(category: string) {
-    return this.gameRepo.getGamesByCategory(category);
+    return this.gameRepo.getGamesByCategory(category)
   }
   //获取单个游戏
   public getGameById(id: number) {
-    return this.gameRepo.getGameById(id);
+    return this.gameRepo.getGameById(id)
   }
   //获取游戏路径
   public getGameByPath(path: string) {
-    return this.gameRepo.getGameByPath(path);
+    return this.gameRepo.getGameByPath(path)
   }
   //更新游戏数据
   public updateGameOnClose(id: number, elapsed: number) {
-    this.gameRepo.updateGameOnClose(id, elapsed);
+    this.gameRepo.updateGameOnClose(id, elapsed)
   }
   //删除游戏
   public deleteGame(id: number) {
-    return this.gameRepo.deleteGame(id);
+    return this.gameRepo.deleteGame(id)
   }
 
   //添加游戏封面图
   public setGameBanner(gameId: number, imagePath: string, relativePath: string) {
-    return this.galleryRepo.setGameBanner(gameId, imagePath, relativePath);
+    return this.galleryRepo.setGameBanner(gameId, imagePath, relativePath)
   }
   //获取游戏封面图
   public getBanners() {
-    return this.galleryRepo.getGameBanner();
+    return this.galleryRepo.getGameBanner()
   }
   //添加游戏快照图
   public setGameSnapshot(gameId: number, imagePath: string, relativePath: string) {
-    return this.galleryRepo.setGameSnapshot(gameId, imagePath, relativePath);
+    return this.galleryRepo.setGameSnapshot(gameId, imagePath, relativePath)
   }
   //获取游戏快照图
-  public getGameSnapshot(gameId: number,newestFirst: boolean=true) {
-    return this.galleryRepo.getGameSnapshot(gameId,newestFirst);
+  public getGameSnapshot(gameId: number, newestFirst: boolean = true) {
+    return this.galleryRepo.getGameSnapshot(gameId, newestFirst)
   }
   //删除游戏快照图
   public delectSnapshot(id: number) {
-    return this.galleryRepo.delectSnapshot(id);
+    return this.galleryRepo.delectSnapshot(id)
   }
   //更新快照描述
   public updateSnapshotAlt(id: number, alt: string) {
-    return this.galleryRepo.updateSnapshotAlt(id, alt);
+    return this.galleryRepo.updateSnapshotAlt(id, alt)
   }
   //删除快照描述
   public deleteSnapshotAlt(id: number) {
-    return this.galleryRepo.deleteSnapshotAlt(id);
+    return this.galleryRepo.deleteSnapshotAlt(id)
   }
   //获取快照描述
   public getSnapshotAlt(id: number) {
-    return this.galleryRepo.getSnapshotAlt(id);
+    return this.galleryRepo.getSnapshotAlt(id)
   }
   //修改游戏名
   public modifyGameName(id: number, newName: string) {
-    return this.gameRepo.modifyGameName(id, newName);
+    return this.gameRepo.modifyGameName(id, newName)
   }
   //更新游戏大小
   public updateGameSize(id: number, disk_size: number) {
-    return this.gameRepo.updateGameSize(id, disk_size);
+    return this.gameRepo.updateGameSize(id, disk_size)
   }
   //更新游戏路径
   public updateGamePath(id: number, newPath: string) {
-    return this.gameRepo.updateGamePath(id, newPath);
+    return this.gameRepo.updateGamePath(id, newPath)
   }
   //更新游戏分类
   public updateGameCategory(id: number, category: string) {
-    return this.gameRepo.updateGameCategory(id, category);
+    return this.gameRepo.updateGameCategory(id, category)
   }
   //模糊查询搜索
   public searchGames(keyword: string) {
-    return this.gameRepo.searchGames(keyword);
+    return this.gameRepo.searchGames(keyword)
   }
   //统计游戏数量
   public countGames() {
-    return this.gameRepo.countGames();
+    return this.gameRepo.countGames()
   }
   //统计游戏时间
   public countGameTime() {
-    return this.gameRepo.countGameTime();
+    return this.gameRepo.countGameTime()
   }
   //统计启动次数
   public countLaunchTimes() {
-    return this.gameRepo.countLaunchTimes();
+    return this.gameRepo.countLaunchTimes()
   }
   //记录游戏记录
   public logGame(
@@ -108,133 +108,133 @@ export class GameService {
     launchedAt: number,
     endedAt: number,
     launchState: string,
-    gameMode: string = '',
+    gameMode: string = ''
   ) {
-    this.gameLogsRepo.insertGameLog(gameId, launchedAt, endedAt, launchState, gameMode);
+    this.gameLogsRepo.insertGameLog(gameId, launchedAt, endedAt, launchState, gameMode)
   }
   //查询今日 ，本周 ，本月的游戏记录
   public getGameLogDayWeekMonth() {
-    return this.gameLogsRepo.getGameLogDayWeekMonth();
+    return this.gameLogsRepo.getGameLogDayWeekMonth()
   }
   //查询4种模式下的游戏时长分布
   public getGameLogByMode() {
-    return this.gameLogsRepo.getGameLogByMode();
+    return this.gameLogsRepo.getGameLogByMode()
   }
   //获取本周的时长分布
   public getGameLogByModeThisWeek() {
-    return this.gameLogsRepo.getGameLogByModeThisWeek();
+    return this.gameLogsRepo.getGameLogByModeThisWeek()
   }
   //获取上周的时长分布
   public getGameLogByModeLastWeek() {
-    return this.gameLogsRepo.getGameLogByModeLastWeek();
+    return this.gameLogsRepo.getGameLogByModeLastWeek()
   }
   // 本地备份数据库
   public async backupDatabase(): Promise<string> {
-    return this.backupService.backupDatabase();
+    return this.backupService.backupDatabase()
   }
   //更新游戏版本
   public updateGameVersion(
     gameId: number,
     type: 'minor' | 'major',
     summary: string,
-    fileSize?: number,
+    fileSize?: number
   ) {
     // 获取当前最新版本
-    const latest: any = this.gameRepo.getLatestVersion(gameId);
+    const latest: any = this.gameRepo.getLatestVersion(gameId)
 
-    let baseVersion: string = '1.0';
+    let baseVersion: string = '1.0'
     if (latest && latest.version) {
-      baseVersion = String(latest.version);
+      baseVersion = String(latest.version)
     } else {
       // 回退到 games 表中的 game_version 字段
-      const game: any = this.gameRepo.getGameById(gameId);
-      baseVersion = String(game?.game_version || '1.0');
+      const game: any = this.gameRepo.getGameById(gameId)
+      baseVersion = String(game?.game_version || '1.0')
     }
 
     // 解析版本号，支持 x 或 x.y 格式
-    const parts = baseVersion.split('.').map((p: string) => parseInt(p, 10) || 0);
-    let major = parts[0] || 0;
-    let minor = parts[1] || 0;
+    const parts = baseVersion.split('.').map((p: string) => parseInt(p, 10) || 0)
+    let major = parts[0] || 0
+    let minor = parts[1] || 0
 
     if (type === 'major') {
-      major += 1;
-      minor = 0;
+      major += 1
+      minor = 0
     } else {
       // minor 更新：+0.1 -> 等同于 minor + 1
-      minor += 1;
+      minor += 1
     }
 
-    const newVersion = `${major}.${minor}`;
+    const newVersion = `${major}.${minor}`
 
     // 插入版本表并同步更新 games.game_version
-    const inserted = this.gameRepo.addGameVersion(gameId, newVersion, summary, fileSize);
-    this.gameRepo.updateGameCurrentVersion(gameId, newVersion);
-    return inserted;
+    const inserted = this.gameRepo.addGameVersion(gameId, newVersion, summary, fileSize)
+    this.gameRepo.updateGameCurrentVersion(gameId, newVersion)
+    return inserted
   }
 
   // 查询某条版本的概述（按版本 id）
   public getVersionSummary(versionId: number) {
-    const v: any = this.gameRepo.getGameVersionById(versionId);
-    if (!v) return null;
+    const v: any = this.gameRepo.getGameVersionById(versionId)
+    if (!v) return null
     return {
       id: v.id,
       game_id: v.game_id,
       version: v.version,
       summary: v.summary,
-      created_at: v.created_at,
-    };
+      created_at: v.created_at
+    }
   }
 
   // 根据游戏ID查询其所有的版本信息
   public getVersionsByGame(gameId: number) {
-    return this.gameRepo.getVersionsByGame(gameId);
+    return this.gameRepo.getVersionsByGame(gameId)
   }
 
   // 更新版本描述
   public updateVersionDescription(versionId: number, newDescription: string) {
-    return this.gameRepo.updateVersionDescription(versionId, newDescription);
+    return this.gameRepo.updateVersionDescription(versionId, newDescription)
   }
 
   // ==================== 成就相关方法 ====================
-  
+
   // 创建成就
   public createAchievement(
     gameId: number,
     achievementName: string,
     achievementType: string,
-    description?: string,
+    description?: string
   ) {
-    return this.galleryRepo.createAchievement(gameId, achievementName, achievementType, description);
+    return this.galleryRepo.createAchievement(gameId, achievementName, achievementType, description)
   }
 
   // 删除成就
   public deleteAchievement(achievementId: number) {
-    return this.galleryRepo.deleteAchievement(achievementId);
+    return this.galleryRepo.deleteAchievement(achievementId)
   }
 
   // 切换成就状态
   public toggleAchievementStatus(achievementId: number, isCompleted: 0 | 1) {
-    return this.galleryRepo.toggleAchievementStatus(achievementId, isCompleted);
+    return this.galleryRepo.toggleAchievementStatus(achievementId, isCompleted)
   }
 
   // 获取游戏所有成就
   public getGameAchievements(gameId: number) {
-    return this.galleryRepo.getGameAchievements(gameId);
+    return this.galleryRepo.getGameAchievements(gameId)
   }
 
   // 获取已完成的成就
   public getCompletedAchievements(gameId: number) {
-    return this.galleryRepo.getCompletedAchievements(gameId);
+    return this.galleryRepo.getCompletedAchievements(gameId)
   }
 
   // 获取未完成的成就
   public getUncompletedAchievements(gameId: number) {
-    return this.galleryRepo.getUncompletedAchievements(gameId);
+    return this.galleryRepo.getUncompletedAchievements(gameId)
   }
 
   // 获取成就统计
   public getAchievementStats(gameId: number) {
-    return this.galleryRepo.getAchievementStats(gameId);
+    return this.galleryRepo.getAchievementStats(gameId)
   }
 
   // ==================== 外链管理相关方法 ====================
@@ -245,72 +245,77 @@ export class GameService {
     url: string,
     title: string,
     description: string,
-    icon: string,
+    icon: string
   ) {
-    return this.gameRepo.addGameLink(gameId, url, title, description, icon);
+    return this.gameRepo.addGameLink(gameId, url, title, description, icon)
   }
 
   // 获取游戏外链列表
   public getGameLinks(gameId: number) {
-    return this.gameRepo.getGameLinks(gameId);
+    return this.gameRepo.getGameLinks(gameId)
   }
 
   // 删除游戏外链
   public deleteGameLink(linkId: number) {
-    return this.gameRepo.deleteGameLink(linkId);
+    return this.gameRepo.deleteGameLink(linkId)
   }
 
   // 更新游戏外链
   public updateGameLink(linkId: number, title: string, url: string) {
-    return this.gameRepo.updateGameLink(linkId, title, url);
+    return this.gameRepo.updateGameLink(linkId, title, url)
   }
 
   // ==================== 存档管理相关方法 ====================
 
   // 设置游戏主存档路径
   public setGameSavePath(gameId: number, savePath: string, fileSize: number = 0) {
-    return this.gameRepo.setGameSavePath(gameId, savePath, fileSize);
+    return this.gameRepo.setGameSavePath(gameId, savePath, fileSize)
   }
 
   // 获取游戏主存档路径
   public getGameSavePath(gameId: number) {
-    return this.gameRepo.getGameSavePath(gameId);
+    return this.gameRepo.getGameSavePath(gameId)
   }
 
   // 更新游戏主存档路径
   public updateGameSavePath(gameId: number, savePath: string) {
-    return this.gameRepo.updateGameSavePath(gameId, savePath);
+    return this.gameRepo.updateGameSavePath(gameId, savePath)
   }
 
   // 更新主存档文件夹大小
   public updateSavePathSize(gameId: number, fileSize: number) {
-    return this.gameRepo.updateSavePathSize(gameId, fileSize);
+    return this.gameRepo.updateSavePathSize(gameId, fileSize)
   }
 
   // 删除游戏主存档路径
   public deleteGameSavePath(gameId: number) {
-    return this.gameRepo.deleteGameSavePath(gameId);
+    return this.gameRepo.deleteGameSavePath(gameId)
   }
 
   // ==================== 存档备份相关方法 ====================
 
   // 创建存档备份
-  public createSaveBackup(gameId: number, backupName: string, backupPath: string, fileSize: number) {
-    return this.gameRepo.createSaveBackup(gameId, backupName, backupPath, fileSize);
+  public createSaveBackup(
+    gameId: number,
+    backupName: string,
+    backupPath: string,
+    fileSize: number
+  ) {
+    return this.gameRepo.createSaveBackup(gameId, backupName, backupPath, fileSize)
   }
 
   // 获取游戏的所有备份列表
   public getSaveBackups(gameId: number) {
-    return this.gameRepo.getSaveBackups(gameId);
+    return this.gameRepo.getSaveBackups(gameId)
   }
 
   // 获取单个备份信息
   public getSaveBackup(backupId: number) {
-    return this.gameRepo.getSaveBackup(backupId);
+    return this.gameRepo.getSaveBackup(backupId)
   }
 
   // 删除存档备份
   public deleteSaveBackup(backupId: number) {
-    return this.gameRepo.deleteSaveBackup(backupId);
+    return this.gameRepo.deleteSaveBackup(backupId)
   }
 }

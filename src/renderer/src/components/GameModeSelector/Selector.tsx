@@ -1,5 +1,4 @@
 import useGameStore from '@renderer/store/GameStore';
-import { motion, Variants } from 'framer-motion';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { useRef } from 'react';
@@ -17,32 +16,89 @@ const Selector = () => {
   const gameMode = useGameStore((state) => state.gameMode);
 
   // 模式配置
-  const modeConfig: { [key: string]: { borderColor: string; bgGradient: string; iconColor: string; textColor: string; icon: any } } = {
-    Normal: { borderColor: '#16a34a', bgGradient: 'from-lime-50 to-green-50', iconColor: '#16a34a', textColor: '#22c55e', icon: FaFaceLaugh },
-    Fast: { borderColor: '#d97706', bgGradient: 'from-orange-50 to-amber-50', iconColor: '#d97706', textColor: '#f59e0b', icon: FaHourglassEnd },
-    Afk: { borderColor: '#06b6d4', bgGradient: 'from-blue-50 to-cyan-50', iconColor: '#06b6d4', textColor: '#0ea5e9', icon: FaClock },
-    Infinity: { borderColor: '#ec4899', bgGradient: 'from-rose-50 to-pink-50', iconColor: '#ec4899', textColor: '#f43f5e', icon: FaGlasses },
-  };
-
-  //动画
-  const container: Variants = {
-    animate: {
-      transition: {
-        staggerChildren: 0.1,
-      },
+  const modeConfig: {
+    [key: string]: {
+      borderColor: string;
+      bgGradient: string;
+      iconColor: string;
+      textColor: string;
+      icon: any;
+    };
+  } = {
+    Normal: {
+      borderColor: '#16a34a',
+      bgGradient: 'from-lime-50 to-green-50',
+      iconColor: '#16a34a',
+      textColor: '#22c55e',
+      icon: FaFaceLaugh,
     },
-  };
-  const item: Variants = {
-    initial: { x: -140 },
-    animate: { x: 0, transition: { duration: 0.5 } },
+    Fast: {
+      borderColor: '#d97706',
+      bgGradient: 'from-orange-50 to-amber-50',
+      iconColor: '#d97706',
+      textColor: '#f59e0b',
+      icon: FaHourglassEnd,
+    },
+    Afk: {
+      borderColor: '#06b6d4',
+      bgGradient: 'from-blue-50 to-cyan-50',
+      iconColor: '#06b6d4',
+      textColor: '#0ea5e9',
+      icon: FaClock,
+    },
+    Infinity: {
+      borderColor: '#ec4899',
+      bgGradient: 'from-rose-50 to-pink-50',
+      iconColor: '#ec4899',
+      textColor: '#f43f5e',
+      icon: FaGlasses,
+    },
   };
 
   const bgRefs = useRef<(HTMLDivElement | null)[]>([]);
   const borderRefs = useRef<(HTMLDivElement | null)[]>([]);
   const textRefs = useRef<(HTMLParagraphElement | null)[]>([]);
   const iconRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // GSAP 动画控制
+  const modes = [
+    { key: 'Normal', label: '普通模式', rounded: 'rounded-tr-2xl' },
+    { key: 'Fast', label: '快速模式', rounded: '' },
+    { key: 'Afk', label: '挂机模式', rounded: '' },
+    { key: 'Infinity', label: '沉浸模式', rounded: 'rounded-br-2xl' },
+  ];
+
+  // 面板滑入 / 滑出（原 motion variants + stagger）
+  useGSAP(
+    () => {
+      const items = itemRefs.current.filter(Boolean);
+      if (!items.length) return;
+
+      if (gameModeSelector) {
+        gsap.fromTo(
+          items,
+          { x: -140 },
+          {
+            x: 0,
+            duration: 0.5,
+            stagger: 0.1,
+            ease: 'power2.out',
+          },
+        );
+      } else {
+        gsap.to(items, {
+          x: -140,
+          duration: 0.35,
+          stagger: 0.05,
+          ease: 'power2.in',
+        });
+      }
+    },
+    { dependencies: [gameModeSelector] },
+  );
+
+  // 选中态高亮
   useGSAP(() => {
     modes.forEach((mode, index) => {
       const isSelected = gameMode === mode.key;
@@ -54,60 +110,19 @@ const Selector = () => {
 
       if (bgEl && borderEl && textEl && iconEl) {
         if (isSelected) {
-          // 选中动画
-          gsap.to(bgEl, {
-            opacity: 1,
-            duration: 0.3,
-            ease: 'power2.out',
-          });
-          gsap.to(borderEl, {
-            opacity: 1,
-            duration: 0.3,
-            ease: 'power2.out',
-          });
-          gsap.to(textEl, {
-            color: config.textColor,
-            duration: 0.3,
-            ease: 'power2.out',
-          });
-          gsap.to(iconEl, {
-            color: config.iconColor,
-            duration: 0.3,
-            ease: 'power2.out',
-          });
+          gsap.to(bgEl, { opacity: 1, duration: 0.3, ease: 'power2.out' });
+          gsap.to(borderEl, { opacity: 1, duration: 0.3, ease: 'power2.out' });
+          gsap.to(textEl, { color: config.textColor, duration: 0.3, ease: 'power2.out' });
+          gsap.to(iconEl, { color: config.iconColor, duration: 0.3, ease: 'power2.out' });
         } else {
-          // 未选中动画
-          gsap.to(bgEl, {
-            opacity: 0,
-            duration: 0.3,
-            ease: 'power2.out',
-          });
-          gsap.to(borderEl, {
-            opacity: 0,
-            duration: 0.3,
-            ease: 'power2.out',
-          });
-          gsap.to(textEl, {
-            color: '#374151',
-            duration: 0.3,
-            ease: 'power2.out',
-          });
-          gsap.to(iconEl, {
-            color: '#374151',
-            duration: 0.3,
-            ease: 'power2.out',
-          });
+          gsap.to(bgEl, { opacity: 0, duration: 0.3, ease: 'power2.out' });
+          gsap.to(borderEl, { opacity: 0, duration: 0.3, ease: 'power2.out' });
+          gsap.to(textEl, { color: '#374151', duration: 0.3, ease: 'power2.out' });
+          gsap.to(iconEl, { color: '#374151', duration: 0.3, ease: 'power2.out' });
         }
       }
     });
   }, [gameMode]);
-
-  const modes = [
-    { key: 'Normal', label: '普通模式', rounded: 'rounded-tr-2xl' },
-    { key: 'Fast', label: '快速模式', rounded: '' },
-    { key: 'Afk', label: '挂机模式', rounded: '' },
-    { key: 'Infinity', label: '沉浸模式', rounded: 'rounded-br-2xl' },
-  ];
 
   //选择模式
   const selectMode = (mode: string, label: string) => {
@@ -116,31 +131,38 @@ const Selector = () => {
     //如果游戏真正运行 ，则视为热切换
     if (gameState === 'run') window.api.setGameMode(mode);
   };
-  
+
   return (
     <>
       {/* 遮罩层防防点击 */}
-      <motion.div
-        className="z-0 flex flex-col"
-        variants={container}
-        initial="initial"
-        animate={gameModeSelector ? 'animate' : 'initial'}
-      >
+      <div ref={containerRef} className="z-0 flex flex-col">
         {modes.map((mode, index) => {
           const config = modeConfig[mode.key];
 
           return (
-            <motion.div key={mode.key} variants={item}>
-              <div className={`flex-1 border border-gray-300 shadow-md ${mode.rounded} relative overflow-hidden bg-white`}>
+            <div
+              key={mode.key}
+              ref={(el) => {
+                if (el) itemRefs.current[index] = el;
+              }}
+              style={{ transform: 'translateX(-140px)' }}
+            >
+              <div
+                className={`flex-1 border border-gray-300 shadow-md ${mode.rounded} relative overflow-hidden bg-white`}
+              >
                 {/* 背景渐变层 */}
                 <div
-                  ref={(el) => { if (el) bgRefs.current[index] = el; }}
+                  ref={(el) => {
+                    if (el) bgRefs.current[index] = el;
+                  }}
                   className={`absolute inset-0 pointer-events-none bg-gradient-to-r ${config.bgGradient}`}
                   style={{ opacity: 0 }}
                 />
                 {/* 左边框高亮 */}
                 <div
-                  ref={(el) => { if (el) borderRefs.current[index] = el; }}
+                  ref={(el) => {
+                    if (el) borderRefs.current[index] = el;
+                  }}
                   className="absolute inset-y-0 left-0 w-1 pointer-events-none"
                   style={{ backgroundColor: config.borderColor, opacity: 0 }}
                 />
@@ -150,10 +172,20 @@ const Selector = () => {
                     mode.key === 'Normal' ? 'py-5' : 'py-7'
                   }`}
                 >
-                  <p ref={(el) => { if (el) textRefs.current[index] = el; }} className="ml-5 font-medium text-gray-700">
+                  <p
+                    ref={(el) => {
+                      if (el) textRefs.current[index] = el;
+                    }}
+                    className="ml-5 font-medium text-gray-700"
+                  >
                     {mode.label}
                   </p>
-                  <div ref={(el) => { if (el) iconRefs.current[index] = el; }} className="ml-2 text-3xl text-gray-700">
+                  <div
+                    ref={(el) => {
+                      if (el) iconRefs.current[index] = el;
+                    }}
+                    className="ml-2 text-3xl text-gray-700"
+                  >
                     {config.icon === FaFaceLaugh && <FaFaceLaugh />}
                     {config.icon === FaHourglassEnd && <FaHourglassEnd />}
                     {config.icon === FaClock && <FaClock />}
@@ -161,10 +193,10 @@ const Selector = () => {
                   </div>
                 </button>
               </div>
-            </motion.div>
+            </div>
           );
         })}
-      </motion.div>
+      </div>
     </>
   );
 };

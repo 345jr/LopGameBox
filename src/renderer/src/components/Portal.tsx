@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import ModalContent from './ModalContent/ModalContent';
 import { VscGear } from 'react-icons/vsc';
-import { motion } from 'motion/react';
 
 export default function Portal({
   gameId,
@@ -14,17 +13,16 @@ export default function Portal({
   const [showModal, setShowModal] = useState(false);
   return (
     <>
-      <motion.button
-        onClick={() => setShowModal(true)}
-        className="iconBtn"
-        initial={{ y: 0 }}
-        whileHover={{ y: -5 }}
-      >
+      <button onClick={() => setShowModal(true)} className="iconBtn iconBtn-wrapper">
         <VscGear />
-      </motion.button>
+      </button>
       {showModal &&
         createPortal(
-          <ModalContent onClose={() => setShowModal(false)} gameId={gameId}  onRefresh={onRefresh} />,
+          <ModalContent
+            onClose={() => setShowModal(false)}
+            gameId={gameId}
+            onRefresh={onRefresh}
+          />,
           document.body,
         )}
     </>

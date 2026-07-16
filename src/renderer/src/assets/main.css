@@ -29,6 +29,10 @@
   .iconBtn {
     @apply cursor-pointer text-2xl text-white;
   }
+  /* 卡片操作区图标：hover 上移（原 motion whileHover） */
+  .iconBtn-wrapper {
+    @apply transition-transform duration-200 ease-out hover:-translate-y-1;
+  }
 }
 @layer components {
   /* 仪表盘卡片 */

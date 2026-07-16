@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 import { VscClose, VscFolderOpened, VscAdd } from 'react-icons/vsc';
 import { toast } from 'react-hot-toast';
-import { motion } from 'motion/react';
 
 interface BannerSelectContentProps {
   onClose: () => void;
@@ -15,6 +16,30 @@ const BannerSelectContent = ({ onClose, gameId, gameName, onSuccess }: BannerSel
   const [isLoading, setIsLoading] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [useLink, setUseLink] = useState(false);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
+  const dropIconRef = useRef<HTMLDivElement>(null);
+
+  // 拖拽态缩放反馈
+  useGSAP(
+    () => {
+      if (dropIconRef.current) {
+        gsap.to(dropIconRef.current, {
+          scale: isDragging ? 1.2 : 1,
+          duration: 0.2,
+          ease: 'power2.out',
+        });
+      }
+      if (dropZoneRef.current) {
+        gsap.to(dropZoneRef.current, {
+          borderColor: isDragging ? '#3b82f6' : '#d1d5db',
+          backgroundColor: isDragging ? '#eff6ff' : '#f9fafb',
+          duration: 0.2,
+          ease: 'power2.out',
+        });
+      }
+    },
+    { dependencies: [isDragging] },
+  );
 
   // 处理图片上传逻辑
   const handleBannerUpload = async (imagePath: string) => {
@@ -76,7 +101,7 @@ const BannerSelectContent = ({ onClose, gameId, gameName, onSuccess }: BannerSel
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    
+
     const dtFiles = e.dataTransfer.files;
     if (!dtFiles || dtFiles.length === 0) return;
 
@@ -103,7 +128,7 @@ const BannerSelectContent = ({ onClose, gameId, gameName, onSuccess }: BannerSel
           };
         }),
       );
-      const res = await window.api.getTempDrop({ files: serializedFiles });      
+      const res = await window.api.getTempDrop({ files: serializedFiles });
       const originPath = res.tempPath;
       if (originPath) {
         await handleBannerUpload(originPath);
@@ -160,6 +185,17 @@ const BannerSelectContent = ({ onClose, gameId, gameName, onSuccess }: BannerSel
     }
   };
 
+  // 按钮轻微按压缩放
+  const pressIn = (el: HTMLElement) => {
+    gsap.to(el, { scale: 0.99, duration: 0.1 });
+  };
+  const pressOut = (el: HTMLElement) => {
+    gsap.to(el, { scale: 1, duration: 0.15 });
+  };
+  const hoverIn = (el: HTMLElement) => {
+    gsap.to(el, { scale: 1.01, duration: 0.15 });
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
@@ -211,7 +247,8 @@ const BannerSelectContent = ({ onClose, gameId, gameName, onSuccess }: BannerSel
           {!useLink && (
             <>
               {/* 拖拽区域 */}
-              <motion.div
+              <div
+                ref={dropZoneRef}
                 className={`relative mb-6 rounded-lg border-2 border-dashed p-8 text-center transition-all ${
                   isDragging
                     ? 'border-blue-500 bg-blue-50'
@@ -221,38 +258,31 @@ const BannerSelectContent = ({ onClose, gameId, gameName, onSuccess }: BannerSel
                 onDragLeave={handleDragLeave}
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
-                animate={{
-                  borderColor: isDragging ? '#3b82f6' : '#d1d5db',
-                  backgroundColor: isDragging ? '#eff6ff' : '#f9fafb',
-                }}
-                transition={{ duration: 0.2 }}
               >
                 <div className="flex flex-col items-center justify-center">
-                  <motion.div 
-                    className="mb-3 text-5xl text-gray-400"
-                    animate={{ scale: isDragging ? 1.2 : 1 }}
-                    transition={{ duration: 0.2 }}
-                  >
+                  <div ref={dropIconRef} className="mb-3 text-5xl text-gray-400">
                     <VscAdd />
-                  </motion.div>
+                  </div>
                   <p className="text-sm font-medium text-gray-700">
                     {isDragging ? '释放即可上传' : '拖拽图片到此'}
                   </p>
                   <p className="mt-1 text-xs text-gray-500">或点击下方按钮选择</p>
                 </div>
-              </motion.div>
+              </div>
 
               {/* 文件选择按钮 */}
-              <motion.button
+              <button
                 onClick={handleSelectFile}
                 disabled={isLoading}
+                onMouseEnter={(e) => !isLoading && hoverIn(e.currentTarget)}
+                onMouseLeave={(e) => pressOut(e.currentTarget)}
+                onMouseDown={(e) => !isLoading && pressIn(e.currentTarget)}
+                onMouseUp={(e) => pressOut(e.currentTarget)}
                 className="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-gray-800 to-gray-900 px-4 py-3 text-white font-medium transition hover:from-gray-700 hover:to-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
               >
                 <VscFolderOpened className="text-xl" />
                 <span>{isLoading ? '上传中...' : '从文件夹选择'}</span>
-              </motion.button>
+              </button>
 
               {/* 提示文字 */}
               <p className="mt-4 text-center text-xs text-gray-500">
@@ -275,20 +305,20 @@ const BannerSelectContent = ({ onClose, gameId, gameName, onSuccess }: BannerSel
                   placeholder="https://example.com/image.jpg"
                   className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 />
-                <p className="mt-2 text-xs text-gray-500">
-                  请输入图片的完整网络地址
-                </p>
+                <p className="mt-2 text-xs text-gray-500">请输入图片的完整网络地址</p>
               </div>
 
-              <motion.button
+              <button
                 onClick={handleLinkSubmit}
                 disabled={isLoading || !linkUrl.trim()}
+                onMouseEnter={(e) => !(isLoading || !linkUrl.trim()) && hoverIn(e.currentTarget)}
+                onMouseLeave={(e) => pressOut(e.currentTarget)}
+                onMouseDown={(e) => !(isLoading || !linkUrl.trim()) && pressIn(e.currentTarget)}
+                onMouseUp={(e) => pressOut(e.currentTarget)}
                 className="w-full flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-gray-800 to-gray-900 px-4 py-3 text-white font-medium transition hover:from-gray-700 hover:to-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
               >
                 <span>{isLoading ? '设置中...' : '设置链接'}</span>
-              </motion.button>
+              </button>
             </>
           )}
         </div>

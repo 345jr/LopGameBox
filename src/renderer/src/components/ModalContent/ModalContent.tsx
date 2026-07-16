@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { VscPassFilled, VscFiles, VscArrowRight, VscClose } from 'react-icons/vsc';
-import { motion } from 'motion/react';
 
 import { Game, GameVersion } from '@renderer/types/Game';
 import gameSizeFormat from '@renderer/util/gameSizeFormat';
@@ -298,13 +297,12 @@ export default function ModalContent({
             <div className="flex flex-row">
               <p className="py-2 text-base whitespace-nowrap">重新计算存储空间</p>
               <VscArrowRight className="mx-2 mt-2.5 text-2xl" />
-              <motion.button
-                initial={{ scale: 1 }}
-                whileHover={{ scale: 1.5, color: '#fcad03' }}
+              <button
+                className="cursor-pointer transition-all duration-200 hover:scale-150 hover:text-[#fcad03]"
                 onClick={() => handleGetGameSize(gameId)}
               >
-                <VscFiles className="cursor-pointer text-2xl" />
-              </motion.button>
+                <VscFiles className="text-2xl" />
+              </button>
               {/* 展示新的游戏大小 */}
               {size > 0 && (
                 <>

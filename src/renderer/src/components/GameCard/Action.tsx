@@ -1,5 +1,4 @@
 import { FC, useState } from 'react';
-import { motion } from 'motion/react';
 import { VscFileMedia, VscFolder, VscPlay, VscTrash, VscAttach } from 'react-icons/vsc';
 import { GiAchievement } from 'react-icons/gi';
 import { Link } from 'react-router-dom';
@@ -72,78 +71,50 @@ const GameCardActions: FC<Props> = ({ game, onRefresh }) => {
   const handleAddBanner = () => {
     setShowBannerModal(true);
   };
-  
+
   return (
     <>
       <div className="grid grid-cols-7 grid-rows-1 gap-1">
         {/* 开始游戏 */}
-        <motion.button
-          onClick={() => handleRunGame(game)}
-          className="iconBtn-wrapper"
-          initial={{ y: 0 }}
-          whileHover={{ y: -5 }}
-        >
+        <button onClick={() => handleRunGame(game)} className="iconBtn-wrapper">
           <VscPlay className="iconBtn" />
-        </motion.button>
+        </button>
         {/* 文件管理 */}
-        <motion.button
-          onClick={() => setShowFolderModal(true)}
-          className="iconBtn-wrapper"
-          initial={{ y: 0 }}
-          whileHover={{ y: -5 }}
-        >
+        <button onClick={() => setShowFolderModal(true)} className="iconBtn-wrapper">
           <VscFolder className="iconBtn" />
-        </motion.button>
+        </button>
         {/* 换封面 */}
-        <motion.button
-          onClick={() => handleAddBanner()}
-          className="iconBtn-wrapper"
-          initial={{ y: 0 }}
-          whileHover={{ y: -5 }}
-        >
+        <button onClick={() => handleAddBanner()} className="iconBtn-wrapper">
           <VscFileMedia className="iconBtn" />
-        </motion.button>
+        </button>
         {/* 成就 */}
-        <motion.div initial={{ y: 0 }} whileHover={{ y: -5 }} className="iconBtn-wrapper">
+        <div className="iconBtn-wrapper">
           <Link to={`/gallery/${game.id}`}>
             <GiAchievement className="iconBtn" />
           </Link>
-        </motion.div>
+        </div>
         {/* 链接管理 */}
-        <motion.button
-          onClick={() => setShowLinksModal(true)}
-          className="iconBtn-wrapper"
-          initial={{ y: 0 }}
-          whileHover={{ y: -5 }}
-        >
+        <button onClick={() => setShowLinksModal(true)} className="iconBtn-wrapper">
           <VscAttach className="iconBtn" />
-        </motion.button>
+        </button>
         {/* 删除 */}
-        <motion.button
-          onClick={() => handleDeleteGame(game)}
-          className="iconBtn-wrapper"
-          initial={{ y: 0 }}
-          whileHover={{ y: -5 }}
-        >
+        <button onClick={() => handleDeleteGame(game)} className="iconBtn-wrapper">
           <VscTrash className="iconBtn" />
-        </motion.button>
+        </button>
         {/* 配置页面*/}
-        <Portal gameId={game.id}  onRefresh={onRefresh} />
+        <Portal gameId={game.id} onRefresh={onRefresh} />
       </div>
       {/* 模态框部分 */}
       {/* 外链管理模态框 */}
       {showLinksModal &&
         createPortal(
-          <LinksContent 
-            gameId={game.id}
-            onClose={() => setShowLinksModal(false)} 
-          />,
+          <LinksContent gameId={game.id} onClose={() => setShowLinksModal(false)} />,
           document.body,
         )}
       {/* 文件管理模态框 */}
       {showFolderModal &&
         createPortal(
-          <FolderManageContent 
+          <FolderManageContent
             gamePath={game.launch_path}
             gameId={game.id}
             onClose={() => setShowFolderModal(false)}
@@ -153,7 +124,7 @@ const GameCardActions: FC<Props> = ({ game, onRefresh }) => {
       {/* 封面选择模态框 */}
       {showBannerModal &&
         createPortal(
-          <BannerSelectContent 
+          <BannerSelectContent
             gameId={game.id}
             gameName={game.game_name}
             onClose={() => setShowBannerModal(false)}

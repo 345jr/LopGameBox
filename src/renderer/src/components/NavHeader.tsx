@@ -1,10 +1,15 @@
 import { useGSAP } from '@gsap/react';
-import { motion, Variants } from 'framer-motion';
 import gsap from 'gsap';
 import { TextPlugin } from 'gsap/TextPlugin';
 import { useEffect, useRef, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import { VscChromeMinimize, VscChromeMaximize, VscChromeRestore, VscChromeClose, VscTriangleDown } from 'react-icons/vsc';
+import {
+  VscChromeMinimize,
+  VscChromeMaximize,
+  VscChromeRestore,
+  VscChromeClose,
+  VscTriangleDown,
+} from 'react-icons/vsc';
 import { Link, useNavigate } from 'react-router-dom';
 
 import useGameStore from '@renderer/store/GameStore';
@@ -13,10 +18,8 @@ import logo from '../assets/lopgame.png';
 
 const NavHeader = () => {
   //#region 状态管理
-  // 用于控制动画指针的位置和旋转角度
-  const [position, setPosition] = useState({ x: 0, y: 0, rotate: 0 });
   // 搜索输入框的值
-  const [inputRef, setInputRef] = useState<string>('');  
+  const [inputRef, setInputRef] = useState<string>('');
   // 游戏运行的时间
   const gameTime = useGameStore((state) => state.gameTime);
   // 游戏当前的运行状态（run stop null）
@@ -35,6 +38,9 @@ const NavHeader = () => {
   const navigate = useNavigate();
   // 搜索keyword
   const setSearchKeyword = useGameStore((state) => state.setSearchKeyword);
+  // Logo / 指针
+  const logoRef = useRef<HTMLImageElement>(null);
+  const pointerRef = useRef<HTMLDivElement>(null);
   //#endregion 状态管理
 
   //返回到主页
@@ -79,13 +85,42 @@ const NavHeader = () => {
     },
     { scope: flipperRef, dependencies: [gameState] },
   );
+
+  // Logo 旋转（模式选择器开关）
+  useGSAP(
+    () => {
+      if (!logoRef.current) return;
+      gsap.to(logoRef.current, {
+        rotation: active ? 90 : 0,
+        duration: 0.4,
+        ease: 'power2.out',
+      });
+    },
+    { dependencies: [active] },
+  );
   //#endregion
 
   // 处理模糊查询
   const handleSearch = async (keyword: string) => {
     setSearchKeyword(keyword);
   };
-  
+
+  // 指针跟随导航项
+  const movePointer = (x: number, y: number, rotate: number) => {
+    if (!pointerRef.current) return;
+    gsap.to(pointerRef.current, {
+      x,
+      y,
+      rotation: rotate,
+      duration: 0.35,
+      ease: 'power2.out',
+    });
+  };
+
+  const hoverScale = (el: HTMLElement, scale: number) => {
+    gsap.to(el, { scale, duration: 0.2, ease: 'power2.out' });
+  };
+
   // 窗口控制函数
   const handleMinimize = () => {
     window.api.minimizeWindow();
@@ -108,11 +143,6 @@ const NavHeader = () => {
     checkMaximized();
   }, []);
 
-  //模式选择器动画
-  const logoAnimate: Variants = {
-    initial: { rotate: 0 },
-    active: { rotate: 90, transition: { ease: ['easeOut'] } },
-  };
   //游戏模式名中文映射
   const gameModeMap: { [key: string]: string } = {
     Normal: '普通模式',
@@ -131,88 +161,92 @@ const NavHeader = () => {
   };
 
   return (
-    <div className="relative border-b-2 border-black" style={{ display: 'grid', gridTemplateColumns: 'auto auto auto auto auto 1fr auto auto' }}>
+    <div
+      className="relative border-b-2 border-black"
+      style={{ display: 'grid', gridTemplateColumns: 'auto auto auto auto auto 1fr auto auto' }}
+    >
       {/* Logo 图标 - 固定宽度 */}
-      <motion.div 
+      <div
         className="flex items-center justify-center px-3"
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
-        <motion.img
+        <img
+          ref={logoRef}
           src={logo}
           alt="logo"
           className="w-12 cursor-pointer rounded-2xl"
-          variants={logoAnimate}
-          initial="initial"
-          animate={active ? 'active' : 'disabled'}
           onClick={() => {
             setActive(!active);
             setGameModeSelector();
           }}
           onMouseEnter={() => {
-            setPosition({ x: -50, y: 20, rotate: 90 });
+            movePointer(-50, 20, 90);
           }}
         />
-      </motion.div>
+      </div>
 
       {/* 添加游戏按钮 - 固定宽度 */}
-      <motion.div 
+      <div
         className="flex items-center justify-center relative"
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
-        <motion.div className="absolute bottom-9 left-8 z-50" animate={position}>
+        <div ref={pointerRef} className="absolute bottom-9 left-8 z-50">
           <VscTriangleDown />
-        </motion.div>
-        <motion.button
+        </div>
+        <button
           onClick={handleBackToHome}
           className="cursor-pointer px-4 text-stone-900 hover:text-stone-600"
-          whileHover={{ scale: 1.1 }}
+          onMouseEnter={(e) => hoverScale(e.currentTarget, 1.1)}
+          onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
           onMouseMove={() => {
-            setPosition({ x: 10, y: 0, rotate: 0 });
+            movePointer(10, 0, 0);
           }}
         >
           游戏列表
-        </motion.button>
-      </motion.div>
+        </button>
+      </div>
 
       {/* 统计面板 - 固定宽度 */}
-      <motion.div 
+      <div
         className="flex items-center justify-center"
-        whileHover={{ scale: 1.1 }}
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+        onMouseEnter={(e) => hoverScale(e.currentTarget, 1.1)}
+        onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
       >
         <Link
           to={'/dashboard'}
           className="cursor-pointer px-4 text-stone-900 hover:text-stone-600"
           onMouseMove={() => {
-            setPosition({ x: 105, y: 0, rotate: 0 });
+            movePointer(105, 0, 0);
           }}
         >
           统计面板
         </Link>
-      </motion.div>
+      </div>
 
       {/* 设置中心 - 固定宽度 */}
-      <motion.div 
+      <div
         className="flex items-center justify-center"
-        whileHover={{ scale: 1.1 }}
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+        onMouseEnter={(e) => hoverScale(e.currentTarget, 1.1)}
+        onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
       >
         <Link
           to={'/setting'}
           className="cursor-pointer px-4 text-stone-900 hover:text-stone-600"
           onMouseMove={() => {
-            setPosition({ x: 200, y: 0, rotate: 0 });
+            movePointer(200, 0, 0);
           }}
         >
           设置中心
         </Link>
-      </motion.div>
+      </div>
 
       {/* 搜索区域 - 固定宽度 */}
-      <motion.div
+      <div
         className="flex items-center justify-center relative px-3"
         onMouseEnter={() => {
-          setPosition({ x: 250, y: 16, rotate: -90 });
+          movePointer(250, 16, -90);
         }}
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
@@ -230,14 +264,14 @@ const NavHeader = () => {
         >
           <FaSearch className="text-xl" />
         </button>
-      </motion.div>
+      </div>
 
       {/* 可拖拽区域 - 自适应宽度 (1fr) */}
-      <div 
-        className="flex items-center justify-center min-w-0 p-1"
-      >
-        <div className='grow border-2 border-dashed rounded-lg  border-gray-400 p-3' 
-          style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
+      <div className="flex items-center justify-center min-w-0 p-1">
+        <div
+          className="grow border-2 border-dashed rounded-lg  border-gray-400 p-3"
+          style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
+        >
           <p className="h-full text-xs text-gray-400 select-none whitespace-nowrap text-center">
             拖拽区域
           </p>
@@ -245,7 +279,7 @@ const NavHeader = () => {
       </div>
 
       {/* 游戏运行状态 - 固定宽度 */}
-      <div 
+      <div
         className="flex items-center justify-center border-l-2 border-dashed border-l-black px-3"
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
@@ -302,7 +336,7 @@ const NavHeader = () => {
       </div>
 
       {/* 窗口控制按钮区域 - 固定宽度 */}
-      <div 
+      <div
         className="flex items-center"
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
@@ -337,4 +371,5 @@ const NavHeader = () => {
       </div>
     </div>
   );
-};export default NavHeader;
+};
+export default NavHeader;

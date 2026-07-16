@@ -7,6 +7,7 @@ import AltModal from './AltModal'
 import toast from 'react-hot-toast'
 import { PhotoProvider, PhotoView } from 'react-photo-view'
 import { useGalleryList, useGalleryStats } from '@renderer/api/queries/queries.gallery'
+import { assetUrl } from '@renderer/bridge/electrobunApi'
 
 const Gallery = () => {
   const { gameId } = useParams()
@@ -266,13 +267,8 @@ const Gallery = () => {
                     </span>
                   </button>
 
-                  <PhotoView key={i.id} src={`lop://` + i.relative_path.replace(/\\/g, '/')}>
-                    {/* 通过自定义协议来确定位置 */}
-                    <img
-                      src={`lop://` + i.relative_path.replace(/\\/g, '/')}
-                      alt=""
-                      className="w-full"
-                    />
+                  <PhotoView key={i.id} src={assetUrl(i.relative_path)}>
+                    <img src={assetUrl(i.relative_path)} alt="" className="w-full" />
                   </PhotoView>
                 </div>
               )

@@ -1,8 +1,7 @@
-import { ElectronAPI } from '@electron-toolkit/preload'
 import type { DropPayload, DropResult } from './IPCtype'
+
 declare global {
   interface Window {
-    electron: ElectronAPI
     api: {
       openFile: () => Promise<string>
       selectFolder: () => Promise<string | null>
@@ -19,7 +18,6 @@ declare global {
       offTimerStopped: (
         callback: (result: { code: number; finalElapsedTime: number }) => void
       ) => void
-      // 数据库
       getAllGames: () => Promise<Game[]>
       getGamesByCategory: (category: string) => Promise<Game[]>
       getGameById: (id: number) => Promise<Game>
@@ -61,7 +59,6 @@ declare global {
         weekHours: number
         monthHours: number
       }>
-      //操作本地
       copyImages: (move: {
         origin: string
         target: string
@@ -70,29 +67,20 @@ declare global {
       }) => Promise<{ relativePath: string }>
       delectImages: (relative_path: string) => Promise<string>
       openFolder: (folderPath: string) => Promise<void>
-      //消息通知
       sendNotification: (title: string, body: string) => Promise<void>
-      //切换游戏模式
       setGameMode: (mode: string) => Promise<void>
-      //打开休息模态框
       onOpenRestTimeModal: (callback: () => void) => Promise<void>
       offOpenRestTimeModal: () => Promise<void>
-      //设置休息状态
       setResting: (resting: boolean) => Promise<void>
-      //获取4种模式下的游戏时长分布
       getGameLogByMode: () => Promise<{
         normalHours: number
         fastHours: number
         afkHours: number
         infinityHours: number
       }>
-      //获取本周的时长分布
       getGameLogByModeThisWeek: () => Promise<GameLog[]>
-      //获取上周的时长分布
       getGameLogByModeLastWeek: () => Promise<GameLog[]>
-      // 本地备份数据库
       backupDatabase: () => Promise<{ success: boolean; path?: string; error?: string }>
-      // 更新游戏版本：gameId, type ('minor'|'major'), summary, fileSize?
       updateGameVersion: (
         gameId: number,
         type: 'minor' | 'major',
@@ -104,7 +92,6 @@ declare global {
         summary?: string
         created_at?: number
       }>
-      // 根据版本ID查询版本概述
       getVersionSummary: (versionId: number) => Promise<{
         id: number
         game_id: number
@@ -112,7 +99,6 @@ declare global {
         summary: string
         created_at: number
       } | null>
-      // 根据游戏ID查询其所有的版本信息
       getVersionsByGame: (gameId: number) => Promise<
         Array<{
           id: number
@@ -123,14 +109,10 @@ declare global {
           created_at: number
         }>
       >
-      // 更新版本描述
       updateVersionDescription: (
         versionId: number,
         newDescription: string
       ) => Promise<{ success: boolean; message: string }>
-
-      // ==================== 成就相关接口 ====================
-      // 创建成就
       createAchievement: (
         gameId: number,
         achievementName: string,
@@ -144,25 +126,16 @@ declare global {
         description?: string
         isCompleted: 0
       }>
-      // 删除成就
       deleteAchievement: (achievementId: number) => Promise<void>
-      // 切换成就状态
       toggleAchievementStatus: (achievementId: number, isCompleted: 0 | 1) => Promise<void>
-      // 获取游戏所有成就
       getGameAchievements: (gameId: number) => Promise<GameAchievement[]>
-      // 获取已完成的成就
       getCompletedAchievements: (gameId: number) => Promise<GameAchievement[]>
-      // 获取未完成的成就
       getUncompletedAchievements: (gameId: number) => Promise<GameAchievement[]>
-      // 获取成就统计
       getAchievementStats: (gameId: number) => Promise<{
         total: number
         completed: number
         completionRate: number
       }>
-
-      // ==================== 外链管理接口 ====================
-      // 添加游戏外链
       addGameLink: (
         gameId: number,
         metadata: {
@@ -172,7 +145,6 @@ declare global {
           favicon: string
         }
       ) => Promise<{ id?: number | bigint } | null>
-      // 获取游戏外链列表
       getGameLinks: (gameId: number) => Promise<
         Array<{
           id: number
@@ -185,17 +157,12 @@ declare global {
           updated_at: number
         }>
       >
-      // 删除游戏外链
       deleteGameLink: (linkId: number) => Promise<{ changes?: number } | unknown>
-      // 更新游戏外链
       updateGameLink: (
         linkId: number,
-        title: string,
+        title: string
         url: string
       ) => Promise<{ changes?: number } | unknown>
-
-      // ==================== 存档管理接口 ====================
-      // 设置游戏主存档路径
       setGameSavePath: (
         gameId: number,
         savePath: string,
@@ -206,7 +173,6 @@ declare global {
         savePath: string
         fileSize: number
       }>
-      // 获取游戏主存档路径
       getGameSavePath: (gameId: number) => Promise<{
         id: number
         game_id: number
@@ -215,21 +181,15 @@ declare global {
         created_at: number
         updated_at: number
       } | null>
-      // 更新游戏主存档路径
       updateGameSavePath: (
         gameId: number,
         savePath: string
       ) => Promise<{ success: boolean; message: string }>
-      // 更新主存档文件夹大小
       updateSavePathSize: (
         gameId: number,
         fileSize: number
       ) => Promise<{ success: boolean; message: string }>
-      // 删除游戏主存档路径
       deleteGameSavePath: (gameId: number) => Promise<{ success: boolean; message: string }>
-
-      // ==================== 存档备份接口 ====================
-      // 创建存档备份
       createSaveBackup: (gameId: number) => Promise<{
         success: boolean
         message: string
@@ -237,7 +197,6 @@ declare global {
         backupName?: string
         fileSize?: number
       }>
-      // 获取存档备份列表
       getSaveBackups: (gameId: number) => Promise<
         Array<{
           id: number
@@ -248,43 +207,26 @@ declare global {
           created_at: number
         }>
       >
-      // 恢复存档备份
       restoreSaveBackup: (
         backupId: number,
         gameId: number
       ) => Promise<{ success: boolean; message: string }>
-      // 删除存档备份
       deleteSaveBackup: (backupId: number) => Promise<{ success: boolean; message: string }>
-
-      // ==================== 窗口控制接口 ====================
-      // 最小化窗口
       minimizeWindow: () => Promise<void>
-      // 最大化/还原窗口
       maximizeWindow: () => Promise<void>
-      // 关闭窗口
       closeWindow: () => Promise<void>
-      // 检查窗口是否最大化
       isWindowMaximized: () => Promise<boolean>
-
-      // ==================== 截图功能接口 ====================
-      // 启用 F12 截图快捷键
       enableScreenshotShortcut: () => Promise<{ success: boolean; message: string }>
-      // 禁用 F12 截图快捷键
       disableScreenshotShortcut: () => Promise<{ success: boolean; message: string }>
-      // 获取截图快捷键状态
       getScreenshotShortcutStatus: () => Promise<{ enabled: boolean }>
-      // 监听截图成功事件
       onScreenshotSuccess: (callback: (data: { path: string; filename: string }) => void) => void
-      // 监听截图失败事件
       onScreenshotError: (callback: (data: { error: string }) => void) => void
-      // 移除截图成功监听
       offScreenshotSuccess: () => void
-      // 移除截图失败监听
       offScreenshotError: () => void
-      //开发者
       openDevTools: () => Promise<void>
-      // 获取拖拽的临时路径
       getTempDrop: (payload: DropPayload) => Promise<DropResult>
     }
   }
 }
+
+export {}

@@ -21,6 +21,7 @@ import {
   useGameList,
   useSearchGames
 } from '@renderer/api/queries/queries.gameList'
+import { assetUrl } from '@renderer/bridge/electrobunApi'
 
 /** 单张游戏卡片：封面入场 + hover 侧栏 stagger（原 motion variants） */
 const GameCardItem = ({
@@ -238,15 +239,13 @@ const GameCards = () => {
   const handleCategoryChange = (category: 'all' | 'playing' | 'archived') => {
     setSelectedCategory(category)
   }
-  // 获取封面图路径
+  // 获取封面图路径（Electrobun 本地资源服务，兼容 http 链接）
   const getSrc = (game: Game) => {
     const relativePath = bannerListData?.find((i: Banners) => i.game_id === game.id)?.relative_path
-    // 判断是否为网络链接（http:// 或 https://）
     if (relativePath?.startsWith('http://') || relativePath?.startsWith('https://')) {
       return relativePath
     }
-    // 本地路径使用 lop 协议
-    return 'lop://' + relativePath?.replace(/\\/g, '/')
+    return assetUrl(relativePath)
   }
 
   const hoverScale = (el: HTMLElement, scale: number) => {

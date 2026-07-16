@@ -6,11 +6,13 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self';
-        script-src 'self';
-        style-src 'self' 'unsafe-inline';
-        img-src 'self' data: https: http:;
-        connect-src 'self' https://lopbox.lopop.top http://localhost:3000"
+      content="default-src 'self' views: http://127.0.0.1:* http://localhost:*;
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: views:;
+        style-src 'self' 'unsafe-inline' views:;
+        img-src 'self' data: blob: https: http: views:;
+        font-src 'self' data: views:;
+        connect-src 'self' https://lopbox.lopop.top http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:* views:;
+        worker-src 'self' blob:"
     />
   </head>
 

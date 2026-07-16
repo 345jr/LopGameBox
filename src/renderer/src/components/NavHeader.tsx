@@ -163,7 +163,14 @@ const NavHeader = () => {
   return (
     <div
       className="relative border-b-2 border-black"
-      style={{ display: 'grid', gridTemplateColumns: 'auto auto auto auto auto 1fr auto auto' }}
+      style={
+        {
+          display: 'grid',
+          gridTemplateColumns: 'auto auto auto auto auto 1fr auto auto',
+          WebkitAppRegion: 'drag',
+          appRegion: 'drag'
+        } as React.CSSProperties
+      }
     >
       {/* Logo 图标 - 固定宽度 */}
       <div

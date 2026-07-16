@@ -222,13 +222,13 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
                     <img
                       src={link.icon}
                       alt="icon"
-                      className="h-8 w-8 flex-shrink-0 rounded"
+                      className="h-8 w-8 shrink-0 rounded"
                       onError={(e) => {
                         ;(e.target as HTMLImageElement).style.display = 'none'
                       }}
                     />
                   ) : (
-                    <div className="h-8 w-8 flex-shrink-0 rounded bg-gray-200" />
+                    <div className="h-8 w-8 shrink-0 rounded bg-gray-200" />
                   )}
 
                   {/* 标题(可点击跳转) */}
@@ -247,7 +247,7 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
                   {/* 编辑按钮 */}
                   <button
                     onClick={() => handleOpenEdit(link)}
-                    className="flex-shrink-0 cursor-pointer text-blue-500 transition hover:text-blue-700"
+                    className="shrink-0 cursor-pointer text-blue-500 transition hover:text-blue-700"
                     title="编辑"
                   >
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -263,7 +263,7 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
                   {/* 删除按钮 */}
                   <button
                     onClick={() => handleDeleteLink(link.id)}
-                    className="flex-shrink-0 cursor-pointer text-red-500 transition hover:text-red-700"
+                    className="shrink-0 cursor-pointer text-red-500 transition hover:text-red-700"
                     title="删除"
                   >
                     <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,7 +295,7 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
       {/* 编辑链接模态框 */}
       {editModal.isOpen && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50"
+          className="fixed inset-0 z-60 flex items-center justify-center bg-black/50"
           onClick={(e) => {
             e.stopPropagation() // 阻止事件冒泡到外层模态框
             handleCloseEdit()

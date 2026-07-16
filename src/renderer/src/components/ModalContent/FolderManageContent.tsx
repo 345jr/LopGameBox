@@ -216,7 +216,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
                 onClick={handleOpenGameFolder}
                 className="flex w-full cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
               >
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-100">
                   <VscFolder className="text-2xl text-gray-700" />
                 </div>
                 <div className="flex-1 text-left">
@@ -235,7 +235,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
                   onClick={handleOpenGameFolder}
                   className="flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
                 >
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-100">
                     <VscFolder className="text-2xl text-gray-700" />
                   </div>
                   <div className="flex-1 text-left">
@@ -249,7 +249,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
                   onClick={handleOpenSaveFolder}
                   className="flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
                 >
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-100">
                     <VscFolderOpened className="text-2xl text-gray-700" />
                   </div>
                   <div className="flex-1 text-left">
@@ -266,7 +266,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
                   onClick={handleSetSavePath}
                   className="flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
                 >
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-100">
                     <GoGitBranch className="text-2xl text-gray-700" />
                   </div>
                   <div className="flex-1 text-left">
@@ -280,7 +280,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
                   onClick={handleRefreshSaveSize}
                   className="flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md"
                 >
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-100">
                     <VscRefresh className="text-2xl text-gray-700" />
                   </div>
                   <div className="flex-1 text-left">
@@ -295,7 +295,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
                   disabled={loading}
                   className="flex cursor-pointer items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 transition hover:border-gray-400 hover:bg-gray-50 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-200 disabled:hover:bg-white"
                 >
-                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-gray-100">
                     <FiDownload className="text-2xl text-gray-700" />
                   </div>
                   <div className="flex-1 text-left">
@@ -333,7 +333,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
                 {/* 存档路径和大小显示 */}
                 <div className="mb-4 flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 transition hover:border-gray-300 hover:shadow-sm">
                   {/* 存档图标 */}
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100">
                     <VscSave className="text-xl text-gray-700" />
                   </div>
 
@@ -364,7 +364,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
                           className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3 transition hover:border-gray-300 hover:shadow-sm"
                         >
                           {/* 备份图标 */}
-                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100">
                             <VscSave className="text-xl text-gray-700" />
                           </div>
 

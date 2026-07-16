@@ -401,7 +401,7 @@ const GameCards = () => {
           <GameCardItem key={game.id} game={game} src={getSrc(game)} onRefresh={refetch} />
         ))}
         {/* 底部模糊层 */}
-        <div className="fixed top-9/10 right-0 bottom-0 left-0 z-10 bg-gradient-to-b from-transparent to-gray-600/95"></div>
+        <div className="fixed top-9/10 right-0 bottom-0 left-0 z-10 bg-linear-to-b from-transparent to-gray-600/95"></div>
       </div>
     </>
   )

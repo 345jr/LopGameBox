@@ -158,7 +158,7 @@ const Gallery = () => {
   const OverlayContent: React.FC<{ index: number }> = ({ index }) => {
     if (!snapshotList || !snapshotList[index]) return null
     return (
-      <div className="fixed right-4 bottom-4 z-[1200]">
+      <div className="fixed right-4 bottom-4 z-1200">
         <button
           onClick={() => openAltModal(snapshotList[index].id)}
           className="cursor-pointer rounded-md bg-black/60 px-3 py-2 text-white"

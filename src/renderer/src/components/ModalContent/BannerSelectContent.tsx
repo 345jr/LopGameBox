@@ -253,7 +253,7 @@ const BannerSelectContent = ({
                 className={`relative mb-6 rounded-lg border-2 border-dashed p-8 text-center transition-all ${
                   isDragging
                     ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-300 bg-gradient-to-br from-gray-50 to-gray-100'
+                    : 'border-gray-300 bg-linear-to-br from-gray-50 to-gray-100'
                 }`}
                 onDragEnter={handleDragEnter}
                 onDragLeave={handleDragLeave}
@@ -279,7 +279,7 @@ const BannerSelectContent = ({
                 onMouseLeave={(e) => pressOut(e.currentTarget)}
                 onMouseDown={(e) => !isLoading && pressIn(e.currentTarget)}
                 onMouseUp={(e) => pressOut(e.currentTarget)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-gray-800 to-gray-900 px-4 py-3 font-medium text-white transition hover:from-gray-700 hover:to-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-linear-to-r from-gray-800 to-gray-900 px-4 py-3 font-medium text-white transition hover:from-gray-700 hover:to-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <VscFolderOpened className="text-xl" />
                 <span>{isLoading ? '上传中...' : '从文件夹选择'}</span>
@@ -314,7 +314,7 @@ const BannerSelectContent = ({
                 onMouseLeave={(e) => pressOut(e.currentTarget)}
                 onMouseDown={(e) => !(isLoading || !linkUrl.trim()) && pressIn(e.currentTarget)}
                 onMouseUp={(e) => pressOut(e.currentTarget)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-gray-800 to-gray-900 px-4 py-3 font-medium text-white transition hover:from-gray-700 hover:to-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-linear-to-r from-gray-800 to-gray-900 px-4 py-3 font-medium text-white transition hover:from-gray-700 hover:to-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <span>{isLoading ? '设置中...' : '设置链接'}</span>
               </button>

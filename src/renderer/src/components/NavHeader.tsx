@@ -294,7 +294,7 @@ const NavHeader = () => {
                 </p>
                 {/* 文字背面 */}
                 <p
-                  className={`absolute left-3 rotate-y-180 bg-gradient-to-bl text-sm whitespace-nowrap backface-hidden ${
+                  className={`absolute left-3 rotate-y-180 bg-linear-to-bl text-sm whitespace-nowrap backface-hidden ${
                     gameModeColorMap[gameMode]
                   } bg-clip-text text-transparent`}
                 >
@@ -324,7 +324,7 @@ const NavHeader = () => {
                   backgroundSize: '200% 100%',
                   backgroundPosition: '0% center'
                 }}
-                className={`GSAPanimate-modeText bg-gradient-to-bl whitespace-nowrap ${
+                className={`GSAPanimate-modeText bg-linear-to-bl whitespace-nowrap ${
                   gameModeColorMap[gameMode]
                 } bg-clip-text text-transparent`}
               >

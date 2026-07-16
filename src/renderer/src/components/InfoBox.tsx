@@ -25,7 +25,7 @@ const InfoBox = () => {
 
   return (
     <div ref={boxRef} className="flex-col-v">
-      <VscTriangleUp className="mb-[-10px] text-2xl text-white" />
+      <VscTriangleUp className="-mb-2.5 text-2xl text-white" />
       <div className="h-30 w-60 rounded-xl border-3 border-stone-900 bg-white p-2 text-black">
         {info || '「暂无信息」'}
       </div>

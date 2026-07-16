@@ -400,7 +400,7 @@ export default function ModalContent({
           selectedVersion &&
           createPortal(
             <div
-              className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-800/30"
+              className="fixed inset-0 z-100 flex items-center justify-center bg-gray-800/30"
               onClick={handleVersionModalClose}
             >
               <div
@@ -491,7 +491,7 @@ export default function ModalContent({
         {isUpdateModalOpen &&
           createPortal(
             <div
-              className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-800/30"
+              className="fixed inset-0 z-100 flex items-center justify-center bg-gray-800/30"
               onClick={() => setIsUpdateModalOpen(false)}
             >
               <div

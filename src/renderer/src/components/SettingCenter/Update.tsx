@@ -17,7 +17,7 @@ const Updata = () => {
           <div>
             <div className="flex flex-row">
               <FaCircleCheck className="mt-1 mr-5 text-2xl text-green-500" />
-              <div className="mt-3.5 h-1 w-60 rounded-r-full bg-gradient-to-l from-green-200 via-green-400 to-green-600"></div>
+              <div className="mt-3.5 h-1 w-60 rounded-r-full bg-linear-to-l from-green-200 via-green-400 to-green-600"></div>
             </div>
             <ul className="ml-15">
               <li>1.添加功能:可以给游戏添加封面图</li>
@@ -36,7 +36,7 @@ const Updata = () => {
           <div>
             <div className="flex flex-row">
               <FaCircleCheck className="mt-1 mr-5 text-2xl text-green-500" />
-              <div className="mt-3.5 h-1 w-60 rounded-r-full bg-gradient-to-l from-green-200 via-green-400 to-green-600"></div>
+              <div className="mt-3.5 h-1 w-60 rounded-r-full bg-linear-to-l from-green-200 via-green-400 to-green-600"></div>
             </div>
             <ul className="ml-15">
               <li>1.添加功能:可以给游戏添加快照图</li>
@@ -54,7 +54,7 @@ const Updata = () => {
           <div>
             <div className="flex flex-row">
               <FaCircleCheck className="mt-1 mr-5 text-2xl text-green-500" />
-              <div className="mt-3.5 h-1 w-60 rounded-r-full bg-gradient-to-l from-green-200 via-green-400 to-green-600"></div>
+              <div className="mt-3.5 h-1 w-60 rounded-r-full bg-linear-to-l from-green-200 via-green-400 to-green-600"></div>
             </div>
             <ul className="ml-15">
               <li>
@@ -76,7 +76,7 @@ const Updata = () => {
           <div>
             <div className="flex flex-row">
               <FaCircleCheck className="mt-1 mr-5 text-2xl text-green-500" />
-              <div className="mt-3.5 h-1 w-60 rounded-r-full bg-gradient-to-l from-green-200 via-green-400 to-green-600"></div>
+              <div className="mt-3.5 h-1 w-60 rounded-r-full bg-linear-to-l from-green-200 via-green-400 to-green-600"></div>
             </div>
             <ul className="ml-15">
               <li>

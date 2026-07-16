@@ -155,7 +155,7 @@ const Selector = () => {
                   ref={(el) => {
                     if (el) bgRefs.current[index] = el
                   }}
-                  className={`pointer-events-none absolute inset-0 bg-gradient-to-r ${config.bgGradient}`}
+                  className={`pointer-events-none absolute inset-0 bg-linear-to-r ${config.bgGradient}`}
                   style={{ opacity: 0 }}
                 />
                 {/* 左边框高亮 */}

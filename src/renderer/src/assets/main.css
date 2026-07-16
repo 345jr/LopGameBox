@@ -1,6 +1,25 @@
 @import 'tailwindcss';
 
 /*
+ * Tailwind v4 theme: font-sans / preflight default = brand stack.
+ * Order: brand → Windows CJK UI → macOS CJK → generic system → emoji.
+ */
+@theme {
+  --font-sans:
+    'LXGW WenKai', 'Microsoft YaHei UI', 'Microsoft YaHei', 'PingFang SC',
+    'Hiragino Sans GB', 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+  /* Gallery / literary copy stays on-brand for CJK */
+  --font-serif:
+    'LXGW WenKai', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+}
+
+/*
  * Brand UI font — 霞鹜文楷 (subset → WOFF2)
  *
  * Official weights only: Light / Regular / Medium (no separate Bold).
@@ -51,25 +70,6 @@
   font-display: swap;
 }
 
-/*
- * Tailwind v4 theme: font-sans / preflight default = brand stack.
- * Order: brand → Windows CJK UI → macOS CJK → generic system → emoji.
- */
-@theme {
-  --font-sans:
-    'LXGW WenKai', 'Microsoft YaHei UI', 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB',
-    'Noto Sans SC', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-    'Segoe UI Symbol', 'Noto Color Emoji';
-
-  /* Gallery / literary copy stays on-brand for CJK */
-  --font-serif:
-    'LXGW WenKai', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
-    monospace;
-}
-
 /* Desktop text rendering polish (Electron/Chromium) */
 html {
   -webkit-font-smoothing: antialiased;
@@ -113,6 +113,6 @@ html {
 @layer components {
   /* 仪表盘卡片 */
   .dashboardCard {
-    @apply rounded-lg border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 shadow-md transition-shadow hover:shadow-lg;
+    @apply rounded-lg border border-slate-200 bg-linear-to-br from-slate-50 to-slate-100 shadow-md transition-shadow hover:shadow-lg;
   }
 }

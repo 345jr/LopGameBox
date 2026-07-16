@@ -14,7 +14,7 @@ const SettingPage = () => {
         const status = await window.api.getScreenshotShortcutStatus()
         setScreenshotEnabled(status.enabled)
       } catch (error) {
-        console.error('获取截图快捷键状态失败:', error)
+        console.error('[Screenshot] get shortcut status failed:', error)
       }
     }
     initScreenshotStatus()

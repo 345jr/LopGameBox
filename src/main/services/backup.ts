@@ -15,17 +15,17 @@ export class BackupService {
     try {
       fs.mkdirSync(backupDir, { recursive: true })
     } catch (err) {
-      console.log('创建备份目录失败:', err)
+      console.error('[Backup] failed to create directory:', err)
     }
 
     const backupPath = path.join(backupDir, `backup-${Date.now()}.db`)
 
     try {
       await this.db.backup(backupPath)
-      console.log('数据库备份成功:', backupPath)
+      console.log('[Backup] database saved:', backupPath)
       return backupPath
     } catch (err) {
-      console.error('数据库备份失败:', err)
+      console.error('[Backup] database failed:', err)
       throw err
     }
   }

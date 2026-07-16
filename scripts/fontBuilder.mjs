@@ -36,21 +36,21 @@ const FACES = [
 let text = ''
 try {
   text = fs.readFileSync(textFilePath, 'utf8').trim()
-  console.log('✓ 已读取字符文本')
+  console.log('[Fonts] glyph list loaded')
 } catch (err) {
-  console.error(`❌ 读取字符文件失败: ${err.message}`)
+  console.error('[Fonts] failed to read glyph list:', err.message)
   process.exit(1)
 }
 
 if (!text) {
-  console.warn('⚠️ 字符文本为空，将不会裁剪任何字形（可能生成接近原字体的体积）。')
+  console.warn('[Fonts] empty glyph list; subset may be near full size')
 }
 
 for (const face of FACES) {
   const p = path.join(srcDir, face)
   if (!fs.existsSync(p)) {
-    console.error(`❌ 源字体不存在: ${p}`)
-    console.error('请将 Light / Regular / Medium 放入 fonts/ 目录')
+    console.error('[Fonts] source missing:', p)
+    console.error('[Fonts] put Light/Regular/Medium TTF files under fonts/')
     process.exit(1)
   }
 }
@@ -62,7 +62,7 @@ fs.mkdirSync(destDir, { recursive: true })
 function buildFace(srcFile) {
   return new Promise((resolve, reject) => {
     const srcPath = path.join(srcDir, srcFile)
-    console.log(`🔄 处理 ${srcFile} ...`)
+    console.log('[Fonts] processing', srcFile, '...')
 
     const fontmin = new Fontmin()
       .src(srcPath)
@@ -86,14 +86,14 @@ function buildFace(srcFile) {
 }
 
 async function main() {
-  console.log('🔄 开始多字重子集 + WOFF2 转换...')
+  console.log('[Fonts] building multi-weight WOFF2 subsets...')
 
   for (const face of FACES) {
     try {
       await buildFace(face)
       console.log(`  ✓ ${face}`)
     } catch (err) {
-      console.error(`❌ 转换失败 (${face}):`, err.message)
+      console.error(`[Fonts] convert failed (${face}):`, err.message)
       process.exit(1)
     }
   }
@@ -107,14 +107,14 @@ async function main() {
 
   const woff2Files = fs.readdirSync(destDir).filter((n) => n.endsWith('.woff2'))
   let totalBytes = 0
-  console.log('✅ 字体转换完成!')
-  console.log(`📁 输出目录: ${destDir}`)
+  console.log('[Fonts] build complete')
+  console.log('[Fonts] output dir:', destDir)
   for (const name of woff2Files) {
     const size = fs.statSync(path.join(destDir, name)).size
     totalBytes += size
-    console.log(`  📦 ${name}  ${(size / 1024 / 1024).toFixed(2)} MB`)
+    console.log('[Fonts]  ', name, `${(size / 1024 / 1024).toFixed(2)} MB`)
   }
-  console.log(`📊 合计: ${(totalBytes / 1024 / 1024).toFixed(2)} MB`)
+  console.log('[Fonts] total:', `${(totalBytes / 1024 / 1024).toFixed(2)} MB`)
 }
 
 main()

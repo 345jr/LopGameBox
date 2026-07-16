@@ -4,7 +4,7 @@ import { app } from 'electron'
 // 处理需要删除的旧封面图路径——仅使用 userData
 export const getDelectPath = (oldFilePath: string): string => {
   if (oldFilePath === 'banner\\default.jpg') {
-    console.log(`default image skip`)
+    console.log('[Path] skip default banner')
     return 'skip'
   }
   if (oldFilePath === 'skip') return 'skip'

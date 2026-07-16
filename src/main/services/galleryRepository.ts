@@ -63,7 +63,7 @@ export class GalleryRepository {
   public delectSnapshot(id: number): void {
     const stmt = this.db.prepare('DELETE FROM game_gallery WHERE id = ?')
     stmt.run(id)
-    console.log(`删除成功`)
+    console.log('[Gallery] snapshot deleted')
   }
 
   /**
@@ -72,7 +72,7 @@ export class GalleryRepository {
   public updateSnapshotAlt(id: number, alt: string): void {
     const stmt = this.db.prepare('UPDATE game_gallery SET alt = ? WHERE id = ?')
     stmt.run(alt, id)
-    console.log(`描述更新成功`)
+    console.log('[Gallery] alt updated')
   }
 
   /**
@@ -81,7 +81,7 @@ export class GalleryRepository {
   public deleteSnapshotAlt(id: number): void {
     const stmt = this.db.prepare('UPDATE game_gallery SET alt = NULL WHERE id = ?')
     stmt.run(id)
-    console.log(`描述删除成功`)
+    console.log('[Gallery] alt deleted')
   }
 
   /**
@@ -125,7 +125,7 @@ export class GalleryRepository {
   public deleteAchievement(achievementId: number): void {
     const stmt = this.db.prepare('DELETE FROM game_achievements WHERE id = ?')
     stmt.run(achievementId)
-    console.log(`成就删除成功`)
+    console.log('[Achievement] deleted')
   }
 
   public toggleAchievementStatus(achievementId: number, isCompleted: 0 | 1): void {
@@ -140,7 +140,7 @@ export class GalleryRepository {
       )
       stmt.run(achievementId)
     }
-    console.log(`成就状态更新成功`)
+    console.log('[Achievement] status updated')
   }
 
   public getGameAchievements(gameId: number): GameAchievementRow[] {

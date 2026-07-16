@@ -55,7 +55,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
     try {
       await window.api.openFolder(gamePath)
     } catch (error) {
-      console.error('打开游戏文件夹失败:', error)
+      console.error('[Folder] open game folder failed:', error)
       toast.error('无法打开游戏文件夹')
     }
   }
@@ -82,7 +82,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
         toast.success('存档路径设置成功')
       }
     } catch (error) {
-      console.error('设置存档路径失败:', error)
+      console.error('[Save] set path failed:', error)
       toast.error('设置存档路径失败')
     }
   }
@@ -93,7 +93,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
       try {
         window.api.openFolder(savePath)
       } catch (error) {
-        console.error('打开存档文件夹失败:', error)
+        console.error('[Save] open folder failed:', error)
         toast.error('无法打开存档文件夹')
       }
     }
@@ -117,7 +117,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
 
       await refreshSaveInfo()
     } catch (error) {
-      console.error('刷新存档大小失败:', error)
+      console.error('[Save] refresh size failed:', error)
       toast.error('刷新存档大小失败')
     }
   }
@@ -139,7 +139,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
         toast.error(result.message)
       }
     } catch (error) {
-      console.error('创建备份失败:', error)
+      console.error('[Save] create backup failed:', error)
       toast.error('备份创建失败')
     } finally {
       setLoading(false)
@@ -162,7 +162,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
         toast.error(result.message)
       }
     } catch (error) {
-      console.error('恢复备份失败:', error)
+      console.error('[Save] restore backup failed:', error)
       toast.error('备份恢复失败')
     }
   }
@@ -180,7 +180,7 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
         toast.error(result.message)
       }
     } catch (error) {
-      console.error('删除备份失败:', error)
+      console.error('[Save] delete backup failed:', error)
       toast.error('备份删除失败')
     }
   }

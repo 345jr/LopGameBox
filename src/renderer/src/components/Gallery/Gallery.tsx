@@ -48,7 +48,7 @@ const Gallery = () => {
       refetchSnapshots()
       toast.success('图片添加成功')
     } catch (error) {
-      console.error('添加图片失败', error)
+      console.error('[Gallery] add images failed:', error)
       toast.error('图片添加失败')
     }
   }
@@ -88,7 +88,7 @@ const Gallery = () => {
       refetchSnapshots()
       setSelectedSnapshots(new Set())
     } catch (error) {
-      console.error('批量删除失败', error)
+      console.error('[Gallery] batch delete failed:', error)
       toast.error('批量删除失败')
     } finally {
       setIsBatchDeleting(false)
@@ -110,7 +110,7 @@ const Gallery = () => {
       }
       setShowAltModal(true)
     } catch (error) {
-      console.error('获取ALT描述失败:', error)
+      console.error('[Gallery] get alt failed:', error)
     }
   }
 

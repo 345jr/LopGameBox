@@ -153,7 +153,7 @@ const Achievements: React.FC = () => {
       toast.success('完成度成就已完成')
       await refetchAchievements()
     } catch (error) {
-      console.error('升级完成度成就失败:', error)
+      console.error('[Achievement] upgrade progress failed:', error)
       toast.error('操作失败')
     }
   }
@@ -179,7 +179,7 @@ const Achievements: React.FC = () => {
       // 刷新成就列表
       await refetchAchievements()
     } catch (error) {
-      console.error('添加成就失败:', error)
+      console.error('[Achievement] add failed:', error)
       toast.error('添加成就失败')
     }
   }
@@ -192,7 +192,7 @@ const Achievements: React.FC = () => {
         toast.success('成就已删除')
         await refetchAchievements()
       } catch (error) {
-        console.error('删除成就失败:', error)
+        console.error('[Achievement] delete failed:', error)
         toast.error('删除成就失败')
       }
     }
@@ -206,7 +206,7 @@ const Achievements: React.FC = () => {
       toast.success(newStatus === 1 ? '已标记完成' : '已取消完成')
       await refetchAchievements()
     } catch (error) {
-      console.error('切换成就状态失败:', error)
+      console.error('[Achievement] toggle failed:', error)
       toast.error('操作失败')
     }
   }

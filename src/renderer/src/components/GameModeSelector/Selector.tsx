@@ -1,7 +1,7 @@
 import useGameStore from '@renderer/store/GameStore'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { useRef } from 'react'
+import { useRef, type ComponentType } from 'react'
 import { FaHourglassEnd, FaGlasses, FaClock, FaFaceLaugh } from 'react-icons/fa6'
 import toast from 'react-hot-toast'
 
@@ -22,7 +22,7 @@ const Selector = () => {
       bgGradient: string
       iconColor: string
       textColor: string
-      icon: any
+      icon: ComponentType
     }
   } = {
     Normal: {

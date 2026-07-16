@@ -9,6 +9,8 @@ export interface Game {
   disk_size: number
   created_at: number
   updated_at: number
+  category?: string | null
+  game_version?: string
 }
 //复制图片数据
 export interface GameImage {

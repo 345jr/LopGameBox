@@ -98,7 +98,12 @@ declare global {
         type: 'minor' | 'major',
         summary: string,
         fileSize?: number
-      ) => Promise<any>
+      ) => Promise<{
+        id?: number
+        version?: string
+        summary?: string
+        created_at?: number
+      }>
       // 根据版本ID查询版本概述
       getVersionSummary: (versionId: number) => Promise<{
         id: number
@@ -166,7 +171,7 @@ declare global {
           description: string
           favicon: string
         }
-      ) => Promise<any>
+      ) => Promise<{ id?: number | bigint } | null>
       // 获取游戏外链列表
       getGameLinks: (gameId: number) => Promise<
         Array<{
@@ -181,9 +186,13 @@ declare global {
         }>
       >
       // 删除游戏外链
-      deleteGameLink: (linkId: number) => Promise<any>
+      deleteGameLink: (linkId: number) => Promise<{ changes?: number } | unknown>
       // 更新游戏外链
-      updateGameLink: (linkId: number, title: string, url: string) => Promise<any>
+      updateGameLink: (
+        linkId: number,
+        title: string,
+        url: string
+      ) => Promise<{ changes?: number } | unknown>
 
       // ==================== 存档管理接口 ====================
       // 设置游戏主存档路径

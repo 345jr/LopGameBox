@@ -140,14 +140,14 @@ export class GameService {
     fileSize?: number
   ) {
     // 获取当前最新版本
-    const latest: any = this.gameRepo.getLatestVersion(gameId)
+    const latest = this.gameRepo.getLatestVersion(gameId) as { version?: string } | undefined
 
     let baseVersion: string = '1.0'
     if (latest && latest.version) {
       baseVersion = String(latest.version)
     } else {
       // 回退到 games 表中的 game_version 字段
-      const game: any = this.gameRepo.getGameById(gameId)
+      const game = this.gameRepo.getGameById(gameId) as { game_version?: string } | undefined
       baseVersion = String(game?.game_version || '1.0')
     }
 
@@ -174,7 +174,15 @@ export class GameService {
 
   // 查询某条版本的概述（按版本 id）
   public getVersionSummary(versionId: number) {
-    const v: any = this.gameRepo.getGameVersionById(versionId)
+    const v = this.gameRepo.getGameVersionById(versionId) as
+      | {
+          id: number
+          game_id: number
+          version: string
+          summary: string | null
+          created_at: number
+        }
+      | undefined
     if (!v) return null
     return {
       id: v.id,

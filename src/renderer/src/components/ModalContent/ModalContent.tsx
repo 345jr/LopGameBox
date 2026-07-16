@@ -26,18 +26,22 @@ export default function ModalContent({
   // 从后端加载版本列表
   const loadVersions = async () => {
     try {
-      const rows: any[] = await window.api.getVersionsByGame(gameId)
-      const mapped: GameVersion[] = rows.map(
-        (r) =>
-          ({
-            id: r.id,
-            game_id: r.game_id,
-            version: r.version,
-            description: r.summary || r.description || '',
-            release_date: (r.created_at || Date.now()) * 1000,
-            created_at: (r.created_at || Date.now()) * 1000
-          }) as GameVersion
-      )
+      const rows = (await window.api.getVersionsByGame(gameId)) as Array<{
+        id: number
+        game_id: number
+        version: string
+        summary?: string
+        description?: string
+        created_at?: number
+      }>
+      const mapped: GameVersion[] = rows.map((r) => ({
+        id: r.id,
+        game_id: r.game_id,
+        version: r.version,
+        description: r.summary || r.description || '',
+        release_date: (r.created_at || Date.now()) * 1000,
+        created_at: (r.created_at || Date.now()) * 1000
+      }))
       setGameVersions(mapped)
     } catch (err) {
       console.error('加载版本列表失败', err)
@@ -47,7 +51,7 @@ export default function ModalContent({
   const loadGameCategory = async () => {
     try {
       const game: Game = await window.api.getGameById(gameId)
-      const category = (game as any).category
+      const category = game.category
       if (category === 'playing' || category === 'archived') {
         setCurrentCategory(category)
       } else {
@@ -148,9 +152,9 @@ export default function ModalContent({
       } else {
         setInfo(`更新失败: ${result.message}`)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('保存版本描述失败', err)
-      setInfo(`保存失败: ${err?.message ?? String(err)}`)
+      setInfo(`保存失败: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 
@@ -189,9 +193,9 @@ export default function ModalContent({
       } else {
         toast.error(`更新失败: ${result.message}`)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('更新游戏分类失败', err)
-      toast.error(`更新失败: ${err?.message ?? String(err)}`)
+      toast.error(`更新失败: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 
@@ -206,8 +210,8 @@ export default function ModalContent({
       setSize(calculatedSize)
       setShouldRecalculateSize(true)
       toast.success('游戏大小计算完成')
-    } catch (err: any) {
-      toast.error(`计算失败: ${err?.message ?? String(err)}`)
+    } catch (err: unknown) {
+      toast.error(`计算失败: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 
@@ -235,31 +239,36 @@ export default function ModalContent({
       }
 
       // 然后创建新版本
-      const inserted: any = await window.api.updateGameVersion(
+      const inserted = (await window.api.updateGameVersion(
         gameId,
         updateType,
         updateSummary,
         gameSizeToSubmit
-      )
+      )) as {
+        id?: number
+        version?: string
+        summary?: string
+        created_at?: number
+      }
 
       // 插入到本地版本列表（前端使用的字段名与后端可能不同，做映射）
       const newVersion: GameVersion = {
         id: inserted.id || Date.now(),
         game_id: gameId,
-        version: inserted.version || `${inserted.version}`,
+        version: inserted.version || String(inserted.version ?? ''),
         description: inserted.summary || updateSummary,
         release_date: Date.now(),
         created_at: inserted.created_at ? inserted.created_at * 1000 : Date.now()
-      } as any
+      }
 
       // 重新拉取所有版本并刷新游戏列表
       await loadVersions()
       onRefresh()
       toast.success(`已创建新版本 ${newVersion.version}，游戏路径已更新`)
       setIsUpdateModalOpen(false)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('更新版本失败', err)
-      toast.error(`更新失败: ${err?.message ?? String(err)}`)
+      toast.error(`更新失败: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
       setIsUpdating(false)
     }

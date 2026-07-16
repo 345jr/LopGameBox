@@ -24,12 +24,11 @@ const api = {
     })
   },
   //移除计时器监听器
-  offTimerUpdate: (callback: (_event: any, elapsedTime: number) => void) =>
+  offTimerUpdate: (callback: (...args: unknown[]) => void) =>
     ipcRenderer.removeListener('timer:update', callback),
   //移除计时器监听器
-  offTimerStopped: (
-    callback: (_event: any, result: { code: number; finalElapsedTime: number }) => void
-  ) => ipcRenderer.removeListener('timer:stopped', callback),
+  offTimerStopped: (callback: (...args: unknown[]) => void) =>
+    ipcRenderer.removeListener('timer:stopped', callback),
 
   //数据库操作
   getAllGames: () => ipcRenderer.invoke('db:getAllGames'),
@@ -237,7 +236,15 @@ const api = {
     ipcRenderer.invoke('window:openDevTools')
   },
   //获取拖拽的临时路径
-  getTempDrop: (payload: any) => ipcRenderer.invoke('op:getTempDrop', payload)
+  getTempDrop: (payload: {
+    files?: Array<{
+      name?: string
+      type?: string
+      size?: number
+      path?: string
+      buffer?: Uint8Array
+    }>
+  }) => ipcRenderer.invoke('op:getTempDrop', payload)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

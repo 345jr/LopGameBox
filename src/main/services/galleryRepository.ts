@@ -81,7 +81,8 @@ export class GalleryRepository {
    * @param id 快照ID
    */
   public getSnapshotAlt(id: number) {
-    const result: any = this.db.prepare('SELECT alt FROM game_gallery WHERE id = ?').get(id)
+    const result = this.db.prepare('SELECT alt FROM game_gallery WHERE id = ?').get(id) as
+      { alt: string | null } | undefined
     return result?.alt || null
   }
 
@@ -185,15 +186,17 @@ export class GalleryRepository {
    * @param gameId 游戏ID
    */
   public getAchievementStats(gameId: number) {
-    const result: any = this.db
+    const result = this.db
       .prepare(
         'SELECT COUNT(*) as total, SUM(is_completed) as completed FROM game_achievements WHERE game_id = ?'
       )
-      .get(gameId)
+      .get(gameId) as { total: number; completed: number | null } | undefined
+    const total = result?.total ?? 0
+    const completed = result?.completed || 0
     return {
-      total: result.total,
-      completed: result.completed || 0,
-      completionRate: result.total > 0 ? ((result.completed || 0) / result.total) * 100 : 0
+      total,
+      completed,
+      completionRate: total > 0 ? (completed / total) * 100 : 0
     }
   }
 }

@@ -21,7 +21,7 @@ export class BackupService {
     const backupPath = path.join(backupDir, `backup-${Date.now()}.db`)
 
     try {
-      await (this.db as any).backup(backupPath)
+      await this.db.backup(backupPath)
       console.log('数据库备份成功:', backupPath)
       return backupPath
     } catch (err) {

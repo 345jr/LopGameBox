@@ -156,8 +156,10 @@ export class DatabaseManager {
     `)
 
     // 检查并添加 game_mode 列
-    const columns = this.dbInstance.prepare('PRAGMA table_info(game_logs)').all()
-    const hasGameModeColumn = columns.some((col: any) => col.name === 'game_mode')
+    const columns = this.dbInstance.prepare('PRAGMA table_info(game_logs)').all() as {
+      name: string
+    }[]
+    const hasGameModeColumn = columns.some((col) => col.name === 'game_mode')
 
     if (!hasGameModeColumn) {
       this.dbInstance.exec(`

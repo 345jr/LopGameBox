@@ -179,9 +179,10 @@ const GameCards = () => {
       })
       toast.success(`${defaultName} 已添加`)
       refetch()
-    } catch (error: any) {
-      console.log(`${error.message}`)
-      toast.error(`添加游戏失败: ${error.message}`)
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error)
+      console.log(message)
+      toast.error(`添加游戏失败: ${message}`)
     }
   }
 

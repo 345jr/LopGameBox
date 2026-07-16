@@ -1,15 +1,24 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 
+type PieTooltipProps = {
+  active?: boolean
+  payload?: Array<{
+    name?: string
+    value?: number
+    payload?: { color?: string }
+  }>
+}
+
 // 饼图自定义提示框
-const PieTooltip = ({ active, payload }: any) => {
+const PieTooltip = ({ active, payload }: PieTooltipProps) => {
   if (active && payload && payload.length) {
     const data = payload[0]
     return (
       <div className="max-w-32 rounded border border-gray-300 bg-white p-2 text-sm shadow-md">
-        <p className={`font-medium`} style={{ color: data.payload.color }}>
+        <p className={`font-medium`} style={{ color: data.payload?.color }}>
           {data.name}
         </p>
-        <p className="text-xs">{`${data.value.toFixed(2)}小时`}</p>
+        <p className="text-xs">{`${(data.value ?? 0).toFixed(2)}小时`}</p>
       </div>
     )
   }
@@ -19,8 +28,22 @@ const PieTooltip = ({ active, payload }: any) => {
 // 饼图颜色配置
 const PIE_COLORS = ['#4ade80', '#facc15', '#60a5fa', '#f472b6']
 
+type PieLabelProps = {
+  cx?: number
+  cy?: number
+  midAngle?: number
+  outerRadius?: number
+  percent?: number
+}
+
 // 自定义饼图标签渲染函数
-const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, percent }: any) => {
+const renderCustomizedLabel = ({
+  cx = 0,
+  cy = 0,
+  midAngle = 0,
+  outerRadius = 0,
+  percent = 0
+}: PieLabelProps) => {
   // 如果小于8%，则不显示标签
   if (Number((percent * 100).toFixed(1)) < 8) return null
   const RADIAN = Math.PI / 180

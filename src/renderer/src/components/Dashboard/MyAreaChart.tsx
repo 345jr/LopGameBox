@@ -11,21 +11,31 @@ import {
   Area
 } from 'recharts'
 
+type AreaTooltipProps = {
+  active?: boolean
+  label?: string
+  payload?: Array<{
+    color?: string
+    dataKey?: string | number
+    value?: number
+    payload?: { 总时长?: number }
+  }>
+}
+
 // 自定义提示框组件
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: AreaTooltipProps) => {
   if (active && payload && payload.length) {
-    // console.log(payload);
     return (
       <div className="max-w-48 rounded border border-gray-300 bg-white p-2 text-sm shadow-md">
         <p className="mb-1 font-medium">{`${label}`}</p>
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index) => (
           <div key={index}>
             <p style={{ color: entry.color }} className="text-xs">
               {`${entry.dataKey}: ${entry.value}小时`}
             </p>
           </div>
         ))}
-        <p>当日总时长 :{payload[0].payload.总时长}小时</p>
+        <p>当日总时长 :{payload[0].payload?.总时长}小时</p>
       </div>
     )
   }

@@ -49,7 +49,7 @@ const BannerSelectContent = ({
   // 处理图片上传逻辑
   const handleBannerUpload = async (imagePath: string) => {
     const targetPath = 'banner/'
-    let oldFilePath = (await window.api.getBanners())?.find((i: any) => i.game_id === gameId)
+    let oldFilePath = (await window.api.getBanners())?.find((i) => i.game_id === gameId)
       ?.relative_path as string
 
     if (oldFilePath === undefined) oldFilePath = 'skip'
@@ -116,7 +116,7 @@ const BannerSelectContent = ({
       // 将每个 File 序列化为普通对象
       const serializedFiles = await Promise.all(
         filesArray.map(async (f) => {
-          const filePath = (f as any).path as string | undefined
+          const filePath = (f as File & { path?: string }).path
           let buffer: Uint8Array | undefined = undefined
           try {
             const ab = await f.arrayBuffer()
@@ -171,7 +171,7 @@ const BannerSelectContent = ({
 
     try {
       setIsLoading(true)
-      let oldFilePath = (await window.api.getBanners())?.find((i: any) => i.game_id === gameId)
+      let oldFilePath = (await window.api.getBanners())?.find((i) => i.game_id === gameId)
         ?.relative_path as string
       if (oldFilePath === undefined) oldFilePath = 'skip'
 

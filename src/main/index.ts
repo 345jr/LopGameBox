@@ -131,9 +131,9 @@ async function handleScreenshot(): Promise<void> {
     // 通知前端截图成功
     mainWindow?.webContents.send('screenshot:success', { path: filepath, filename })
 
-    console.log(`Screenshot saved: ${filepath}`)
+    console.log('[Screenshot] saved:', filepath)
   } catch (error) {
-    console.error('Screenshot failed:', error)
+    console.error('[Screenshot] failed:', error)
     mainWindow?.webContents.send('screenshot:error', { error: String(error) })
   }
 }
@@ -145,9 +145,9 @@ function registerScreenshotShortcut(): void {
       handleScreenshot()
     })
     screenshotShortcutEnabled = true
-    console.log('Screenshot shortcut (F12) registered')
+    console.log('[Screenshot] shortcut F12 registered')
   } catch (error) {
-    console.error('Failed to register shortcut:', error)
+    console.error('[Screenshot] failed to register shortcut:', error)
   }
 }
 
@@ -156,9 +156,9 @@ function unregisterScreenshotShortcut(): void {
   try {
     globalShortcut.unregister('F12')
     screenshotShortcutEnabled = false
-    console.log('Screenshot shortcut (F12) unregistered')
+    console.log('[Screenshot] shortcut F12 unregistered')
   } catch (error) {
-    console.error('Failed to unregister shortcut:', error)
+    console.error('[Screenshot] failed to unregister shortcut:', error)
   }
 }
 
@@ -240,7 +240,7 @@ app.whenReady().then(() => {
         return new Promise((resolve) => {
           // 监听进程的 'error' 事件
           childProcess?.on('error', (err) => {
-            console.error(`error : ${errorMessage(err)}`)
+            console.error('[IPC] error:', errorMessage(err))
             mainWindow?.webContents.send('timer:stopped', {
               code: -1,
               finalElapsedTime: 0,
@@ -331,7 +331,7 @@ app.whenReady().then(() => {
                       break
                   }
                 } catch (error) {
-                  console.error(`提醒发生错误: ${error}`)
+                  console.error('[Rest] reminder error:', error)
                 }
                 //宽限期
               } else if (gracePeriod) {
@@ -374,7 +374,7 @@ app.whenReady().then(() => {
 
           // 监听进程的 'close' 事件
           childProcess?.on('close', (code) => {
-            console.log(`Game exit : ${code}`)
+            console.log('[Game] process exit code:', code)
             if (timerInterval) {
               clearInterval(timerInterval)
               if (gracePeriodTimeout) clearTimeout(gracePeriodTimeout)
@@ -396,7 +396,7 @@ app.whenReady().then(() => {
           })
         })
       } catch (err: unknown) {
-        console.error(`error : ${errorMessage(err)}`)
+        console.error('[IPC] error:', errorMessage(err))
         // 清理状态
         childProcess = null
         timerInterval = null
@@ -420,7 +420,7 @@ app.whenReady().then(() => {
     isResting = resting
     if (resting == false) isLoged = false
     gracePeriod = false
-    console.log(`this is resting: ${isResting}`)
+    console.log('[Rest] isResting:', isResting)
   })
 
   //查询全部游戏
@@ -459,7 +459,7 @@ app.whenReady().then(() => {
       gameService.updateGameSize(id, disk_size)
       return disk_size
     } catch (error: unknown) {
-      console.log(`获取游戏大小发生错误:${errorMessage(error)}`)
+      console.error('[Size] get game size failed:', errorMessage(error))
       return 0
     }
   })
@@ -469,7 +469,7 @@ app.whenReady().then(() => {
       const folderSize = await getFolderSize(folderPath)
       return folderSize
     } catch (error: unknown) {
-      console.log(`获取文件夹大小发生错误:${errorMessage(error)}`)
+      console.error('[Size] get folder size failed:', errorMessage(error))
       return 0
     }
   })
@@ -503,18 +503,18 @@ app.whenReady().then(() => {
               ? String((err as { code?: unknown }).code)
               : undefined
           if (code && code !== 'ENOENT') {
-            console.warn(`删除旧封面时发生非致命错误: ${errorMessage(err)}`)
+            console.warn('[Banner] non-fatal delete old cover:', errorMessage(err))
           }
         }
       }
       // 复制文件到目标文件夹（不做格式转换，保留原扩展名）
       await fs.copyFile(origin, imageName)
-      console.log(`File Copy Success`)
+      console.log('[File] copy success')
       // 返回 web-friendly 的相对路径（使用 forward slash）
       const relativePath = path.posix.join(target.replace(/\\+/g, '/'), gameNameExtension)
       return { relativePath }
     } catch (error: unknown) {
-      console.log(`复制错误:${error}`)
+      console.error('[File] copy failed:', error)
       const defaultRel = path.posix.join(target.replace(/\\+/g, '/'), 'default.jpg')
       return { relativePath: defaultRel }
     }
@@ -535,7 +535,7 @@ app.whenReady().then(() => {
             return { success: false, error: errorMessage(err) }
           }
         } else {
-          console.log('没有可用缓冲区')
+          console.warn('[Clipboard] no image buffer available')
           return { success: false, error: '没有可用的路径或缓冲区' }
         }
       }
@@ -550,7 +550,7 @@ app.whenReady().then(() => {
     try {
       return gameService.setGameBanner(gameId, imagePath, relativePath)
     } catch (error: unknown) {
-      console.error(`发生异常: ${errorMessage(error)}`)
+      console.error('[Clipboard] exception:', errorMessage(error))
     }
     return null
   })
@@ -567,7 +567,7 @@ app.whenReady().then(() => {
     try {
       return gameService.setGameSnapshot(gameId, imagePath, relativePath)
     } catch (error: unknown) {
-      console.log(`发生异常: ${errorMessage(error)}`)
+      console.error('[IPC] exception:', errorMessage(error))
       return null
     }
   })
@@ -576,7 +576,7 @@ app.whenReady().then(() => {
     try {
       return gameService.delectSnapshot(id)
     } catch (error: unknown) {
-      console.log(`删除记录发生错误:${errorMessage(error)}`)
+      console.error('[Gallery] delete record failed:', errorMessage(error))
     }
   })
   //更新快照描述
@@ -584,7 +584,7 @@ app.whenReady().then(() => {
     try {
       return gameService.updateSnapshotAlt(id, alt)
     } catch (error: unknown) {
-      console.log(`更新快照描述发生错误:${errorMessage(error)}`)
+      console.error('[Gallery] update alt failed:', errorMessage(error))
     }
   })
   //删除快照描述
@@ -592,7 +592,7 @@ app.whenReady().then(() => {
     try {
       return gameService.deleteSnapshotAlt(id)
     } catch (error: unknown) {
-      console.log(`删除快照描述发生错误:${errorMessage(error)}`)
+      console.error('[Gallery] delete alt failed:', errorMessage(error))
     }
   })
   //获取快照描述
@@ -600,7 +600,7 @@ app.whenReady().then(() => {
     try {
       return gameService.getSnapshotAlt(id)
     } catch (error: unknown) {
-      console.log(`获取快照描述发生错误:${errorMessage(error)}`)
+      console.error('[Gallery] get alt failed:', errorMessage(error))
       return null
     }
   })
@@ -612,7 +612,7 @@ app.whenReady().then(() => {
     try {
       return gameService.addGameLink(gameId, url, title, description, icon)
     } catch (error: unknown) {
-      console.log(`添加游戏外链发生错误:${errorMessage(error)}`)
+      console.error('[Link] add failed:', errorMessage(error))
       throw error
     }
   })
@@ -622,7 +622,7 @@ app.whenReady().then(() => {
     try {
       return gameService.getGameLinks(gameId)
     } catch (error: unknown) {
-      console.log(`获取游戏外链列表发生错误:${errorMessage(error)}`)
+      console.error('[Link] list failed:', errorMessage(error))
       return []
     }
   })
@@ -632,7 +632,7 @@ app.whenReady().then(() => {
     try {
       return gameService.deleteGameLink(linkId)
     } catch (error: unknown) {
-      console.log(`删除游戏外链发生错误:${errorMessage(error)}`)
+      console.error('[Link] delete failed:', errorMessage(error))
       throw error
     }
   })
@@ -642,7 +642,7 @@ app.whenReady().then(() => {
     try {
       return gameService.updateGameLink(linkId, title, url)
     } catch (error: unknown) {
-      console.log(`更新游戏外链发生错误:${errorMessage(error)}`)
+      console.error('[Link] update failed:', errorMessage(error))
       throw error
     }
   })
@@ -652,9 +652,9 @@ app.whenReady().then(() => {
     try {
       const path = getDelectPath(relative_path)
       await fs.unlink(path)
-      console.log(`删除成功`)
+      console.log('[File] deleted')
     } catch (error: unknown) {
-      console.log(`删除文件发生错误:${errorMessage(error)}`)
+      console.error('[File] delete failed:', errorMessage(error))
     }
   })
   //修改游戏名
@@ -662,7 +662,7 @@ app.whenReady().then(() => {
     try {
       gameService.modifyGameName(id, newName)
     } catch (error) {
-      console.log(`修改游戏名发生错误${error}`)
+      console.error('[Game] rename failed:', error)
     }
   })
   //打开文件夹
@@ -670,7 +670,7 @@ app.whenReady().then(() => {
     try {
       shell.showItemInFolder(folderPath)
     } catch (error: unknown) {
-      console.log(`打开文件夹发生错误:${errorMessage(error)}`)
+      console.error('[Folder] open failed:', errorMessage(error))
     }
   })
   //模糊搜索
@@ -678,7 +678,7 @@ app.whenReady().then(() => {
     try {
       return gameService.searchGames(keyword)
     } catch (error: unknown) {
-      console.log(`搜索发生错误:${errorMessage(error)}`)
+      console.error('[Search] failed:', errorMessage(error))
       return []
     }
   })
@@ -728,7 +728,7 @@ app.whenReady().then(() => {
       mainWindow?.webContents.openDevTools({ mode: 'detach' })
       return { success: true }
     } catch (err: unknown) {
-      console.error('打开 DevTools 失败:', err)
+      console.error('[DevTools] open failed:', err)
       return { success: false, error: errorMessage(err) }
     }
   })
@@ -776,7 +776,7 @@ app.whenReady().then(() => {
       const backupPath = await gameService.backupDatabase()
       return { success: true, path: backupPath }
     } catch (err: unknown) {
-      console.error('本地备份失败:', err)
+      console.error('[Backup] local backup failed:', err)
       return { success: false, error: errorMessage(err) }
     }
   })
@@ -787,7 +787,7 @@ app.whenReady().then(() => {
       try {
         return gameService.updateGameVersion(gameId, type, summary, fileSize)
       } catch (err: unknown) {
-        console.error('更新游戏版本失败:', err)
+        console.error('[Version] update failed:', err)
         throw err
       }
     }
@@ -798,7 +798,7 @@ app.whenReady().then(() => {
     try {
       return gameService.getVersionSummary(versionId)
     } catch (err: unknown) {
-      console.error('查询版本概述失败:', err)
+      console.error('[Version] get overview failed:', err)
       return null
     }
   })
@@ -807,7 +807,7 @@ app.whenReady().then(() => {
     try {
       return gameService.getVersionsByGame(gameId)
     } catch (err: unknown) {
-      console.error('查询游戏版本列表失败:', err)
+      console.error('[Version] list failed:', err)
       return []
     }
   })
@@ -822,7 +822,7 @@ app.whenReady().then(() => {
       gameService.updateGamePath(gameId, newPath)
       return { success: true, message: '路径更新成功' }
     } catch (err: unknown) {
-      console.error('更新游戏路径失败:', err)
+      console.error('[Game] update path failed:', err)
       return { success: false, message: errorMessage(err) }
     }
   })
@@ -832,7 +832,7 @@ app.whenReady().then(() => {
       gameService.updateGameCategory(gameId, category)
       return { success: true, message: '分类更新成功' }
     } catch (err: unknown) {
-      console.error('更新游戏分类失败:', err)
+      console.error('[Game] update category failed:', err)
       return { success: false, message: errorMessage(err) }
     }
   })
@@ -844,7 +844,7 @@ app.whenReady().then(() => {
         gameService.updateVersionDescription(versionId, newDescription)
         return { success: true, message: '版本描述更新成功' }
       } catch (err: unknown) {
-        console.error('更新版本描述失败:', err)
+        console.error('[Version] update description failed:', err)
         return { success: false, message: errorMessage(err) }
       }
     }
@@ -865,7 +865,7 @@ app.whenReady().then(() => {
       try {
         return gameService.createAchievement(gameId, achievementName, achievementType, description)
       } catch (err: unknown) {
-        console.error('创建成就失败:', err)
+        console.error('[Achievement] create failed:', err)
         throw err
       }
     }
@@ -876,7 +876,7 @@ app.whenReady().then(() => {
     try {
       gameService.deleteAchievement(achievementId)
     } catch (err: unknown) {
-      console.error('删除成就失败:', err)
+      console.error('[Achievement] delete failed:', err)
       throw err
     }
   })
@@ -888,7 +888,7 @@ app.whenReady().then(() => {
       try {
         gameService.toggleAchievementStatus(achievementId, isCompleted)
       } catch (err: unknown) {
-        console.error('切换成就状态失败:', err)
+        console.error('[Achievement] toggle status failed:', err)
         throw err
       }
     }
@@ -899,7 +899,7 @@ app.whenReady().then(() => {
     try {
       return gameService.getGameAchievements(gameId)
     } catch (err: unknown) {
-      console.error('获取游戏成就失败:', err)
+      console.error('[Achievement] list failed:', err)
       return []
     }
   })
@@ -909,7 +909,7 @@ app.whenReady().then(() => {
     try {
       return gameService.getCompletedAchievements(gameId)
     } catch (err: unknown) {
-      console.error('获取已完成成就失败:', err)
+      console.error('[Achievement] list completed failed:', err)
       return []
     }
   })
@@ -919,7 +919,7 @@ app.whenReady().then(() => {
     try {
       return gameService.getUncompletedAchievements(gameId)
     } catch (err: unknown) {
-      console.error('获取未完成成就失败:', err)
+      console.error('[Achievement] list incomplete failed:', err)
       return []
     }
   })
@@ -929,7 +929,7 @@ app.whenReady().then(() => {
     try {
       return gameService.getAchievementStats(gameId)
     } catch (err: unknown) {
-      console.error('获取成就统计失败:', err)
+      console.error('[Achievement] stats failed:', err)
       return { total: 0, completed: 0, completionRate: 0 }
     }
   })
@@ -943,7 +943,7 @@ app.whenReady().then(() => {
       try {
         return gameService.setGameSavePath(gameId, savePath, fileSize)
       } catch (err: unknown) {
-        console.error('设置游戏主存档路径失败:', err)
+        console.error('[Save] set main path failed:', err)
         throw err
       }
     }
@@ -954,7 +954,7 @@ app.whenReady().then(() => {
     try {
       return gameService.getGameSavePath(gameId)
     } catch (err: unknown) {
-      console.error('获取游戏主存档路径失败:', err)
+      console.error('[Save] get main path failed:', err)
       return null
     }
   })
@@ -965,7 +965,7 @@ app.whenReady().then(() => {
       gameService.updateGameSavePath(gameId, savePath)
       return { success: true, message: '存档路径更新成功' }
     } catch (err: unknown) {
-      console.error('更新游戏主存档路径失败:', err)
+      console.error('[Save] update main path failed:', err)
       return { success: false, message: errorMessage(err) }
     }
   })
@@ -976,7 +976,7 @@ app.whenReady().then(() => {
       gameService.updateSavePathSize(gameId, fileSize)
       return { success: true, message: '存档大小更新成功' }
     } catch (err: unknown) {
-      console.error('更新主存档文件夹大小失败:', err)
+      console.error('[Save] update folder size failed:', err)
       return { success: false, message: errorMessage(err) }
     }
   })
@@ -987,7 +987,7 @@ app.whenReady().then(() => {
       gameService.deleteGameSavePath(gameId)
       return { success: true, message: '存档路径删除成功' }
     } catch (err: unknown) {
-      console.error('删除游戏主存档路径失败:', err)
+      console.error('[Save] delete main path failed:', err)
       return { success: false, message: errorMessage(err) }
     }
   })
@@ -1042,7 +1042,7 @@ app.whenReady().then(() => {
         fileSize
       }
     } catch (err: unknown) {
-      console.error('创建存档备份失败:', err)
+      console.error('[Save] create backup failed:', err)
       return { success: false, message: errorMessage(err) }
     }
   })
@@ -1053,7 +1053,7 @@ app.whenReady().then(() => {
       const backups = gameService.getSaveBackups(gameId)
       return backups
     } catch (err: unknown) {
-      console.error('获取备份列表失败:', err)
+      console.error('[Save] list backups failed:', err)
       return []
     }
   })
@@ -1101,7 +1101,7 @@ app.whenReady().then(() => {
         throw restoreErr
       }
     } catch (err: unknown) {
-      console.error('恢复存档备份失败:', err)
+      console.error('[Save] restore backup failed:', err)
       return { success: false, message: errorMessage(err) }
     }
   })
@@ -1123,7 +1123,7 @@ app.whenReady().then(() => {
 
       return { success: true, message: '备份删除成功' }
     } catch (err: unknown) {
-      console.error('删除存档备份失败:', err)
+      console.error('[Save] delete backup failed:', err)
       return { success: false, message: errorMessage(err) }
     }
   })

@@ -78,14 +78,14 @@ export class GameRepository {
   public modifyGameName(id: number, newName: string): void {
     const stmt = this.db.prepare(`UPDATE games SET game_name = ? WHERE id = ?`)
     stmt.run(newName, id)
-    console.log(`modify success!`)
+    console.log('[Game] name updated')
   }
 
   //重新计算游戏大小
   public updateGameSize(id: number, disk_size: number): void {
     const stmt = this.db.prepare(`UPDATE games SET disk_size = ? WHERE id = ?`)
     stmt.run(disk_size, id)
-    console.log('get disk_size success')
+    console.log('[Game] disk size updated')
   }
 
   //更新游戏路径
@@ -94,7 +94,7 @@ export class GameRepository {
       `UPDATE games SET launch_path = ?, updated_at = strftime('%s', 'now') WHERE id = ?`
     )
     stmt.run(newPath, id)
-    console.log('update game path success')
+    console.log('[Game] path updated')
   }
 
   //更新游戏分类
@@ -103,7 +103,7 @@ export class GameRepository {
       `UPDATE games SET category = ?, updated_at = strftime('%s', 'now') WHERE id = ?`
     )
     stmt.run(category, id)
-    console.log('update game category success')
+    console.log('[Game] category updated')
   }
 
   //通过ID查询游戏
@@ -204,7 +204,7 @@ export class GameRepository {
       `UPDATE game_versions SET summary = ?, updated_at = strftime('%s','now') WHERE id = ?`
     )
     stmt.run(newDescription, versionId)
-    console.log('update version description success')
+    console.log('[Game] version description updated')
   }
 
   // ==================== 外链管理相关方法 ====================

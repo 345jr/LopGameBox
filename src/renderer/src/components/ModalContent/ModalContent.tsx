@@ -44,7 +44,7 @@ export default function ModalContent({
       }))
       setGameVersions(mapped)
     } catch (err) {
-      console.error('加载版本列表失败', err)
+      console.error('[Version] load list failed:', err)
     }
   }
   // 加载游戏当前分类
@@ -58,7 +58,7 @@ export default function ModalContent({
         setCurrentCategory('all')
       }
     } catch (err) {
-      console.error('加载游戏分类失败', err)
+      console.error('[Game] load category failed:', err)
     }
   }
 
@@ -153,7 +153,7 @@ export default function ModalContent({
         setInfo(`更新失败: ${result.message}`)
       }
     } catch (err: unknown) {
-      console.error('保存版本描述失败', err)
+      console.error('[Version] save description failed:', err)
       setInfo(`保存失败: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
@@ -194,7 +194,7 @@ export default function ModalContent({
         toast.error(`更新失败: ${result.message}`)
       }
     } catch (err: unknown) {
-      console.error('更新游戏分类失败', err)
+      console.error('[Game] update category failed:', err)
       toast.error(`更新失败: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
@@ -267,7 +267,7 @@ export default function ModalContent({
       toast.success(`已创建新版本 ${newVersion.version}，游戏路径已更新`)
       setIsUpdateModalOpen(false)
     } catch (err: unknown) {
-      console.error('更新版本失败', err)
+      console.error('[Version] update failed:', err)
       toast.error(`更新失败: ${err instanceof Error ? err.message : String(err)}`)
     } finally {
       setIsUpdating(false)

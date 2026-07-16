@@ -15,14 +15,14 @@ export class DatabaseManager {
         ? path.join(app.getPath('userData'), 'gameData.db') // 生产环境：用户数据目录
         : path.join(process.cwd(), 'db/gameData.db') // 开发环境：项目目录
 
-      console.log('数据库路径:', dbPath)
+      console.log('[DB] path:', dbPath)
 
       // 生产环境下，确保数据库目录存在
       if (app.isPackaged) {
         const dbDir = path.dirname(dbPath)
         if (!fs.existsSync(dbDir)) {
           fs.mkdirSync(dbDir, { recursive: true })
-          console.log('创建数据库目录:', dbDir)
+          console.log('[DB] created directory:', dbDir)
         }
       }
 

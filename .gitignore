@@ -2,6 +2,7 @@ node_modules
 dist
 out
 db
+.vscode
 .DS_Store
 .eslintcache
 *.log*

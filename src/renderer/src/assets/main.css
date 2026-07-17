@@ -77,6 +77,30 @@ html {
   text-rendering: optimizeLegibility;
   /* Explicit default weight so body uses Regular, not inherited medium */
   font-weight: 400;
+  /* Firefox / 标准属性：拇指色更淡，轨道透明 */
+  scrollbar-width: thin;
+  scrollbar-color: #d1cfc9 transparent;
+}
+
+/* Chromium / Electron：全局滚动条拇指色 */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #d1cfc9;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #c4c1b8;
 }
 
 @layer components {

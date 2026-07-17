@@ -122,11 +122,10 @@ const GameCards = () => {
   const setSelectedCategory = useGameStore((state) => state.setSelectedCategory)
   // 分类菜单展开状态
   const [isCategoryOpen, setIsCategoryOpen] = useState(false)
-  // 控制分类菜单是否渲染在 DOM 中
+  // 控制分类菜单是否渲染在 DOM 中（收起动画结束后再卸载）
   const [shouldRenderCategories, setShouldRenderCategories] = useState(false)
-  // 分类按钮的引用
-  const categoryBtnRef = useRef<HTMLButtonElement>(null)
   const categoryItemsRef = useRef<HTMLButtonElement[]>([])
+  const categoryAnimRef = useRef<gsap.core.Tween | null>(null)
   //搜索关键词
   const keyword = useGameStore((state) => state.searchKeyword)
   // #endregion
@@ -191,52 +190,54 @@ const GameCards = () => {
     window.api.setResting(true)
   }
 
-  // GSAP 动画控制 — 分类菜单
-  useGSAP(() => {
+  // 打开时先挂载分类项，再在下一帧做向左展开动画
+  useEffect(() => {
     if (isCategoryOpen) {
-      // 展开动画 - 依次弹出
       setShouldRenderCategories(true)
-      gsap.fromTo(
-        categoryItemsRef.current,
-        {
-          opacity: 0,
-          y: -20,
-          scale: 0.8
-        },
+    }
+  }, [isCategoryOpen])
+
+  useGSAP(() => {
+    const items = categoryItemsRef.current.filter(Boolean)
+    if (!items.length) return
+
+    categoryAnimRef.current?.kill()
+
+    if (isCategoryOpen && shouldRenderCategories) {
+      // 从分类按钮一侧（右）向左依次展开
+      categoryAnimRef.current = gsap.fromTo(
+        items,
+        { opacity: 0, x: 28, scale: 0.88 },
         {
           opacity: 1,
-          y: 0,
+          x: 0,
           scale: 1,
-          duration: 0.3,
-          stagger: 0.1, // 每个按钮延迟 0.1 秒
-          ease: 'back.out(1.7)'
+          duration: 0.32,
+          stagger: { each: 0.07, from: 'end' },
+          ease: 'back.out(1.6)'
         }
       )
-    } else if (shouldRenderCategories) {
-      // 收起动画 - 依次收起
-      gsap.to(categoryItemsRef.current, {
+    } else if (!isCategoryOpen && shouldRenderCategories) {
+      // 从左向右依次收回（靠近按钮的先收）
+      categoryAnimRef.current = gsap.to(items, {
         opacity: 0,
-        y: -20,
-        scale: 0.8,
+        x: 20,
+        scale: 0.9,
         duration: 0.2,
-        stagger: 0.05,
+        stagger: { each: 0.05, from: 'end' },
         ease: 'power2.in',
-        onComplete: () => {
-          // 动画完成后再从 DOM 中移除
-          setShouldRenderCategories(false)
-        }
+        onComplete: () => setShouldRenderCategories(false)
       })
     }
   }, [isCategoryOpen, shouldRenderCategories])
 
-  // 切换分类菜单展开状态
   const toggleCategory = () => {
-    setIsCategoryOpen(!isCategoryOpen)
+    setIsCategoryOpen((open) => !open)
   }
 
-  // 处理分类选择
   const handleCategoryChange = (category: 'all' | 'playing' | 'archived') => {
     setSelectedCategory(category)
+    setIsCategoryOpen(false)
   }
   // 获取封面图路径
   const getSrc = (game: Game) => {
@@ -310,85 +311,72 @@ const GameCards = () => {
             <FaTools className="text-lg text-gray-700" />
           </button>
         </div>
-        {/* 回到顶部按钮 */}
-        <div className="fixed right-4 bottom-8 z-50 rounded-2xl border border-gray-300/50 bg-white px-2 py-2 shadow-md">
+        {/* 右下角工具条：分类（向左展开） | 添加游戏 | 回到顶部 */}
+        <div className="fixed right-4 bottom-8 z-50 flex flex-row items-center gap-2">
+          {/* 分类选项：在「游戏分类」左侧，向左展开 */}
+          {shouldRenderCategories && (
+            <div className="flex flex-row items-center gap-2">
+              {(
+                [
+                  { key: 'playing', label: '攻略中' },
+                  { key: 'archived', label: '已归档' },
+                  { key: 'all', label: '全部' }
+                ] as const
+              ).map((item, index) => (
+                <button
+                  key={item.key}
+                  ref={(el) => {
+                    if (el) categoryItemsRef.current[index] = el
+                  }}
+                  onClick={() => handleCategoryChange(item.key)}
+                  className={`cursor-pointer rounded-2xl border border-gray-300/50 px-3 py-2 text-sm shadow-md transition-colors ${
+                    selectedCategory === item.key
+                      ? 'bg-blue-100 text-gray-800 hover:bg-blue-200'
+                      : 'bg-white text-gray-700 hover:bg-blue-100'
+                  }`}
+                  style={{ opacity: 0 }}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
+
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex cursor-pointer flex-row items-center"
-          >
-            <FaArrowUp className="text-3xl text-gray-700" />
-          </button>
-        </div>
-        {/* 游戏分类区域 */}
-        <div className="fixed top-32 right-4 z-50">
-          {/* 添加游戏按钮 */}
-          <button
-            onClick={handleAddGame}
+            onClick={toggleCategory}
             onMouseEnter={(e) => hoverScale(e.currentTarget, 1.05)}
             onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
-            className="mb-2 flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-gray-500 bg-white px-4 py-2 text-sm shadow-md transition-all hover:bg-blue-200"
-          >
-            <VscAdd className="text-lg" />
-            <span>添加游戏</span>
-          </button>
-          {/* 主按钮 - 显示分类 */}
-          <button
-            ref={categoryBtnRef}
-            onClick={toggleCategory}
-            onMouseEnter={(e) => hoverScale(e.currentTarget, 1.03)}
-            onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
-            className="mb-2 flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-gray-500 bg-white px-4 py-2 text-sm shadow-md transition-all hover:bg-blue-200"
+            className={`flex cursor-pointer items-center gap-2 rounded-2xl border border-gray-300/50 px-3 py-2 text-sm shadow-md transition-colors ${
+              isCategoryOpen
+                ? 'bg-blue-100 text-gray-800 hover:bg-blue-200'
+                : 'bg-white text-gray-700 hover:bg-blue-100'
+            }`}
+            title="游戏分类"
           >
             <FaList className="text-lg" />
             <span>游戏分类</span>
           </button>
-          {/* 分类选项容器 */}
-          {shouldRenderCategories && (
-            <div className="flex flex-col gap-2">
-              <button
-                ref={(el) => {
-                  if (el) categoryItemsRef.current[0] = el
-                }}
-                onClick={() => handleCategoryChange('playing')}
-                className={`relative cursor-pointer overflow-hidden rounded-md border-2 border-gray-500 px-4 py-2 text-sm shadow-md transition-colors ${
-                  selectedCategory === 'playing'
-                    ? 'bg-blue-100 hover:bg-blue-200'
-                    : 'bg-white hover:bg-blue-200'
-                }`}
-                style={{ opacity: 0 }}
-              >
-                攻略中
-              </button>
-              <button
-                ref={(el) => {
-                  if (el) categoryItemsRef.current[1] = el
-                }}
-                onClick={() => handleCategoryChange('archived')}
-                className={`relative cursor-pointer overflow-hidden rounded-md border-2 border-gray-500 px-4 py-2 text-sm shadow-md transition-colors ${
-                  selectedCategory === 'archived'
-                    ? 'bg-blue-100 hover:bg-blue-200'
-                    : 'bg-white hover:bg-blue-200'
-                }`}
-                style={{ opacity: 0 }}
-              >
-                已归档
-              </button>
-              <button
-                ref={(el) => {
-                  if (el) categoryItemsRef.current[2] = el
-                }}
-                onClick={() => handleCategoryChange('all')}
-                className={`relative cursor-pointer overflow-hidden rounded-md border-2 border-gray-500 px-4 py-2 text-sm shadow-md transition-colors ${
-                  selectedCategory === 'all'
-                    ? 'bg-blue-100 hover:bg-blue-200'
-                    : 'bg-white hover:bg-blue-200'
-                }`}
-                style={{ opacity: 0 }}
-              >
-                全部
-              </button>
-            </div>
-          )}
+
+          <button
+            onClick={handleAddGame}
+            onMouseEnter={(e) => hoverScale(e.currentTarget, 1.05)}
+            onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
+            className="flex cursor-pointer items-center gap-2 rounded-2xl border border-gray-300/50 bg-white px-3 py-2 text-sm text-gray-700 shadow-md transition-colors hover:bg-blue-100"
+            title="添加游戏"
+          >
+            <VscAdd className="text-lg" />
+            <span>添加游戏</span>
+          </button>
+
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onMouseEnter={(e) => hoverScale(e.currentTarget, 1.08)}
+            onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
+            className="flex cursor-pointer items-center justify-center rounded-2xl border border-gray-300/50 bg-white px-2.5 py-2 shadow-md"
+            title="回到顶部"
+          >
+            <FaArrowUp className="text-2xl text-gray-700" />
+          </button>
         </div>
         {/* 休息模态框 */}
         {showRestTimeModal &&

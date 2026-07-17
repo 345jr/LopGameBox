@@ -317,6 +317,39 @@ declare global {
         selectedRelativePath: string | null
         maxCount: number
       }>
+
+      // ==================== 设置：应用背景 ====================
+      getAppBackgrounds: () => Promise<{
+        items: Array<{ id: string; relativePath: string; createdAt: number }>
+        selectedId: string | null
+        selectedRelativePath: string | null
+        maxCount: number
+      }>
+      addAppBackground: () => Promise<
+        | { canceled: true }
+        | {
+            canceled: false
+            state: {
+              items: Array<{ id: string; relativePath: string; createdAt: number }>
+              selectedId: string | null
+              selectedRelativePath: string | null
+              maxCount: number
+            }
+          }
+      >
+      /** id 为 null 时使用内置默认背景 */
+      selectAppBackground: (id: string | null) => Promise<{
+        items: Array<{ id: string; relativePath: string; createdAt: number }>
+        selectedId: string | null
+        selectedRelativePath: string | null
+        maxCount: number
+      }>
+      deleteAppBackground: (id: string) => Promise<{
+        items: Array<{ id: string; relativePath: string; createdAt: number }>
+        selectedId: string | null
+        selectedRelativePath: string | null
+        maxCount: number
+      }>
     }
   }
 }

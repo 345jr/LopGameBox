@@ -10,3 +10,13 @@ export const useDefaultBanners = (enabled: boolean = true) => {
     retry: false
   })
 }
+
+export const useAppBackgrounds = (enabled: boolean = true) => {
+  return useQuery({
+    queryKey: queryKeys.appBackgrounds(),
+    queryFn: async () => window.api.getAppBackgrounds(),
+    enabled,
+    staleTime: 30_000,
+    retry: false
+  })
+}

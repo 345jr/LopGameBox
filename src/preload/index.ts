@@ -250,7 +250,14 @@ const api = {
   getDefaultBanners: () => ipcRenderer.invoke('settings:getDefaultBanners'),
   addDefaultBanner: () => ipcRenderer.invoke('settings:addDefaultBanner'),
   selectDefaultBanner: (id: string) => ipcRenderer.invoke('settings:selectDefaultBanner', id),
-  deleteDefaultBanner: (id: string) => ipcRenderer.invoke('settings:deleteDefaultBanner', id)
+  deleteDefaultBanner: (id: string) => ipcRenderer.invoke('settings:deleteDefaultBanner', id),
+
+  // ==================== 设置：应用背景 ====================
+  getAppBackgrounds: () => ipcRenderer.invoke('settings:getAppBackgrounds'),
+  addAppBackground: () => ipcRenderer.invoke('settings:addAppBackground'),
+  selectAppBackground: (id: string | null) =>
+    ipcRenderer.invoke('settings:selectAppBackground', id),
+  deleteAppBackground: (id: string) => ipcRenderer.invoke('settings:deleteAppBackground', id)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

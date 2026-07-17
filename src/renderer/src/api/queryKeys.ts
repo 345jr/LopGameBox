@@ -35,5 +35,7 @@ export const queryKeys = {
   // 存档备份列表
   saveBackups: (gameId: number) => ['save-backups', gameId] as const,
   // 设置：默认游戏封面库
-  defaultBanners: () => ['default-banners'] as const
+  defaultBanners: () => ['default-banners'] as const,
+  // 设置：应用背景图库
+  appBackgrounds: () => ['app-backgrounds'] as const
 }

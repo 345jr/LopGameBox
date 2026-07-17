@@ -5,9 +5,27 @@ import {
   getDefaultBannerState,
   selectDefaultBanner
 } from '../services/defaultBannerService'
+import {
+  addAppBackground,
+  deleteAppBackground,
+  getAppBackgroundState,
+  selectAppBackground
+} from '../services/appBackgroundService'
 import { errorMessage } from '../util/errorMessage'
 
+const IMAGE_FILTERS = [{ name: '图片', extensions: ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'] }]
+
+async function pickImageFile(): Promise<string | null> {
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    filters: IMAGE_FILTERS
+  })
+  if (canceled || !filePaths[0]) return null
+  return filePaths[0]
+}
+
 export function registerSettingsIpc(): void {
+  // ---------- 默认游戏封面 ----------
   ipcMain.handle('settings:getDefaultBanners', async () => {
     try {
       return await getDefaultBannerState()
@@ -17,19 +35,11 @@ export function registerSettingsIpc(): void {
     }
   })
 
-  /** 打开图片选择器并添加为默认封面 */
   ipcMain.handle('settings:addDefaultBanner', async () => {
     try {
-      const { canceled, filePaths } = await dialog.showOpenDialog({
-        properties: ['openFile'],
-        filters: [
-          { name: '图片', extensions: ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'] }
-        ]
-      })
-      if (canceled || !filePaths[0]) {
-        return { canceled: true as const }
-      }
-      const state = await addDefaultBanner(filePaths[0])
+      const file = await pickImageFile()
+      if (!file) return { canceled: true as const }
+      const state = await addDefaultBanner(file)
       return { canceled: false as const, state }
     } catch (error: unknown) {
       console.error('[Settings] addDefaultBanner failed:', errorMessage(error))
@@ -51,6 +61,46 @@ export function registerSettingsIpc(): void {
       return await deleteDefaultBanner(id)
     } catch (error: unknown) {
       console.error('[Settings] deleteDefaultBanner failed:', errorMessage(error))
+      throw error
+    }
+  })
+
+  // ---------- 应用背景 ----------
+  ipcMain.handle('settings:getAppBackgrounds', async () => {
+    try {
+      return await getAppBackgroundState()
+    } catch (error: unknown) {
+      console.error('[Settings] getAppBackgrounds failed:', errorMessage(error))
+      throw error
+    }
+  })
+
+  ipcMain.handle('settings:addAppBackground', async () => {
+    try {
+      const file = await pickImageFile()
+      if (!file) return { canceled: true as const }
+      const state = await addAppBackground(file)
+      return { canceled: false as const, state }
+    } catch (error: unknown) {
+      console.error('[Settings] addAppBackground failed:', errorMessage(error))
+      throw error
+    }
+  })
+
+  ipcMain.handle('settings:selectAppBackground', async (_event, id: string | null) => {
+    try {
+      return await selectAppBackground(id)
+    } catch (error: unknown) {
+      console.error('[Settings] selectAppBackground failed:', errorMessage(error))
+      throw error
+    }
+  })
+
+  ipcMain.handle('settings:deleteAppBackground', async (_event, id: string) => {
+    try {
+      return await deleteAppBackground(id)
+    } catch (error: unknown) {
+      console.error('[Settings] deleteAppBackground failed:', errorMessage(error))
       throw error
     }
   })

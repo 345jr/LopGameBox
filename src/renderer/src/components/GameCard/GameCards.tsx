@@ -14,12 +14,16 @@ import { toast } from 'react-hot-toast'
 import { VscAdd } from 'react-icons/vsc'
 
 import EmptyBox from '@renderer/assets/emptyBox.png'
+import builtinBackground from '@renderer/assets/background.jpg'
 import {
   DEFAULT_BANNER_REL,
   PLACEHOLDER_BANNER,
   resolveBannerSrc
 } from '@renderer/util/bannerSrc'
-import { useDefaultBanners } from '@renderer/api/queries/queries.settings'
+import {
+  useAppBackgrounds,
+  useDefaultBanners
+} from '@renderer/api/queries/queries.settings'
 
 import {
   useCategoryGames,
@@ -150,6 +154,10 @@ const GameCards = () => {
     useCategoryGames(selectedCategory)
   const { data: defaultBannerState } = useDefaultBanners()
   const selectedDefaultRel = defaultBannerState?.selectedRelativePath ?? null
+  const { data: appBackgroundState } = useAppBackgrounds()
+  const backgroundUrl = appBackgroundState?.selectedRelativePath
+    ? `lop://${appBackgroundState.selectedRelativePath.replace(/\\/g, '/')}`
+    : builtinBackground
 
   //搜索结果 > 分类游戏 > 游戏列表
   const List = searchResults ? searchResults : categoryResults ? categoryResults : gameListData
@@ -264,7 +272,10 @@ const GameCards = () => {
 
   return (
     // flex-1 撑满滚动视口；pb 预留右下角工具条高度，避免最后一张卡片被挡住
-    <div className="relative flex min-h-dvh w-full flex-1 flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed bg-center pb-28">
+    <div
+      className="relative flex min-h-dvh w-full flex-1 flex-col bg-cover bg-fixed bg-center pb-28"
+      style={{ backgroundImage: `url("${backgroundUrl}")` }}
+    >
       {/* 空列表提示 */}
       {List?.length === 0 && (
         <div className="flex-center mt-32 flex-col items-center justify-center gap-4">

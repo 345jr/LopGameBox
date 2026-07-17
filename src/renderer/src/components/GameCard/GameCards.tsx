@@ -346,7 +346,7 @@ const GameCards = () => {
                   if (el) categoryItemsRef.current[index] = el
                 }}
                 onClick={() => handleCategoryChange(item.key)}
-                className={`inline-flex h-10 items-center justify-center rounded-xl border border-gray-300/50 px-3.5 text-sm leading-none shadow-md transition-colors ${
+                className={`inline-flex h-10 cursor-pointer items-center justify-center rounded-xl border border-gray-300/50 px-3.5 text-sm leading-none shadow-md transition-colors ${
                   selectedCategory === item.key
                     ? 'bg-blue-100 text-gray-800 hover:bg-blue-200'
                     : 'bg-white text-gray-700 hover:bg-blue-100'
@@ -363,7 +363,7 @@ const GameCards = () => {
           onClick={toggleCategory}
           onMouseEnter={(e) => hoverScale(e.currentTarget, 1.05)}
           onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
-          className={`inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-gray-300/50 px-3.5 text-sm leading-none shadow-md transition-colors ${
+          className={`inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-gray-300/50 px-3.5 text-sm leading-none shadow-md transition-colors ${
             isCategoryOpen
               ? 'bg-blue-100 text-gray-800 hover:bg-blue-200'
               : 'bg-white text-gray-700 hover:bg-blue-100'
@@ -378,7 +378,7 @@ const GameCards = () => {
           onClick={handleAddGame}
           onMouseEnter={(e) => hoverScale(e.currentTarget, 1.05)}
           onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
-          className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-gray-300/50 bg-white px-3.5 text-sm leading-none text-gray-700 shadow-md transition-colors hover:bg-blue-100"
+          className="inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-gray-300/50 bg-white px-3.5 text-sm leading-none text-gray-700 shadow-md transition-colors hover:bg-blue-100"
           title="添加游戏"
         >
           <VscAdd className="size-4 shrink-0" />
@@ -391,7 +391,7 @@ const GameCards = () => {
           }
           onMouseEnter={(e) => hoverScale(e.currentTarget, 1.05)}
           onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-300/50 bg-white text-gray-700 shadow-md transition-colors hover:bg-blue-100"
+          className="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-gray-300/50 bg-white text-gray-700 shadow-md transition-colors hover:bg-blue-100"
           title="回到顶部"
         >
           <FaArrowUp className="size-4" />

@@ -336,7 +336,7 @@ const SettingPage = () => {
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <button
             onClick={handleScreenshotToggle}
-            className={`rounded px-4 py-2 transition-colors ${
+            className={`cursor-pointer rounded px-4 py-2 transition-colors ${
               screenshotEnabled
                 ? 'bg-red-400 text-white hover:bg-red-600'
                 : 'bg-gray-300 text-black hover:bg-gray-500 hover:text-white'
@@ -347,14 +347,14 @@ const SettingPage = () => {
 
           <button
             onClick={handleLocalBackup}
-            className="rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
+            className="cursor-pointer rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
           >
             本地备份数据库
           </button>
 
           <Link
             to="/setting/update"
-            className="inline-block rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
+            className="inline-block cursor-pointer rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
           >
             查看更新记录
           </Link>

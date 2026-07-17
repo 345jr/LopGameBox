@@ -82,6 +82,19 @@ html {
   scrollbar-color: #d1cfc9 transparent;
 }
 
+/* 壳层固定高度：滚动交给 #app-scroll-root，顶栏不参与滚动 */
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+#app-scroll-root {
+  scrollbar-width: thin;
+  scrollbar-color: #d1cfc9 transparent;
+}
+
 /* Chromium / Electron：全局滚动条拇指色 */
 *::-webkit-scrollbar {
   width: 10px;

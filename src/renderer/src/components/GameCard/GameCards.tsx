@@ -255,143 +255,142 @@ const GameCards = () => {
   }
 
   return (
-    <>
-      <div className="relative flex min-h-dvh flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed">
-        {/* 空列表提示 */}
-        {List?.length === 0 && (
-          <div className="flex-center mt-32 flex-col items-center justify-center gap-4">
-            <div className="rounded-full bg-white/60 p-4 shadow-md">
-              <img src={EmptyBox} alt="empty" className="h-32 w-32 object-contain" />
-            </div>
-            <p className="mt-5 text-2xl text-white">仓库为空 , 快去添加游戏吧！</p>
+    // flex-1 撑满滚动视口；min-h-dvh 兜底（百分比高度在 overflow 容器里偶发不生效）
+    <div className="relative flex min-h-dvh w-full flex-1 flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed bg-center">
+      {/* 空列表提示 */}
+      {List?.length === 0 && (
+        <div className="flex-center mt-32 flex-col items-center justify-center gap-4">
+          <div className="rounded-full bg-white/60 p-4 shadow-md">
+            <img src={EmptyBox} alt="empty" className="h-32 w-32 object-contain" />
           </div>
-        )}
-        {/* 游戏模式选择器 */}
-        {/* 简易遮罩 */}
-        <div className="fixed top-1/2 left-0 w-40 -translate-y-1/2">
-          <Selector />
+          <p className="mt-5 text-2xl text-white">仓库为空 , 快去添加游戏吧！</p>
         </div>
-        {/* 主动休息按钮 */}
-        {gameState === 'run' && (
-          <div className="fixed top-17 right-0 z-50 rounded-l-2xl border border-gray-300 bg-white px-2 py-2 shadow-md">
-            <button
-              onClick={() => enterRestMode()}
-              className="flex cursor-pointer flex-row items-center"
-            >
-              <FaPersonWalkingArrowRight className="text-3xl text-gray-700" />
-              <p className="ml-2">休息</p>
-            </button>
-          </div>
-        )}
-        {/* GitHub 按钮 */}
-        <div className="fixed bottom-8 left-4 z-50 rounded-2xl border border-gray-300/50 bg-white px-2 py-2 shadow-md">
-          <button
-            onClick={() => window.open('https://github.com/345jr/LopGameBox', '_blank')}
-            className="flex cursor-pointer flex-row items-center"
-            title="打开 GitHub 仓库"
-          >
-            <FaGithub className="text-xl text-gray-700" />
-          </button>
-        </div>
-
-        {/* DevTools 调试按钮 */}
-        <div className="fixed bottom-20 left-4 z-50 rounded-2xl border border-gray-300/50 bg-white px-2 py-2 shadow-md">
-          <button
-            onClick={async () => {
-              try {
-                await window.api.openDevTools()
-                toast.success('DevTools 打开成功')
-              } catch {
-                toast.error('DevTools 打开失败')
-              }
-            }}
-            className="flex cursor-pointer flex-row items-center"
-            title="打开开发者工具"
-          >
-            <FaTools className="text-lg text-gray-700" />
-          </button>
-        </div>
-        {/* 右下角工具条：分类（向左展开） | 添加游戏 | 回到顶部 */}
-        <div className="fixed right-4 bottom-8 z-50 flex flex-row items-center gap-2">
-          {/* 分类选项：在「游戏分类」左侧，向左展开 */}
-          {shouldRenderCategories && (
-            <div className="flex flex-row items-center gap-2">
-              {(
-                [
-                  { key: 'playing', label: '攻略中' },
-                  { key: 'archived', label: '已归档' },
-                  { key: 'all', label: '全部' }
-                ] as const
-              ).map((item, index) => (
-                <button
-                  key={item.key}
-                  ref={(el) => {
-                    if (el) categoryItemsRef.current[index] = el
-                  }}
-                  onClick={() => handleCategoryChange(item.key)}
-                  className={`cursor-pointer rounded-2xl border border-gray-300/50 px-3 py-2 text-sm shadow-md transition-colors ${
-                    selectedCategory === item.key
-                      ? 'bg-blue-100 text-gray-800 hover:bg-blue-200'
-                      : 'bg-white text-gray-700 hover:bg-blue-100'
-                  }`}
-                  style={{ opacity: 0 }}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          )}
-
-          <button
-            onClick={toggleCategory}
-            onMouseEnter={(e) => hoverScale(e.currentTarget, 1.05)}
-            onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
-            className={`flex cursor-pointer items-center gap-2 rounded-2xl border border-gray-300/50 px-3 py-2 text-sm shadow-md transition-colors ${
-              isCategoryOpen
-                ? 'bg-blue-100 text-gray-800 hover:bg-blue-200'
-                : 'bg-white text-gray-700 hover:bg-blue-100'
-            }`}
-            title="游戏分类"
-          >
-            <FaList className="text-lg" />
-            <span>游戏分类</span>
-          </button>
-
-          <button
-            onClick={handleAddGame}
-            onMouseEnter={(e) => hoverScale(e.currentTarget, 1.05)}
-            onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
-            className="flex cursor-pointer items-center gap-2 rounded-2xl border border-gray-300/50 bg-white px-3 py-2 text-sm text-gray-700 shadow-md transition-colors hover:bg-blue-100"
-            title="添加游戏"
-          >
-            <VscAdd className="text-lg" />
-            <span>添加游戏</span>
-          </button>
-
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            onMouseEnter={(e) => hoverScale(e.currentTarget, 1.08)}
-            onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
-            className="flex cursor-pointer items-center justify-center rounded-2xl border border-gray-300/50 bg-white px-2.5 py-2 shadow-md"
-            title="回到顶部"
-          >
-            <FaArrowUp className="text-2xl text-gray-700" />
-          </button>
-        </div>
-        {/* 休息模态框 */}
-        {showRestTimeModal &&
-          createPortal(
-            <RestTimeContent onClose={() => setShowRestTimeModal(false)} />,
-            document.body
-          )}
-        {/* 游戏卡片 */}
-        {List?.map((game) => (
-          <GameCardItem key={game.id} game={game} src={getSrc(game)} onRefresh={refetch} />
-        ))}
-        {/* 底部模糊层 */}
-        <div className="fixed top-9/10 right-0 bottom-0 left-0 z-10 bg-linear-to-b from-transparent to-gray-600/95"></div>
+      )}
+      {/* 游戏模式选择器 */}
+      <div className="fixed top-1/2 left-0 z-40 w-40 -translate-y-1/2">
+        <Selector />
       </div>
-    </>
+      {/* 主动休息按钮 */}
+      {gameState === 'run' && (
+        <div className="fixed top-17 right-0 z-50 rounded-l-2xl border border-gray-300 bg-white px-2 py-2 shadow-md">
+          <button
+            onClick={() => enterRestMode()}
+            className="flex cursor-pointer flex-row items-center"
+          >
+            <FaPersonWalkingArrowRight className="text-3xl text-gray-700" />
+            <p className="ml-2">休息</p>
+          </button>
+        </div>
+      )}
+      {/* GitHub 按钮 */}
+      <div className="fixed bottom-8 left-4 z-50 rounded-2xl border border-gray-300/50 bg-white px-2 py-2 shadow-md">
+        <button
+          onClick={() => window.open('https://github.com/345jr/LopGameBox', '_blank')}
+          className="flex cursor-pointer flex-row items-center"
+          title="打开 GitHub 仓库"
+        >
+          <FaGithub className="text-xl text-gray-700" />
+        </button>
+      </div>
+
+      {/* DevTools 调试按钮 */}
+      <div className="fixed bottom-20 left-4 z-50 rounded-2xl border border-gray-300/50 bg-white px-2 py-2 shadow-md">
+        <button
+          onClick={async () => {
+            try {
+              await window.api.openDevTools()
+              toast.success('DevTools 打开成功')
+            } catch {
+              toast.error('DevTools 打开失败')
+            }
+          }}
+          className="flex cursor-pointer flex-row items-center"
+          title="打开开发者工具"
+        >
+          <FaTools className="text-lg text-gray-700" />
+        </button>
+      </div>
+      {/* 右下角工具条：分类（向左展开） | 添加游戏 | 回到顶部 — 统一高度/圆角/图标 */}
+      <div className="fixed right-4 bottom-8 z-50 flex flex-row items-center gap-2">
+        {shouldRenderCategories && (
+          <div className="flex flex-row items-center gap-2">
+            {(
+              [
+                { key: 'playing', label: '攻略中' },
+                { key: 'archived', label: '已归档' },
+                { key: 'all', label: '全部' }
+              ] as const
+            ).map((item, index) => (
+              <button
+                key={item.key}
+                ref={(el) => {
+                  if (el) categoryItemsRef.current[index] = el
+                }}
+                onClick={() => handleCategoryChange(item.key)}
+                className={`inline-flex h-10 items-center justify-center rounded-xl border border-gray-300/50 px-3.5 text-sm leading-none shadow-md transition-colors ${
+                  selectedCategory === item.key
+                    ? 'bg-blue-100 text-gray-800 hover:bg-blue-200'
+                    : 'bg-white text-gray-700 hover:bg-blue-100'
+                }`}
+                style={{ opacity: 0 }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <button
+          onClick={toggleCategory}
+          onMouseEnter={(e) => hoverScale(e.currentTarget, 1.05)}
+          onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
+          className={`inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-gray-300/50 px-3.5 text-sm leading-none shadow-md transition-colors ${
+            isCategoryOpen
+              ? 'bg-blue-100 text-gray-800 hover:bg-blue-200'
+              : 'bg-white text-gray-700 hover:bg-blue-100'
+          }`}
+          title="游戏分类"
+        >
+          <FaList className="size-4 shrink-0" />
+          <span>游戏分类</span>
+        </button>
+
+        <button
+          onClick={handleAddGame}
+          onMouseEnter={(e) => hoverScale(e.currentTarget, 1.05)}
+          onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
+          className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-gray-300/50 bg-white px-3.5 text-sm leading-none text-gray-700 shadow-md transition-colors hover:bg-blue-100"
+          title="添加游戏"
+        >
+          <VscAdd className="size-4 shrink-0" />
+          <span>添加游戏</span>
+        </button>
+
+        <button
+          onClick={() =>
+            document.getElementById('app-scroll-root')?.scrollTo({ top: 0, behavior: 'smooth' })
+          }
+          onMouseEnter={(e) => hoverScale(e.currentTarget, 1.05)}
+          onMouseLeave={(e) => hoverScale(e.currentTarget, 1)}
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-300/50 bg-white text-gray-700 shadow-md transition-colors hover:bg-blue-100"
+          title="回到顶部"
+        >
+          <FaArrowUp className="size-4" />
+        </button>
+      </div>
+      {/* 休息模态框 */}
+      {showRestTimeModal &&
+        createPortal(
+          <RestTimeContent onClose={() => setShowRestTimeModal(false)} />,
+          document.body
+        )}
+      {/* 游戏卡片 */}
+      {List?.map((game) => (
+        <GameCardItem key={game.id} game={game} src={getSrc(game)} onRefresh={refetch} />
+      ))}
+      {/* 底部模糊层 */}
+      <div className="pointer-events-none fixed top-9/10 right-0 bottom-0 left-0 z-10 bg-linear-to-b from-transparent to-gray-600/95"></div>
+    </div>
   )
 }
 

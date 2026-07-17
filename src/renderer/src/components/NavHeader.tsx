@@ -163,7 +163,7 @@ const NavHeader = () => {
   return (
     <div
       className="relative z-50 shrink-0 border-b-2 border-black bg-white"
-      style={{ display: 'grid', gridTemplateColumns: 'auto auto auto auto auto 1fr auto auto' }}
+      style={{ display: 'grid', gridTemplateColumns: 'auto auto auto auto auto 1fr auto' }}
     >
       {/* Logo 图标 - 固定宽度 */}
       <div
@@ -266,57 +266,51 @@ const NavHeader = () => {
         </button>
       </div>
 
-      {/* 可拖拽区域 - 自适应宽度 (1fr) */}
-      <div className="flex min-w-0 items-center justify-center p-1">
+      {/* 游戏运行状态 - 自适应宽度；透明拖拽层叠在其上 */}
+      <div className="relative flex min-w-0 items-center justify-center border-l-2 border-dashed border-l-black px-5">
+        {/* 整块区域可拖拽（状态区无可点交互，直接覆盖） */}
         <div
-          className="grow rounded-lg border-2 border-dashed border-gray-400 p-3"
+          className="absolute inset-0 z-10"
           style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
-        >
-          <p className="h-full text-center text-xs whitespace-nowrap text-gray-400 select-none">
-            拖拽区域
-          </p>
-        </div>
-      </div>
-
-      {/* 游戏运行状态 - 固定宽度 */}
-      <div
-        className="flex items-center justify-center border-l-2 border-dashed border-l-black px-3"
-        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
-      >
-        <div className="relative py-2">
+          aria-hidden
+        />
+        {/* 结构：标签 + 计时器/模式（居中），状态点锚在文本右上 */}
+        <div className="relative flex items-center gap-2 select-none">
           {gameState === 'run' ? (
             <>
-              {/* 文字翻转效果 */}
-              <div ref={flipperRef} className="relative transform-3d">
-                {/* 文字正面 */}
-                <p className="absolute text-xs whitespace-nowrap backface-hidden">
-                  {formatTime(gameTime) && '游戏运行中'}
+              {/* 文字翻转效果（状态 / 模式） */}
+              <div ref={flipperRef} className="relative h-6 w-[5.5rem] shrink-0 transform-3d">
+                <p className="absolute inset-0 flex items-center text-sm font-medium whitespace-nowrap backface-hidden">
+                  游戏运行中
                 </p>
-                {/* 文字背面 */}
                 <p
-                  className={`absolute left-3 rotate-y-180 bg-linear-to-bl text-sm whitespace-nowrap backface-hidden ${
+                  className={`absolute inset-0 flex items-center rotate-y-180 bg-linear-to-bl text-sm font-medium whitespace-nowrap backface-hidden ${
                     gameModeColorMap[gameMode]
                   } bg-clip-text text-transparent`}
                 >
                   {gameModeMap[gameMode] || '...'}
                 </p>
               </div>
-              <p className="mt-3.5 whitespace-nowrap">{formatTime(gameTime) || '...'}</p>
-              {/* 绿色闪烁灯 */}
-              <span className="absolute top-1.5 right-1.5 inline-flex h-3 w-3 animate-ping rounded-full bg-green-400 opacity-75"></span>
-              <span className="absolute top-2 right-2 inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+              <p className="relative text-base font-semibold tracking-wide whitespace-nowrap tabular-nums">
+                {formatTime(gameTime) || '...'}
+                {/* 绿色闪烁灯：锚在计时文本右上角 */}
+                <span className="absolute -top-1 -right-2.5 flex h-2.5 w-2.5 items-center justify-center">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+                </span>
+              </p>
             </>
           ) : gameState === 'stop' ? (
             <>
-              <p className="text-xs whitespace-nowrap">{formatTime(gameTime) && '运行时间'}</p>
-              <p className="whitespace-nowrap">
+              <p className="text-sm font-medium whitespace-nowrap">运行时间</p>
+              <p className="relative text-base font-semibold tracking-wide whitespace-nowrap tabular-nums">
                 {formatTime(gameTime) || '...'}
-                <span className="absolute top-2 right-2 inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+                <span className="absolute -top-1 -right-2.5 inline-flex h-2 w-2 rounded-full bg-red-500" />
               </p>
             </>
           ) : (
             <>
-              <p ref={typewriterRef} className="text-xs whitespace-nowrap">
+              <p ref={typewriterRef} className="text-sm font-medium whitespace-nowrap">
                 暂无游戏运行
               </p>
               <p
@@ -324,7 +318,7 @@ const NavHeader = () => {
                   backgroundSize: '200% 100%',
                   backgroundPosition: '0% center'
                 }}
-                className={`GSAPanimate-modeText bg-linear-to-bl whitespace-nowrap ${
+                className={`GSAPanimate-modeText bg-linear-to-bl text-base font-semibold whitespace-nowrap ${
                   gameModeColorMap[gameMode]
                 } bg-clip-text text-transparent`}
               >

@@ -33,5 +33,7 @@ export const queryKeys = {
   // 游戏存档路径
   gameSavePath: (gameId: number) => ['game-save-path', gameId] as const,
   // 存档备份列表
-  saveBackups: (gameId: number) => ['save-backups', gameId] as const
+  saveBackups: (gameId: number) => ['save-backups', gameId] as const,
+  // 设置：默认游戏封面库
+  defaultBanners: () => ['default-banners'] as const
 }

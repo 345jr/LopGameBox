@@ -285,6 +285,38 @@ declare global {
       openDevTools: () => Promise<void>
       // 获取拖拽的临时路径
       getTempDrop: (payload: DropPayload) => Promise<DropResult>
+
+      // ==================== 设置：默认游戏封面 ====================
+      getDefaultBanners: () => Promise<{
+        items: Array<{ id: string; relativePath: string; createdAt: number }>
+        selectedId: string | null
+        selectedRelativePath: string | null
+        maxCount: number
+      }>
+      addDefaultBanner: () => Promise<
+        | { canceled: true }
+        | {
+            canceled: false
+            state: {
+              items: Array<{ id: string; relativePath: string; createdAt: number }>
+              selectedId: string | null
+              selectedRelativePath: string | null
+              maxCount: number
+            }
+          }
+      >
+      selectDefaultBanner: (id: string) => Promise<{
+        items: Array<{ id: string; relativePath: string; createdAt: number }>
+        selectedId: string | null
+        selectedRelativePath: string | null
+        maxCount: number
+      }>
+      deleteDefaultBanner: (id: string) => Promise<{
+        items: Array<{ id: string; relativePath: string; createdAt: number }>
+        selectedId: string | null
+        selectedRelativePath: string | null
+        maxCount: number
+      }>
     }
   }
 }

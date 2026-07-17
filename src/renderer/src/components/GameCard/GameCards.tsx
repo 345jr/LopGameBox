@@ -14,6 +14,12 @@ import { toast } from 'react-hot-toast'
 import { VscAdd } from 'react-icons/vsc'
 
 import EmptyBox from '@renderer/assets/emptyBox.png'
+import {
+  DEFAULT_BANNER_REL,
+  PLACEHOLDER_BANNER,
+  resolveBannerSrc
+} from '@renderer/util/bannerSrc'
+import { useDefaultBanners } from '@renderer/api/queries/queries.settings'
 
 import {
   useCategoryGames,
@@ -79,7 +85,13 @@ const GameCardItem = ({
             ref={imgRef}
             src={src}
             alt="banner图"
-            className="h-70 w-120 rounded-2xl border-2 border-white bg-cover bg-center"
+            className="h-70 w-120 rounded-2xl border-2 border-white object-cover object-center"
+            onError={(e) => {
+              // 文件缺失时回退到占位图
+              if (e.currentTarget.src !== PLACEHOLDER_BANNER) {
+                e.currentTarget.src = PLACEHOLDER_BANNER
+              }
+            }}
           />
           {/* 圆形遮罩层 */}
           <div
@@ -136,6 +148,8 @@ const GameCards = () => {
   const { data: searchResults, refetch: refetchSearchResults } = useSearchGames(keyword)
   const { data: categoryResults, refetch: refetchCategoryResults } =
     useCategoryGames(selectedCategory)
+  const { data: defaultBannerState } = useDefaultBanners()
+  const selectedDefaultRel = defaultBannerState?.selectedRelativePath ?? null
 
   //搜索结果 > 分类游戏 > 游戏列表
   const List = searchResults ? searchResults : categoryResults ? categoryResults : gameListData
@@ -164,17 +178,16 @@ const GameCards = () => {
     const path = await window.api.openFile()
     if (!path) return
     const defaultName = path.split('\\').pop()?.replace('.exe', '') || '新游戏'
-    const defaultPath = `banner\\default.jpg`
     try {
       const gameInitData = await window.api.addGame({
         gameName: defaultName,
         launchPath: path
       })
-      // 添加默认封面图
+      // 默认封面使用应用内资源；DB 只存标记路径，展示时走 resolveBannerSrc
       await window.api.addBanner({
         gameId: gameInitData.id,
         imagePath: 'null',
-        relativePath: defaultPath
+        relativePath: DEFAULT_BANNER_REL
       })
       toast.success(`${defaultName} 已添加`)
       refetch()
@@ -239,15 +252,10 @@ const GameCards = () => {
     setSelectedCategory(category)
     setIsCategoryOpen(false)
   }
-  // 获取封面图路径
+  // 获取封面图路径（默认标记 → 设置中心选中的封面；自定义 → lop://userData）
   const getSrc = (game: Game) => {
     const relativePath = bannerListData?.find((i: Banners) => i.game_id === game.id)?.relative_path
-    // 判断是否为网络链接（http:// 或 https://）
-    if (relativePath?.startsWith('http://') || relativePath?.startsWith('https://')) {
-      return relativePath
-    }
-    // 本地路径使用 lop 协议
-    return 'lop://' + relativePath?.replace(/\\/g, '/')
+    return resolveBannerSrc(relativePath, selectedDefaultRel)
   }
 
   const hoverScale = (el: HTMLElement, scale: number) => {

@@ -10,6 +10,7 @@ import { registerSavesIpc } from './saves.ipc'
 import { registerWindowIpc } from './window.ipc'
 import { registerFilesIpc } from './files.ipc'
 import { registerScreenshotIpc } from './screenshot.ipc'
+import { registerSettingsIpc } from './settings.ipc'
 
 /** 注册全部主进程 IPC；按域拆分，新增接口时改对应文件 */
 export function registerAllIpc(ctx: IpcContext): void {
@@ -24,4 +25,5 @@ export function registerAllIpc(ctx: IpcContext): void {
   registerSavesIpc(ctx)
   registerWindowIpc(ctx)
   registerScreenshotIpc(ctx)
+  registerSettingsIpc()
 }

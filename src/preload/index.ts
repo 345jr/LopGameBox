@@ -244,7 +244,13 @@ const api = {
       path?: string
       buffer?: Uint8Array
     }>
-  }) => ipcRenderer.invoke('op:getTempDrop', payload)
+  }) => ipcRenderer.invoke('op:getTempDrop', payload),
+
+  // ==================== 设置：默认游戏封面 ====================
+  getDefaultBanners: () => ipcRenderer.invoke('settings:getDefaultBanners'),
+  addDefaultBanner: () => ipcRenderer.invoke('settings:addDefaultBanner'),
+  selectDefaultBanner: (id: string) => ipcRenderer.invoke('settings:selectDefaultBanner', id),
+  deleteDefaultBanner: (id: string) => ipcRenderer.invoke('settings:deleteDefaultBanner', id)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

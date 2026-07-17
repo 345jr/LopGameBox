@@ -263,8 +263,8 @@ const GameCards = () => {
   }
 
   return (
-    // flex-1 撑满滚动视口；min-h-dvh 兜底（百分比高度在 overflow 容器里偶发不生效）
-    <div className="relative flex min-h-dvh w-full flex-1 flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed bg-center">
+    // flex-1 撑满滚动视口；pb 预留右下角工具条高度，避免最后一张卡片被挡住
+    <div className="relative flex min-h-dvh w-full flex-1 flex-col bg-[url(../assets/background.jpg)] bg-cover bg-fixed bg-center pb-28">
       {/* 空列表提示 */}
       {List?.length === 0 && (
         <div className="flex-center mt-32 flex-col items-center justify-center gap-4">

@@ -4,7 +4,6 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import Gallery from './components/Gallery/Gallery'
 import Update from './components/SettingCenter/Update'
 import Dashboard from './components/Dashboard/Dashboard'
 import SettingPage from './components/SettingCenter/SettingPage'
@@ -21,7 +20,6 @@ const router = createHashRouter([
     errorElement: <ErrorPage />,
     children: [
       { path: '/', element: <App /> },
-      { path: '/gallery/:gameId', element: <Gallery /> },
       { path: '/dashboard', element: <Dashboard /> },
       { path: '/setting', element: <SettingPage /> },
       { path: '/setting/update', element: <Update /> },

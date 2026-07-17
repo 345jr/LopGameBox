@@ -2,7 +2,6 @@ import React from 'react'
 import { FaCheck, FaRegCircleXmark, FaPlus } from 'react-icons/fa6'
 import { formatTimeCalender } from '../../util/timeFormat'
 import { useAchievementList, useGamePlaytime } from '@renderer/api/queries/queries.gallery'
-import { useParams } from 'react-router-dom'
 import { GameAchievement } from '@renderer/types/Game'
 import toast from 'react-hot-toast'
 
@@ -37,9 +36,8 @@ function getStoredTimeLevel(list: GameAchievement[] | undefined): number {
   return 0
 }
 
-const Achievements: React.FC = () => {
-  const { gameId } = useParams()
-  const gameIdNum = parseInt(gameId as string)
+const Achievements: React.FC<{ gameId: number }> = ({ gameId }) => {
+  const gameIdNum = gameId
   const {
     data: achievementsData,
     isPending,
@@ -104,7 +102,7 @@ const Achievements: React.FC = () => {
 
   //升级完成度成就
   const upgradeCompletionAchievement = async () => {
-    if (!gameId) return
+    if (!gameIdNum) return
 
     const currentLevel = getCurrentCompletionLevel()
 
@@ -121,7 +119,7 @@ const Achievements: React.FC = () => {
       // 如果是第一次,创建新成就
       if (currentLevel === 0) {
         await window.api.createAchievement(
-          parseInt(gameId),
+          gameIdNum,
           nextAchievement.name,
           '完成度成就',
           nextAchievement.description
@@ -136,7 +134,7 @@ const Achievements: React.FC = () => {
           await window.api.deleteAchievement(completionAchievement.id)
           // 创建新的
           await window.api.createAchievement(
-            parseInt(gameId),
+            gameIdNum,
             nextAchievement.name,
             '完成度成就',
             nextAchievement.description
@@ -145,7 +143,7 @@ const Achievements: React.FC = () => {
       }
 
       // 标记为完成
-      const newList = await window.api.getGameAchievements(parseInt(gameId))
+      const newList = await window.api.getGameAchievements(gameIdNum)
       const newCompletionAchievement = newList.find((a) => a.achievement_type === '完成度成就')
       if (newCompletionAchievement) {
         await window.api.toggleAchievementStatus(newCompletionAchievement.id, 1)
@@ -160,14 +158,14 @@ const Achievements: React.FC = () => {
 
   //添加自定义成就
   const handleAddAchievement = async () => {
-    if (!gameId || !newAchievement.name.trim()) {
+    if (!gameIdNum || !newAchievement.name.trim()) {
       alert('请输入成就名称')
       return
     }
 
     try {
       await window.api.createAchievement(
-        parseInt(gameId),
+        gameIdNum,
         newAchievement.name,
         newAchievement.type,
         newAchievement.description

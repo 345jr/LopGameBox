@@ -1,7 +1,6 @@
 import { FC, useState } from 'react'
 import { VscFileMedia, VscFolder, VscPlay, VscTrash, VscAttach } from 'react-icons/vsc'
 import { GiAchievement } from 'react-icons/gi'
-import { Link } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 
 import type { Game } from '@renderer/types/Game'
@@ -10,6 +9,7 @@ import useGameStore from '@renderer/store/GameStore'
 import LinksContent from '../ModalContent/LinksContent'
 import FolderManageContent from '../ModalContent/FolderManageContent'
 import BannerSelectContent from '../ModalContent/BannerSelectContent'
+import Gallery from '../Gallery/Gallery'
 import { toast } from 'react-hot-toast'
 
 type Props = {
@@ -21,6 +21,7 @@ const GameCardActions: FC<Props> = ({ game, onRefresh }) => {
   const [showLinksModal, setShowLinksModal] = useState(false)
   const [showFolderModal, setShowFolderModal] = useState(false)
   const [showBannerModal, setShowBannerModal] = useState(false)
+  const [showGalleryModal, setShowGalleryModal] = useState(false)
   const setGameTime = useGameStore((state) => state.setGameTime)
   const GameState = useGameStore((state) => state.gameState)
   const setGameState = useGameStore((state) => state.setGameState)
@@ -89,12 +90,15 @@ const GameCardActions: FC<Props> = ({ game, onRefresh }) => {
         <button onClick={() => handleAddBanner()} className="iconBtn-wrapper">
           <VscFileMedia className="iconBtn" />
         </button>
-        {/* 成就 */}
-        <div className="iconBtn-wrapper">
-          <Link to={`/gallery/${game.id}`}>
-            <GiAchievement className="iconBtn" />
-          </Link>
-        </div>
+        {/* 图集典藏 / 成就 */}
+        <button
+          type="button"
+          onClick={() => setShowGalleryModal(true)}
+          className="iconBtn-wrapper"
+          title="图集典藏与成就"
+        >
+          <GiAchievement className="iconBtn" />
+        </button>
         {/* 链接管理 */}
         <button onClick={() => setShowLinksModal(true)} className="iconBtn-wrapper">
           <VscAttach className="iconBtn" />
@@ -131,6 +135,16 @@ const GameCardActions: FC<Props> = ({ game, onRefresh }) => {
             gameName={game.game_name}
             onClose={() => setShowBannerModal(false)}
             onSuccess={onRefresh}
+          />,
+          document.body
+        )}
+      {/* 图集典藏 / 成就模态框 */}
+      {showGalleryModal &&
+        createPortal(
+          <Gallery
+            gameId={game.id}
+            gameName={game.game_name}
+            onClose={() => setShowGalleryModal(false)}
           />,
           document.body
         )}

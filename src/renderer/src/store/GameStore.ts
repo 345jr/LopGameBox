@@ -16,7 +16,8 @@ interface GameStore {
   setGameState: (states: string) => void
   setSearchResults: (results: Game[]) => void
   setSearchKeyword: (keyword: string) => void
-  setGameModeSelector: () => void
+  /** 不传参则切换；传 boolean 则强制开/关 */
+  setGameModeSelector: (open?: boolean) => void
   setGameMode: (mode: string) => void
   setSelectedCategory: (category: 'all' | 'playing' | 'archived') => void
 }
@@ -40,9 +41,9 @@ const useGameStore = create<GameStore>()(
       setGameState: (states) => set({ gameState: states }),
       setSearchResults: (results) => set({ searchResults: results }),
       setSearchKeyword: (keyword) => set({ searchKeyword: keyword }),
-      setGameModeSelector: () =>
+      setGameModeSelector: (open) =>
         set((state) => ({
-          gameModeSelector: !state.gameModeSelector
+          gameModeSelector: typeof open === 'boolean' ? open : !state.gameModeSelector
         })),
       setGameMode: (mode) => set({ gameMode: mode }),
       setSelectedCategory: (category) => set({ selectedCategory: category })

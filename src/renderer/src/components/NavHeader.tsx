@@ -10,7 +10,7 @@ import {
   VscChromeClose,
   VscTriangleDown
 } from 'react-icons/vsc'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import useGameStore from '@renderer/store/GameStore'
 import { formatTime } from '@renderer/util/timeFormat'
@@ -24,12 +24,12 @@ const NavHeader = () => {
   const gameTime = useGameStore((state) => state.gameTime)
   // 游戏当前的运行状态（run stop null）
   const gameState = useGameStore((state) => state.gameState)
-  // 控制 Logo 动画的激活状态
-  const [active, setActive] = useState(false)
-  // 开关模式选择器
+  // 左侧模式选择器开关（与 Logo 旋转共用）
+  const gameModeSelector = useGameStore((state) => state.gameModeSelector)
   const setGameModeSelector = useGameStore((state) => state.setGameModeSelector)
   // 当前游戏模式
   const gameMode = useGameStore((state) => state.gameMode)
+  const location = useLocation()
   //打字机效果
   const typewriterRef = useRef<HTMLParagraphElement>(null)
   // 窗口是否最大化状态
@@ -86,18 +86,26 @@ const NavHeader = () => {
     { scope: flipperRef, dependencies: [gameState] }
   )
 
-  // Logo 旋转（模式选择器开关）
+  // Logo 旋转（与左侧模式选择器同步）
   useGSAP(
     () => {
       if (!logoRef.current) return
       gsap.to(logoRef.current, {
-        rotation: active ? 90 : 0,
+        rotation: gameModeSelector ? 90 : 0,
         duration: 0.4,
         ease: 'power2.out'
       })
     },
-    { dependencies: [active] }
+    { dependencies: [gameModeSelector] }
   )
+
+  // 进入统计面板 / 设置中心时自动收起左侧栏并复位 Logo
+  useEffect(() => {
+    const path = location.pathname
+    if (path.startsWith('/dashboard') || path.startsWith('/setting')) {
+      setGameModeSelector(false)
+    }
+  }, [location.pathname, setGameModeSelector])
   //#endregion
 
   // 处理模糊查询
@@ -176,7 +184,6 @@ const NavHeader = () => {
           alt="logo"
           className="w-12 cursor-pointer rounded-2xl"
           onClick={() => {
-            setActive(!active)
             setGameModeSelector()
           }}
           onMouseEnter={() => {

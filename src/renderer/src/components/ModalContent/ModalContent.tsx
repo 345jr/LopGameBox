@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { VscPassFilled, VscFiles, VscArrowRight, VscClose } from 'react-icons/vsc'
 
@@ -8,6 +8,38 @@ import useInfoStore from '@renderer/store/infoStore'
 import { TbSwords } from 'react-icons/tb'
 import { FaBookBookmark } from 'react-icons/fa6'
 import toast from 'react-hot-toast'
+import { useModalMotion } from '@renderer/hooks/useModalMotion'
+
+/** 嵌套模态壳：带入场/出场动画 */
+function NestedModalShell({
+  onClose,
+  children,
+  panelClassName = 'relative mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl'
+}: {
+  onClose: () => void
+  children: (requestClose: () => void) => ReactNode
+  panelClassName?: string
+}) {
+  const { overlayRef, panelRef, requestClose } = useModalMotion(onClose)
+  return (
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-100 flex items-center justify-center bg-gray-800/30"
+      onClick={requestClose}
+      style={{ opacity: 0 }}
+    >
+      <div
+        ref={panelRef}
+        className={panelClassName}
+        onClick={(e) => e.stopPropagation()}
+        style={{ opacity: 0 }}
+      >
+        {children(requestClose)}
+      </div>
+    </div>
+  )
+}
+
 export default function ModalContent({
   onClose,
   gameId,
@@ -17,6 +49,7 @@ export default function ModalContent({
   gameId: number
   onRefresh: () => void
 }) {
+  const { overlayRef, panelRef, requestClose } = useModalMotion(onClose)
   const inputRef = useRef<HTMLInputElement>(null)
   const [size, setSize] = useState<number>(0)
   const [currentCategory, setCurrentCategory] = useState<'playing' | 'archived' | 'all'>('all')
@@ -276,14 +309,18 @@ export default function ModalContent({
   return (
     // 遮罩层
     <div
+      ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800/30"
-      onClick={onClose}
+      onClick={requestClose}
+      style={{ opacity: 0 }}
     >
       {/* 模态框主体 */}
       <div
+        ref={panelRef}
         className="relative mx-4 w-full max-w-150 rounded-lg bg-white p-6 shadow-xl"
         // 阻止点击内容时关闭
         onClick={(e) => e.stopPropagation()}
+        style={{ opacity: 0 }}
       >
         <p className="mb-1 text-2xl font-semibold text-gray-800">配置区域</p>
         {/* 修改游戏名 */}
@@ -399,19 +436,14 @@ export default function ModalContent({
         {isVersionModalOpen &&
           selectedVersion &&
           createPortal(
-            <div
-              className="fixed inset-0 z-100 flex items-center justify-center bg-gray-800/30"
-              onClick={handleVersionModalClose}
-            >
-              <div
-                className="relative mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
-                onClick={(e) => e.stopPropagation()}
-              >
+            <NestedModalShell onClose={handleVersionModalClose}>
+              {(closeNested) => (
+              <>
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-800">版本详情</h2>
                   <button
-                    onClick={handleVersionModalClose}
-                    className="text-gray-500 transition-colors hover:text-red-500"
+                    onClick={closeNested}
+                    className="cursor-pointer text-gray-500 transition-colors hover:text-red-500"
                   >
                     <VscClose className="text-2xl" />
                   </button>
@@ -475,36 +507,32 @@ export default function ModalContent({
                         编辑描述
                       </button>
                       <button
-                        onClick={handleVersionModalClose}
-                        className="rounded bg-gray-500 px-4 py-2 text-white transition-colors hover:bg-gray-600"
+                        onClick={closeNested}
+                        className="cursor-pointer rounded bg-gray-500 px-4 py-2 text-white transition-colors hover:bg-gray-600"
                       >
                         关闭
                       </button>
                     </>
                   )}
                 </div>
-              </div>
-            </div>,
+              </>
+              )}
+            </NestedModalShell>,
             document.body
           )}
         {/* 提交更新的模态框 */}
         {isUpdateModalOpen &&
           createPortal(
-            <div
-              className="fixed inset-0 z-100 flex items-center justify-center bg-gray-800/30"
-              onClick={() => setIsUpdateModalOpen(false)}
-            >
-              <div
-                className="relative mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
-                onClick={(e) => e.stopPropagation()}
-              >
+            <NestedModalShell onClose={() => setIsUpdateModalOpen(false)}>
+              {(closeNested) => (
+              <>
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-gray-800">
                     {updateType === 'major' ? '创建大更新' : '创建小更新'}
                   </h2>
                   <button
-                    onClick={() => setIsUpdateModalOpen(false)}
-                    className="text-gray-500 transition-colors hover:text-red-500"
+                    onClick={closeNested}
+                    className="cursor-pointer text-gray-500 transition-colors hover:text-red-500"
                   >
                     <VscClose className="text-2xl" />
                   </button>
@@ -519,7 +547,7 @@ export default function ModalContent({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={handleRecalculateSizeInModal}
-                        className="rounded bg-blue-500 px-3 py-2 text-white transition-colors hover:bg-blue-600"
+                        className="cursor-pointer rounded bg-blue-500 px-3 py-2 text-white transition-colors hover:bg-blue-600"
                       >
                         {size > 0 ? '重新计算' : '计算游戏大小'}
                       </button>
@@ -546,15 +574,15 @@ export default function ModalContent({
                 </div>
                 <div className="mt-6 flex justify-end gap-2">
                   <button
-                    onClick={() => setIsUpdateModalOpen(false)}
-                    className="rounded bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
+                    onClick={closeNested}
+                    className="cursor-pointer rounded bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400"
                   >
                     取消
                   </button>
                   <button
                     onClick={handleConfirmUpdate}
                     disabled={isUpdating}
-                    className="flex items-center gap-2 rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600 disabled:bg-gray-400"
+                    className="flex cursor-pointer items-center gap-2 rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600 disabled:bg-gray-400"
                   >
                     {isUpdating && (
                       <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
@@ -562,13 +590,14 @@ export default function ModalContent({
                     确定
                   </button>
                 </div>
-              </div>
-            </div>,
+              </>
+              )}
+            </NestedModalShell>,
             document.body
           )}
         <div className="absolute top-4 right-4">
           <button
-            onClick={onClose}
+            onClick={requestClose}
             className="transform cursor-pointer rounded px-4 py-2 text-gray-800 transition duration-200 ease-in-out hover:text-red-500"
           >
             <VscClose className="text-2xl" />

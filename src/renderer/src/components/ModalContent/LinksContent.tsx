@@ -8,6 +8,7 @@ import {
 } from '@renderer/api/queries'
 
 import linkIcon from '@renderer/assets/link.png'
+import { useModalMotion } from '@renderer/hooks/useModalMotion'
 
 interface LinkItem {
   id: number
@@ -32,6 +33,7 @@ const titleFromUrl = (rawUrl: string): string => {
 
 const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number }) => {
   const [url, setUrl] = useState('')
+  const { overlayRef, panelRef, requestClose } = useModalMotion(onClose)
 
   // 编辑模态框状态
   const [editModal, setEditModal] = useState<{
@@ -165,12 +167,16 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
 
   return (
     <div
+      ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={onClose}
+      onClick={requestClose}
+      style={{ opacity: 0 }}
     >
       <div
+        ref={panelRef}
         onClick={(e) => e.stopPropagation()}
         className="mx-4 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
+        style={{ opacity: 0 }}
       >
         <h2 className="mb-4 text-xl font-bold">链接管理</h2>
 
@@ -284,7 +290,7 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
         {/* 关闭按钮 */}
         <div className="flex justify-end">
           <button
-            onClick={onClose}
+            onClick={requestClose}
             className="cursor-pointer rounded-lg bg-gray-300 px-6 py-2 text-gray-700 transition hover:bg-gray-400"
           >
             关闭
@@ -294,64 +300,96 @@ const LinksContent = ({ onClose, gameId }: { onClose: () => void; gameId: number
 
       {/* 编辑链接模态框 */}
       {editModal.isOpen && (
-        <div
-          className="fixed inset-0 z-60 flex items-center justify-center bg-black/50"
-          onClick={(e) => {
-            e.stopPropagation() // 阻止事件冒泡到外层模态框
-            handleCloseEdit()
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
-          >
-            <h2 className="mb-4 text-xl font-bold">编辑链接</h2>
+        <EditLinkModal
+          title={editModal.title}
+          url={editModal.url}
+          onTitleChange={(title) => setEditModal({ ...editModal, title })}
+          onUrlChange={(url) => setEditModal({ ...editModal, url })}
+          onClose={handleCloseEdit}
+          onSave={handleSaveEdit}
+          saving={updateLinkMutation.isPending}
+        />
+      )}
+    </div>
+  )
+}
 
-            <div className="space-y-4">
-              {/* 标题输入 */}
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">标题</label>
-                <input
-                  type="text"
-                  value={editModal.title}
-                  onChange={(e) => setEditModal({ ...editModal, title: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-                  placeholder="输入标题"
-                  autoFocus
-                />
-              </div>
+type EditLinkModalProps = {
+  title: string
+  url: string
+  onTitleChange: (title: string) => void
+  onUrlChange: (url: string) => void
+  onClose: () => void
+  onSave: () => void
+  saving: boolean
+}
 
-              {/* URL输入 */}
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">链接地址</label>
-                <input
-                  type="text"
-                  value={editModal.url}
-                  onChange={(e) => setEditModal({ ...editModal, url: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-                  placeholder="输入URL"
-                />
-              </div>
-
-              {/* 按钮组 */}
-              <div className="flex gap-2">
-                <button
-                  onClick={handleSaveEdit}
-                  className="flex-1 cursor-pointer rounded-lg bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600"
-                >
-                  保存
-                </button>
-                <button
-                  onClick={handleCloseEdit}
-                  className="flex-1 cursor-pointer rounded-lg bg-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-400"
-                >
-                  取消
-                </button>
-              </div>
-            </div>
+const EditLinkModal = ({
+  title,
+  url,
+  onTitleChange,
+  onUrlChange,
+  onClose,
+  onSave,
+  saving
+}: EditLinkModalProps) => {
+  const { overlayRef, panelRef, requestClose } = useModalMotion(onClose)
+  return (
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-60 flex items-center justify-center bg-black/50"
+      onClick={(e) => {
+        e.stopPropagation()
+        requestClose()
+      }}
+      style={{ opacity: 0 }}
+    >
+      <div
+        ref={panelRef}
+        onClick={(e) => e.stopPropagation()}
+        className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
+        style={{ opacity: 0 }}
+      >
+        <h2 className="mb-4 text-xl font-bold">编辑链接</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">标题</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => onTitleChange(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+              placeholder="输入标题"
+              autoFocus
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">链接地址</label>
+            <input
+              type="text"
+              value={url}
+              onChange={(e) => onUrlChange(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+              placeholder="输入URL"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={onSave}
+              disabled={saving}
+              className="flex-1 cursor-pointer rounded-lg bg-blue-500 px-4 py-2 text-white transition hover:bg-blue-600 disabled:opacity-50"
+            >
+              {saving ? '保存中…' : '保存'}
+            </button>
+            <button
+              onClick={requestClose}
+              className="flex-1 cursor-pointer rounded-lg bg-gray-300 px-4 py-2 text-gray-700 transition hover:bg-gray-400"
+            >
+              取消
+            </button>
           </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }

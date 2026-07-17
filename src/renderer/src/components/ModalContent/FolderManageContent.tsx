@@ -15,6 +15,7 @@ import toast from 'react-hot-toast'
 import formatFileSize from '@renderer/util/gameSizeFormat'
 import { formatTimeCalender } from '@renderer/util/timeFormat'
 import { queryKeys } from '@renderer/api/queryKeys'
+import { useModalMotion } from '@renderer/hooks/useModalMotion'
 
 interface FolderManageContentProps {
   onClose: () => void
@@ -25,6 +26,7 @@ interface FolderManageContentProps {
 const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentProps) => {
   const queryClient = useQueryClient()
   const [loading, setLoading] = useState(false)
+  const { overlayRef, panelRef, requestClose } = useModalMotion(onClose)
 
   // 存档路径信息（React Query 拉数，避免 effect 内 setState）
   const { data: saveInfo } = useQuery({
@@ -187,18 +189,22 @@ const FolderManageContent = ({ onClose, gamePath, gameId }: FolderManageContentP
 
   return (
     <div
+      ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={onClose}
+      onClick={requestClose}
+      style={{ opacity: 0 }}
     >
       <div
+        ref={panelRef}
         onClick={(e) => e.stopPropagation()}
         className="mx-4 flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg bg-white shadow-xl"
+        style={{ opacity: 0 }}
       >
         {/* 标题栏 */}
         <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
           <h2 className="text-xl font-bold">文件管理</h2>
           <button
-            onClick={onClose}
+            onClick={requestClose}
             className="cursor-pointer rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
             title="关闭"
           >

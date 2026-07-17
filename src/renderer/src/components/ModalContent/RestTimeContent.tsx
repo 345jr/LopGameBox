@@ -4,6 +4,7 @@ import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 
 import { formatTimeToMinutes } from '@renderer/util/timeFormat'
+import { useModalMotion } from '@renderer/hooks/useModalMotion'
 export function RestTimeContent({ onClose }: { onClose: () => void }) {
   //#region 状态管理
   const gameMode = useGameStore((state) => state.gameMode)
@@ -16,6 +17,7 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
   const btn = useRef(null)
   //设置游戏模式
   const setGameMode = useGameStore((state) => state.setGameMode)
+  const { overlayRef, panelRef, requestClose } = useModalMotion(onClose)
   //#endregion
   //开始休息
   const startRest = () => {
@@ -35,7 +37,7 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
     }
     setIsResting(false) // 重置休息状态
     window.api.setResting(false)
-    onClose()
+    requestClose()
   }
   //不休息，进入沉浸模式
   const skipRest = async () => {
@@ -43,7 +45,7 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
     await window.api.setResting(false)
     await window.api.setGameMode('Infinity')
     setGameMode('Infinity')
-    onClose()
+    requestClose()
   }
   //#region GSAP动画
   //4段小文本
@@ -175,12 +177,18 @@ export function RestTimeContent({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800/30">
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800/30"
+      style={{ opacity: 0 }}
+    >
       {/* 模态框主体 */}
       <div
+        ref={panelRef}
         className="mx-4 w-full max-w-150 rounded-lg bg-white p-6 shadow-xl"
         // 阻止点击内容时关闭
         onClick={(e) => e.stopPropagation()}
+        style={{ opacity: 0 }}
       >
         <div ref={context} className="flex flex-col items-center">
           <p className="GSAPanimate-p1 text-2xl font-semibold text-gray-800">休息时间到了!</p>

@@ -64,11 +64,10 @@ const GameCardActions: FC<Props> = ({ game, onRefresh }) => {
     setShowDeleteModal(true)
   }
 
-  // 确认删除游戏
+  // 确认删除游戏（关闭动画由确认框内部 requestClose 触发）
   const handleConfirmDelete = async () => {
     await window.api.deleteGame(game.id)
     toast.success(`${game.game_name}已删除。`)
-    setShowDeleteModal(false)
     onRefresh()
   }
 

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useModalMotion } from '@renderer/hooks/useModalMotion'
 
 type DeleteGameConfirmProps = {
   gameName: string
@@ -9,30 +10,39 @@ type DeleteGameConfirmProps = {
 /** 删除游戏确认框（精简） */
 const DeleteGameConfirm = ({ gameName, onClose, onConfirm }: DeleteGameConfirmProps) => {
   const [deleting, setDeleting] = useState(false)
+  const { overlayRef, panelRef, requestClose } = useModalMotion(onClose)
 
   const handleConfirm = async () => {
     if (deleting) return
     setDeleting(true)
     try {
       await onConfirm()
-    } finally {
+      requestClose()
+    } catch {
       setDeleting(false)
     }
   }
 
   return (
     <div
+      ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-[2px]"
-      onClick={onClose}
+      onClick={requestClose}
+      style={{ opacity: 0 }}
     >
       <div
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="delete-game-title"
         onClick={(e) => e.stopPropagation()}
         className="mx-4 w-full max-w-xs rounded-2xl bg-white p-5 shadow-2xl"
+        style={{ opacity: 0 }}
       >
-        <h2 id="delete-game-title" className="text-[15px] font-semibold tracking-tight text-gray-900">
+        <h2
+          id="delete-game-title"
+          className="text-[15px] font-semibold tracking-tight text-gray-900"
+        >
           删除《{gameName}》？
         </h2>
         <p className="mt-1.5 text-xs leading-relaxed text-gray-400">
@@ -42,7 +52,7 @@ const DeleteGameConfirm = ({ gameName, onClose, onConfirm }: DeleteGameConfirmPr
         <div className="mt-5 flex gap-2">
           <button
             type="button"
-            onClick={onClose}
+            onClick={requestClose}
             disabled={deleting}
             className="h-9 flex-1 cursor-pointer rounded-xl bg-gray-100 text-sm font-medium text-gray-600 transition hover:bg-gray-200 disabled:opacity-50"
           >

@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction } from 'react'
+import { useModalMotion } from '@renderer/hooks/useModalMotion'
 
 type AltModalProps = {
   show: boolean
@@ -22,15 +23,44 @@ const AltModal = ({
   onToggleEdit
 }: AltModalProps) => {
   if (!show) return null
+  return (
+    <AltModalBody
+      altText={altText}
+      setAltText={setAltText}
+      isEditing={isEditing}
+      onClose={onClose}
+      onSave={onSave}
+      onDelete={onDelete}
+      onToggleEdit={onToggleEdit}
+    />
+  )
+}
+
+type BodyProps = Omit<AltModalProps, 'show'>
+
+const AltModalBody = ({
+  altText,
+  setAltText,
+  isEditing,
+  onClose,
+  onSave,
+  onDelete,
+  onToggleEdit
+}: BodyProps) => {
+  const { overlayRef, panelRef, requestClose } = useModalMotion(onClose)
 
   return (
     <div
+      ref={overlayRef}
       className="fixed inset-0 z-5000 flex items-center justify-center bg-black/50"
-      onClick={onClose}
+      onClick={requestClose}
+      style={{ opacity: 0 }}
     >
       <div
+        ref={panelRef}
         className="w-full max-w-lg rounded-lg bg-white text-black shadow-2xl ring-1 ring-black/10"
         onClick={(e) => e.stopPropagation()}
+        style={{ opacity: 0 }}
       >
         {isEditing ? (
           <div className="relative">
@@ -56,7 +86,7 @@ const AltModal = ({
                   删除
                 </button>
                 <button
-                  onClick={onClose}
+                  onClick={requestClose}
                   className="cursor-pointer rounded border border-gray-200 px-2 py-1 text-sm text-gray-700 transition hover:bg-gray-50"
                   title="关闭"
                 >
@@ -78,7 +108,7 @@ const AltModal = ({
             />
             <div className="mt-4 flex justify-end gap-2">
               <button
-                onClick={onClose}
+                onClick={requestClose}
                 className="cursor-pointer rounded border border-gray-300 px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50"
               >
                 取消

@@ -3,6 +3,7 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import { VscClose, VscFolderOpened, VscAdd } from 'react-icons/vsc'
 import { toast } from 'react-hot-toast'
+import { useModalMotion } from '@renderer/hooks/useModalMotion'
 
 interface BannerSelectContentProps {
   onClose: () => void
@@ -23,6 +24,7 @@ const BannerSelectContent = ({
   const [useLink, setUseLink] = useState(false)
   const dropZoneRef = useRef<HTMLDivElement>(null)
   const dropIconRef = useRef<HTMLDivElement>(null)
+  const { overlayRef, panelRef, requestClose } = useModalMotion(onClose)
 
   // 拖拽态缩放反馈
   useGSAP(
@@ -69,7 +71,7 @@ const BannerSelectContent = ({
       })
       toast.success('封面图替换成功')
       onSuccess()
-      onClose()
+      requestClose()
     } catch {
       toast.error('封面图替换失败')
     } finally {
@@ -182,7 +184,7 @@ const BannerSelectContent = ({
       })
       toast.success('封面图链接设置成功')
       onSuccess()
-      onClose()
+      requestClose()
     } catch {
       toast.error('封面图链接设置失败')
     } finally {
@@ -203,18 +205,22 @@ const BannerSelectContent = ({
 
   return (
     <div
+      ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={onClose}
+      onClick={requestClose}
+      style={{ opacity: 0 }}
     >
       <div
+        ref={panelRef}
         onClick={(e) => e.stopPropagation()}
         className="mx-4 w-full max-w-md rounded-lg bg-white shadow-xl"
+        style={{ opacity: 0 }}
       >
         {/* 标题栏 */}
         <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
           <h2 className="text-lg font-bold text-gray-900">选择封面图</h2>
           <button
-            onClick={onClose}
+            onClick={requestClose}
             className="cursor-pointer rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
             title="关闭"
           >
@@ -228,7 +234,7 @@ const BannerSelectContent = ({
           <div className="mb-6 flex gap-2">
             <button
               onClick={() => setUseLink(false)}
-              className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition ${
+              className={`flex-1 cursor-pointer rounded-lg px-4 py-2 text-sm font-medium transition ${
                 !useLink ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -236,7 +242,7 @@ const BannerSelectContent = ({
             </button>
             <button
               onClick={() => setUseLink(true)}
-              className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition ${
+              className={`flex-1 cursor-pointer rounded-lg px-4 py-2 text-sm font-medium transition ${
                 useLink ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -279,7 +285,7 @@ const BannerSelectContent = ({
                 onMouseLeave={(e) => pressOut(e.currentTarget)}
                 onMouseDown={(e) => !isLoading && pressIn(e.currentTarget)}
                 onMouseUp={(e) => pressOut(e.currentTarget)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-linear-to-r from-gray-800 to-gray-900 px-4 py-3 font-medium text-white transition hover:from-gray-700 hover:to-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-linear-to-r from-gray-800 to-gray-900 px-4 py-3 font-medium text-white transition hover:from-gray-700 hover:to-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <VscFolderOpened className="text-xl" />
                 <span>{isLoading ? '上传中...' : '从文件夹选择'}</span>
@@ -314,7 +320,7 @@ const BannerSelectContent = ({
                 onMouseLeave={(e) => pressOut(e.currentTarget)}
                 onMouseDown={(e) => !(isLoading || !linkUrl.trim()) && pressIn(e.currentTarget)}
                 onMouseUp={(e) => pressOut(e.currentTarget)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-linear-to-r from-gray-800 to-gray-900 px-4 py-3 font-medium text-white transition hover:from-gray-700 hover:to-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-linear-to-r from-gray-800 to-gray-900 px-4 py-3 font-medium text-white transition hover:from-gray-700 hover:to-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <span>{isLoading ? '设置中...' : '设置链接'}</span>
               </button>

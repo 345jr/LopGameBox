@@ -7,6 +7,7 @@ import AltModal from './AltModal'
 import toast from 'react-hot-toast'
 import { PhotoProvider, PhotoView } from 'react-photo-view'
 import { useGalleryList, useGalleryStats } from '@renderer/api/queries/queries.gallery'
+import { useModalMotion } from '@renderer/hooks/useModalMotion'
 
 export type GalleryProps = {
   gameId: number
@@ -15,6 +16,7 @@ export type GalleryProps = {
 }
 
 const Gallery = ({ gameId, gameName, onClose }: GalleryProps) => {
+  const { overlayRef, panelRef, requestClose } = useModalMotion(onClose)
   const [showAltModal, setShowAltModal] = useState(false)
   const [currentSnapshotId, setCurrentSnapshotId] = useState<number | null>(null)
   const [altText, setAltText] = useState('')
@@ -175,12 +177,16 @@ const Gallery = ({ gameId, gameName, onClose }: GalleryProps) => {
 
   return (
     <div
+      ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={onClose}
+      onClick={requestClose}
+      style={{ opacity: 0 }}
     >
       <div
+        ref={panelRef}
         onClick={(e) => e.stopPropagation()}
         className="mx-4 flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-lg bg-white shadow-xl"
+        style={{ opacity: 0 }}
       >
         {/* 标题栏 */}
         <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-5 py-3">
@@ -194,7 +200,7 @@ const Gallery = ({ gameId, gameName, onClose }: GalleryProps) => {
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={requestClose}
             className="cursor-pointer rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
             title="关闭"
             aria-label="关闭"

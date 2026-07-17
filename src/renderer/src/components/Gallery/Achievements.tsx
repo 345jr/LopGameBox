@@ -4,6 +4,7 @@ import { formatTimeCalender } from '../../util/timeFormat'
 import { useAchievementList, useGamePlaytime } from '@renderer/api/queries/queries.gallery'
 import { GameAchievement } from '@renderer/types/Game'
 import toast from 'react-hot-toast'
+import { useModalMotion } from '@renderer/hooks/useModalMotion'
 
 // 时长成就等级配置
 const TIME_ACHIEVEMENTS = [
@@ -383,54 +384,86 @@ const Achievements: React.FC<{ gameId: number }> = ({ gameId }) => {
 
       {/* 添加成就模态框 */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-96 rounded-lg bg-white p-6 shadow-lg">
-            <h3 className="mb-4 text-lg font-semibold text-black">添加成就</h3>
-            <input
-              type="text"
-              placeholder="成就名称"
-              value={newAchievement.name}
-              onChange={(e) => setNewAchievement({ ...newAchievement, name: e.target.value })}
-              className="mb-3 w-full rounded border border-gray-300 px-3 py-2 text-black placeholder-gray-400 focus:ring-2 focus:ring-gray-400 focus:outline-none"
-            />
-            <select
-              value={newAchievement.type}
-              onChange={(e) => setNewAchievement({ ...newAchievement, type: e.target.value })}
-              className="mb-3 w-full rounded border border-gray-300 px-3 py-2 text-black focus:ring-2 focus:ring-gray-400 focus:outline-none"
-            >
-              <option value="自定义成就">自定义成就</option>
-              <option value="隐藏成就">隐藏成就</option>
-              <option value="特殊成就">特殊成就</option>
-            </select>
-            <textarea
-              placeholder="成就描述（可选）"
-              value={newAchievement.description}
-              onChange={(e) =>
-                setNewAchievement({ ...newAchievement, description: e.target.value })
-              }
-              className="mb-4 w-full rounded border border-gray-300 px-3 py-2 text-black placeholder-gray-400 focus:ring-2 focus:ring-gray-400 focus:outline-none"
-              rows={3}
-            />
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => {
-                  setShowAddModal(false)
-                  setNewAchievement({ name: '', type: '自定义成就', description: '' })
-                }}
-                className="rounded bg-gray-200 px-4 py-2 text-black transition hover:bg-gray-300"
-              >
-                取消
-              </button>
-              <button
-                onClick={handleAddAchievement}
-                className="rounded bg-gray-800 px-4 py-2 text-white transition hover:bg-black"
-              >
-                添加
-              </button>
-            </div>
-          </div>
-        </div>
+        <AddAchievementDialog
+          newAchievement={newAchievement}
+          setNewAchievement={setNewAchievement}
+          onAdd={handleAddAchievement}
+          onClose={() => {
+            setShowAddModal(false)
+            setNewAchievement({ name: '', type: '自定义成就', description: '' })
+          }}
+        />
       )}
+    </div>
+  )
+}
+
+const AddAchievementDialog = ({
+  newAchievement,
+  setNewAchievement,
+  onAdd,
+  onClose
+}: {
+  newAchievement: { name: string; type: string; description: string }
+  setNewAchievement: React.Dispatch<
+    React.SetStateAction<{ name: string; type: string; description: string }>
+  >
+  onAdd: () => Promise<void> | void
+  onClose: () => void
+}) => {
+  const { overlayRef, panelRef, requestClose } = useModalMotion(onClose)
+  return (
+    <div
+      ref={overlayRef}
+      className="fixed inset-0 z-60 flex items-center justify-center bg-black/50"
+      onClick={requestClose}
+      style={{ opacity: 0 }}
+    >
+      <div
+        ref={panelRef}
+        className="w-96 rounded-lg bg-white p-6 shadow-lg"
+        onClick={(e) => e.stopPropagation()}
+        style={{ opacity: 0 }}
+      >
+        <h3 className="mb-4 text-lg font-semibold text-black">添加成就</h3>
+        <input
+          type="text"
+          placeholder="成就名称"
+          value={newAchievement.name}
+          onChange={(e) => setNewAchievement({ ...newAchievement, name: e.target.value })}
+          className="mb-3 w-full rounded border border-gray-300 px-3 py-2 text-black placeholder-gray-400 focus:ring-2 focus:ring-gray-400 focus:outline-none"
+        />
+        <select
+          value={newAchievement.type}
+          onChange={(e) => setNewAchievement({ ...newAchievement, type: e.target.value })}
+          className="mb-3 w-full rounded border border-gray-300 px-3 py-2 text-black focus:ring-2 focus:ring-gray-400 focus:outline-none"
+        >
+          <option value="自定义成就">自定义成就</option>
+          <option value="隐藏成就">隐藏成就</option>
+          <option value="特殊成就">特殊成就</option>
+        </select>
+        <textarea
+          placeholder="成就描述（可选）"
+          value={newAchievement.description}
+          onChange={(e) => setNewAchievement({ ...newAchievement, description: e.target.value })}
+          className="mb-4 w-full rounded border border-gray-300 px-3 py-2 text-black placeholder-gray-400 focus:ring-2 focus:ring-gray-400 focus:outline-none"
+          rows={3}
+        />
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={requestClose}
+            className="cursor-pointer rounded bg-gray-200 px-4 py-2 text-black transition hover:bg-gray-300"
+          >
+            取消
+          </button>
+          <button
+            onClick={onAdd}
+            className="cursor-pointer rounded bg-gray-800 px-4 py-2 text-white transition hover:bg-black"
+          >
+            添加
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

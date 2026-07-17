@@ -70,7 +70,7 @@ const GameCardItem = ({
     <div className="flex-center flex-col p-4">
       <div className="flex flex-row">
         <div
-          className="group relative ml-60 h-70 w-120"
+          className="group relative ml-36 h-70 w-120"
           onMouseEnter={handleEnter}
           onMouseLeave={handleLeave}
         >

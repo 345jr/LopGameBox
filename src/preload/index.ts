@@ -247,6 +247,7 @@ const api = {
   }) => ipcRenderer.invoke('op:getTempDrop', payload),
 
   // ==================== 设置：默认游戏封面 ====================
+  getPaths: () => ipcRenderer.invoke('settings:getPaths'),
   getDefaultBanners: () => ipcRenderer.invoke('settings:getDefaultBanners'),
   addDefaultBanner: () => ipcRenderer.invoke('settings:addDefaultBanner'),
   selectDefaultBanner: (id: string) => ipcRenderer.invoke('settings:selectDefaultBanner', id),

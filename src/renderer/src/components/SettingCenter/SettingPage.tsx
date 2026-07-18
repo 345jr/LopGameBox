@@ -1,8 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ComponentType, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useQueryClient } from '@tanstack/react-query'
 import { VscAdd, VscCheck, VscTrash } from 'react-icons/vsc'
+import {
+  FiArchive,
+  FiCamera,
+  FiDatabase,
+  FiFileText,
+  FiFolder,
+  FiImage,
+  FiSettings
+} from 'react-icons/fi'
 import { useAppBackgrounds, useDefaultBanners } from '@renderer/api/queries/queries.settings'
 import { queryKeys } from '@renderer/api/queryKeys'
 import builtinBackground from '@renderer/assets/background.jpg'
@@ -10,7 +19,8 @@ import builtinBackground from '@renderer/assets/background.jpg'
 type ThemeImageItem = { id: string; relativePath: string; createdAt: number }
 
 type ThemeImagePickerProps = {
-  subtitle: string
+  title: string
+  desc?: string
   items: ThemeImageItem[]
   selectedId: string | null
   maxCount: number
@@ -31,12 +41,80 @@ type ThemeImagePickerProps = {
   }
 }
 
+/** 统一卡片容器 */
+const cardClass = 'rounded-xl border border-gray-200 bg-white p-5 shadow-xs'
+
+/** 统一次要按钮（描边风格） */
+const actionBtnClass =
+  'inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-xs transition-colors hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900 active:bg-gray-100'
+
+/** 分区头部：图标 + 标题 + 说明 */
+const SectionHeader = ({
+  icon: Icon,
+  title,
+  desc
+}: {
+  icon: ComponentType<{ className?: string }>
+  title: string
+  desc: string
+}) => (
+  <div className="flex items-center gap-3">
+    <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+      <Icon className="size-4.5" />
+    </span>
+    <div className="min-w-0">
+      <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
+      <p className="mt-0.5 text-xs text-gray-400">{desc}</p>
+    </div>
+  </div>
+)
+
+/** 设置行：左侧文案，右侧控件 */
+const SettingRow = ({
+  title,
+  desc,
+  children
+}: {
+  title: string
+  desc: string
+  children: ReactNode
+}) => (
+  <div className="flex items-center justify-between gap-6 py-3.5">
+    <div className="min-w-0">
+      <p className="text-sm font-medium text-gray-800">{title}</p>
+      <p className="mt-0.5 text-xs leading-relaxed text-gray-400">{desc}</p>
+    </div>
+    <div className="shrink-0">{children}</div>
+  </div>
+)
+
+/** 开关控件 */
+const Switch = ({ checked, onChange }: { checked: boolean; onChange: () => void }) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    aria-label="截图快捷键"
+    onClick={onChange}
+    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ${
+      checked ? 'bg-blue-600' : 'bg-gray-200'
+    }`}
+  >
+    <span
+      className={`inline-block size-5 transform rounded-full bg-white shadow-sm transition-transform duration-200 ${
+        checked ? 'translate-x-5.5' : 'translate-x-0.5'
+      }`}
+    />
+  </button>
+)
+
 /** 紧凑缩略图：预览为主，尺寸统一 */
 const thumbClass =
-  'relative aspect-video w-28 shrink-0 overflow-hidden rounded-md border bg-stone-100 transition-colors'
+  'relative aspect-video w-28 shrink-0 overflow-hidden rounded-lg border bg-gray-50 transition-colors'
 
 const ThemeImagePicker = ({
-  subtitle,
+  title,
+  desc,
   items,
   selectedId,
   maxCount,
@@ -53,10 +131,13 @@ const ThemeImagePicker = ({
   const canAdd = items.length < maxCount
 
   return (
-    <div className="mt-4 first:mt-0">
-      <div className="mb-2 flex items-baseline justify-between gap-2">
-        <p className="text-xs leading-relaxed text-gray-500">{subtitle}</p>
-        <span className="shrink-0 text-xs tabular-nums text-gray-400">
+    <div className="mt-5 first:mt-4">
+      <div className="mb-2.5 flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-gray-800">{title}</p>
+          {desc && <p className="mt-0.5 text-xs leading-relaxed text-gray-400">{desc}</p>}
+        </div>
+        <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-500 tabular-nums">
           {items.length}/{maxCount}
         </span>
       </div>
@@ -73,7 +154,7 @@ const ThemeImagePicker = ({
               title={builtin.selected ? '当前使用' : builtin.label}
               className={`${thumbClass} cursor-pointer disabled:cursor-wait ${
                 builtin.selected
-                  ? 'border-blue-500 ring-1 ring-blue-400/80'
+                  ? 'border-blue-600 ring-2 ring-blue-600/20'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
@@ -83,7 +164,7 @@ const ThemeImagePicker = ({
                 className="h-full w-full object-cover object-center"
               />
               {builtin.selected && (
-                <span className="absolute top-1 left-1 inline-flex size-4 items-center justify-center rounded-full bg-blue-500 text-white shadow-sm">
+                <span className="absolute top-1 left-1 inline-flex size-4 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm">
                   <VscCheck className="size-2.5" />
                 </span>
               )}
@@ -105,17 +186,13 @@ const ThemeImagePicker = ({
                   title={selected ? '当前使用' : '点击选用'}
                   className={`${thumbClass} cursor-pointer disabled:cursor-wait ${
                     selected
-                      ? 'border-blue-500 ring-1 ring-blue-400/80'
+                      ? 'border-blue-600 ring-2 ring-blue-600/20'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <img
-                    src={src}
-                    alt="预览"
-                    className="h-full w-full object-cover object-center"
-                  />
+                  <img src={src} alt="预览" className="h-full w-full object-cover object-center" />
                   {selected && (
-                    <span className="absolute top-1 left-1 inline-flex size-4 items-center justify-center rounded-full bg-blue-500 text-white shadow-sm">
+                    <span className="absolute top-1 left-1 inline-flex size-4 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm">
                       <VscCheck className="size-2.5" />
                     </span>
                   )}
@@ -140,7 +217,7 @@ const ThemeImagePicker = ({
               onClick={onAdd}
               disabled={adding}
               title={addLabel}
-              className={`${thumbClass} flex cursor-pointer flex-col items-center justify-center gap-0.5 border-dashed border-gray-300 text-gray-400 hover:border-blue-400 hover:bg-blue-50/40 hover:text-blue-500 disabled:cursor-wait disabled:opacity-60`}
+              className={`${thumbClass} flex cursor-pointer flex-col items-center justify-center gap-1 border-dashed border-gray-300 text-gray-400 hover:border-blue-400 hover:bg-blue-50/40 hover:text-blue-500 disabled:cursor-wait disabled:opacity-60`}
             >
               <VscAdd className="size-4" />
               <span className="text-[10px] leading-none">{adding ? '…' : '上传'}</span>
@@ -165,6 +242,11 @@ const SettingPage = () => {
   const [bannerAdding, setBannerAdding] = useState(false)
   const [bgBusyId, setBgBusyId] = useState<string | null>(null)
   const [bgAdding, setBgAdding] = useState(false)
+  const [paths, setPaths] = useState<{
+    database: string
+    screenshots: string
+    saveBackups: string
+  } | null>(null)
   const queryClient = useQueryClient()
   const { data: bannerState, isLoading: bannersLoading } = useDefaultBanners()
   const { data: bgState, isLoading: bgLoading } = useAppBackgrounds()
@@ -179,6 +261,16 @@ const SettingPage = () => {
       }
     }
     initScreenshotStatus()
+
+    const fetchPaths = async () => {
+      try {
+        const pathsData = await window.api.getPaths()
+        setPaths(pathsData)
+      } catch (error) {
+        console.error('[Settings] get paths failed:', error)
+      }
+    }
+    fetchPaths()
 
     window.api.onScreenshotSuccess((data) => {
       toast.success(`截图已保存: ${data.filename}`)
@@ -328,44 +420,74 @@ const SettingPage = () => {
     }
   }
 
+  // 存储位置条目（图标与路径的映射，统一单色风格）
+  const storageItems = paths
+    ? [
+        { icon: FiDatabase, label: '数据库', value: paths.database },
+        { icon: FiCamera, label: '截图', value: paths.screenshots },
+        { icon: FiArchive, label: '存档备份', value: paths.saveBackups }
+      ]
+    : []
+
   return (
-    <div className="space-y-4 p-6">
-      <section className="w-full rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-gray-800">基础配置</h2>
+    <div className="mx-auto w-full max-w-3xl space-y-5 p-6">
+      {/* 页头 */}
+      <header className="px-1">
+        <h1 className="text-lg font-semibold text-gray-900">设置中心</h1>
+        <p className="mt-0.5 text-xs text-gray-400">快捷键、数据备份与界面外观</p>
+      </header>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <button
-            onClick={handleScreenshotToggle}
-            className={`cursor-pointer rounded px-4 py-2 transition-colors ${
-              screenshotEnabled
-                ? 'bg-red-400 text-white hover:bg-red-600'
-                : 'bg-gray-300 text-black hover:bg-gray-500 hover:text-white'
-            }`}
-          >
-            {screenshotEnabled ? '禁用截图快捷键 (F12)' : '启用截图快捷键 (F12)'}
-          </button>
-
-          <button
-            onClick={handleLocalBackup}
-            className="cursor-pointer rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
-          >
-            本地备份数据库
-          </button>
-
-          <Link
-            to="/setting/update"
-            className="inline-block cursor-pointer rounded bg-gray-300 px-4 py-2 text-black transition-colors hover:bg-gray-500 hover:text-white"
-          >
-            查看更新记录
-          </Link>
+      {/* 基础配置 */}
+      <section className={cardClass}>
+        <SectionHeader icon={FiSettings} title="基础配置" desc="快捷键与数据维护" />
+        <div className="mt-1 divide-y divide-gray-100">
+          <SettingRow title="截图快捷键" desc="游戏运行中按 F12 截图，自动保存到截图目录">
+            <Switch checked={screenshotEnabled} onChange={handleScreenshotToggle} />
+          </SettingRow>
+          <SettingRow title="本地备份数据库" desc="将当前数据库完整复制一份到存档备份目录">
+            <button onClick={handleLocalBackup} className={actionBtnClass}>
+              <FiDatabase className="size-3.5" />
+              立即备份
+            </button>
+          </SettingRow>
+          <SettingRow title="更新记录" desc="查看各版本的功能变更与优化说明">
+            <Link to="/setting/update" className={actionBtnClass}>
+              <FiFileText className="size-3.5" />
+              查看
+            </Link>
+          </SettingRow>
         </div>
       </section>
 
-      <section className="w-full rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-800">主题样式</h2>
+      {/* 存储位置 */}
+      {paths && (
+        <section className={cardClass}>
+          <SectionHeader icon={FiFolder} title="存储位置" desc="应用数据在本地的保存路径" />
+          <ul className="mt-2 divide-y divide-gray-100">
+            {storageItems.map(({ icon: Icon, label, value }) => (
+              <li key={label} className="flex items-center gap-3 py-3">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+                  <Icon className="size-4" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-gray-700">{label}</p>
+                  <p className="truncate font-mono text-[11px] text-gray-400" title={value}>
+                    {value}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* 主题样式 */}
+      <section className={cardClass}>
+        <SectionHeader icon={FiImage} title="主题样式" desc="默认封面与游戏列表背景" />
 
         <ThemeImagePicker
-          subtitle={`默认游戏封面（最多 ${bannerState?.maxCount ?? 3} 张）`}
+          title="默认游戏封面"
+          desc={`最多 ${bannerState?.maxCount ?? 3} 张，上传并选用后新游戏会使用该封面`}
           items={bannerState?.items ?? []}
           selectedId={bannerState?.selectedId ?? null}
           maxCount={bannerState?.maxCount ?? 3}
@@ -379,10 +501,11 @@ const SettingPage = () => {
           onDelete={handleDeleteDefaultBanner}
         />
 
-        <div className="my-4 border-t border-gray-100" />
+        <div className="mt-5 border-t border-gray-100" />
 
         <ThemeImagePicker
-          subtitle={`应用背景：游戏列表背景（最多 ${bgState?.maxCount ?? 6} 张）`}
+          title="应用背景"
+          desc={`游戏列表背景，最多 ${bgState?.maxCount ?? 6} 张，可随时切回内置默认`}
           items={bgState?.items ?? []}
           selectedId={bgState?.selectedId ?? null}
           maxCount={bgState?.maxCount ?? 6}

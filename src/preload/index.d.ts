@@ -286,6 +286,13 @@ declare global {
       // 获取拖拽的临时路径
       getTempDrop: (payload: DropPayload) => Promise<DropResult>
 
+      // ==================== 设置：路径信息 ====================
+      getPaths: () => Promise<{
+        database: string
+        screenshots: string
+        saveBackups: string
+      }>
+
       // ==================== 设置：默认游戏封面 ====================
       getDefaultBanners: () => Promise<{
         items: Array<{ id: string; relativePath: string; createdAt: number }>

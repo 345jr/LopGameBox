@@ -1,4 +1,5 @@
-import { dialog, ipcMain } from 'electron'
+import { app, dialog, ipcMain } from 'electron'
+import path from 'path'
 import {
   addDefaultBanner,
   deleteDefaultBanner,
@@ -25,6 +26,22 @@ async function pickImageFile(): Promise<string | null> {
 }
 
 export function registerSettingsIpc(): void {
+  // ---------- 路径信息 ----------
+  ipcMain.handle('settings:getPaths', () => {
+    const isPackaged = app.isPackaged
+    return {
+      database: isPackaged
+        ? path.join(app.getPath('userData'), 'gameData.db')
+        : path.join(process.cwd(), 'db/gameData.db'),
+      screenshots: isPackaged
+        ? path.join(path.dirname(app.getPath('exe')), 'screenshots')
+        : path.join(process.cwd(), 'screenshots'),
+      saveBackups: isPackaged
+        ? path.join(path.dirname(app.getPath('exe')), 'saveBackups')
+        : path.join(process.cwd(), 'saveBackups')
+    }
+  })
+
   // ---------- 默认游戏封面 ----------
   ipcMain.handle('settings:getDefaultBanners', async () => {
     try {

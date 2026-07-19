@@ -24,23 +24,29 @@ type AreaTooltipProps = {
 
 // 自定义提示框组件
 const CustomTooltip = ({ active, payload, label }: AreaTooltipProps) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="max-w-48 rounded border border-gray-300 bg-white p-2 text-sm shadow-md">
-        <p className="mb-1 font-medium">{`${label}`}</p>
+  if (!active || !payload?.length) return null
+  return (
+    <div className="max-w-48 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs shadow-lg">
+      <p className="mb-1 font-medium text-gray-800">{`${label}`}</p>
+      <div className="space-y-0.5">
         {payload.map((entry, index) => (
-          <div key={index}>
-            <p style={{ color: entry.color }} className="text-xs">
-              {`${entry.dataKey}: ${entry.value}小时`}
-            </p>
+          <div key={index} className="flex items-center gap-1.5">
+            <span
+              className="size-2 shrink-0 rounded-full"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-gray-500">{entry.dataKey}</span>
+            <span className="ml-auto pl-3 text-gray-700 tabular-nums">{entry.value}h</span>
           </div>
         ))}
-        <p>当日总时长 :{payload[0].payload?.总时长}小时</p>
       </div>
-    )
-  }
-  return null
+      <p className="mt-1.5 border-t border-gray-100 pt-1.5 text-gray-600 tabular-nums">
+        当日总时长 {payload[0].payload?.总时长}h
+      </p>
+    </div>
+  )
 }
+
 type Props = {
   weekGameLogsData: GameLog[]
 }
@@ -61,34 +67,74 @@ const MyAreaChart = ({ weekGameLogsData }: Props) => {
   )
 
   return (
-    <>
-      <div className="h-110 w-full">
-        {/* 周时长看板 */}
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            // height={600}
-            // width={500}
-            data={chartData}
-            margin={{
-              top: 0,
-              right: 0,
-              left: 30,
-              bottom: 0
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" tick={{ fontSize: 12 }} angle={-30} textAnchor="end" />
-            <YAxis tickFormatter={(value) => `${value}h`} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Area type="monotone" dataKey="普通模式" stackId="1" stroke="#4ade80" fill="#4ade80" />
-            <Area type="monotone" dataKey="快速模式" stackId="1" stroke="#facc15" fill="#facc15" />
-            <Area type="monotone" dataKey="挂机模式" stackId="1" stroke="#60a5fa" fill="#60a5fa" />
-            <Area type="monotone" dataKey="沉浸模式" stackId="1" stroke="#f472b6" fill="#f472b6" />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-    </>
+    <div className="h-110 w-full">
+      {/* 周时长看板 */}
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart
+          data={chartData}
+          margin={{
+            top: 8,
+            right: 8,
+            left: 0,
+            bottom: 0
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+          <XAxis
+            dataKey="name"
+            tick={{ fontSize: 11, fill: '#9ca3af' }}
+            tickLine={false}
+            axisLine={false}
+            dy={6}
+          />
+          <YAxis
+            tickFormatter={(value) => `${value}h`}
+            tick={{ fontSize: 11, fill: '#9ca3af' }}
+            tickLine={false}
+            axisLine={false}
+            width={40}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend iconType="plainline" iconSize={10} wrapperStyle={{ fontSize: 12 }} />
+          <Area
+            type="monotone"
+            dataKey="普通模式"
+            stackId="1"
+            stroke="#4ade80"
+            fill="#4ade80"
+            fillOpacity={0.35}
+            strokeWidth={2}
+          />
+          <Area
+            type="monotone"
+            dataKey="快速模式"
+            stackId="1"
+            stroke="#facc15"
+            fill="#facc15"
+            fillOpacity={0.35}
+            strokeWidth={2}
+          />
+          <Area
+            type="monotone"
+            dataKey="挂机模式"
+            stackId="1"
+            stroke="#60a5fa"
+            fill="#60a5fa"
+            fillOpacity={0.35}
+            strokeWidth={2}
+          />
+          <Area
+            type="monotone"
+            dataKey="沉浸模式"
+            stackId="1"
+            stroke="#f472b6"
+            fill="#f472b6"
+            fillOpacity={0.35}
+            strokeWidth={2}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
   )
 }
 

@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, type ComponentType, type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { FiBarChart2, FiBox, FiClock, FiHardDrive, FiPieChart, FiPlay } from 'react-icons/fi'
 import { GameStatistics } from '@renderer/types/Game'
 import MyAreaChart from './MyAreaChart'
 import MyPieChart from './MyPieChart'
@@ -47,6 +48,88 @@ const fetchDashboardStats = async (): Promise<GameStatistics> => {
   }
 }
 
+/** 统一卡片容器（与设置中心同一语言） */
+const cardClass = 'rounded-xl border border-gray-200 bg-white p-5 shadow-xs'
+
+/** 卡片头部：图标 + 标题 + 说明，右侧可挂操作区 */
+const CardHeader = ({
+  icon: Icon,
+  title,
+  desc,
+  action
+}: {
+  icon: ComponentType<{ className?: string }>
+  title: string
+  desc?: string
+  action?: ReactNode
+}) => (
+  <div className="flex items-center justify-between gap-3">
+    <div className="flex min-w-0 items-center gap-3">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+        <Icon className="size-4.5" />
+      </span>
+      <div className="min-w-0">
+        <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+        {desc && <p className="mt-0.5 truncate text-xs text-gray-400">{desc}</p>}
+      </div>
+    </div>
+    {action}
+  </div>
+)
+
+/** 顶部概览统计卡 */
+const StatCard = ({
+  icon: Icon,
+  label,
+  value,
+  sub
+}: {
+  icon: ComponentType<{ className?: string }>
+  label: string
+  value: string
+  sub: string
+}) => (
+  <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs">
+    <div className="flex items-center justify-between gap-2">
+      <p className="text-xs text-gray-400">{label}</p>
+      <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+        <Icon className="size-3.5" />
+      </span>
+    </div>
+    <p className="mt-2 text-2xl font-semibold text-gray-900 tabular-nums">{value}</p>
+    <p className="mt-1 text-xs text-gray-400">{sub}</p>
+  </div>
+)
+
+/** 本周 / 上周分段切换 */
+const WeekSwitch = ({
+  isNowWeek,
+  onChange
+}: {
+  isNowWeek: boolean
+  onChange: (nowWeek: boolean) => void
+}) => (
+  <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-gray-100 p-0.5">
+    {[
+      { key: true, label: '本周' },
+      { key: false, label: '上周' }
+    ].map((item) => (
+      <button
+        key={item.label}
+        type="button"
+        onClick={() => onChange(item.key)}
+        className={`cursor-pointer rounded-md px-3 py-1 text-xs transition-colors ${
+          isNowWeek === item.key
+            ? 'bg-white font-medium text-gray-900 shadow-xs'
+            : 'text-gray-500 hover:text-gray-700'
+        }`}
+      >
+        {item.label}
+      </button>
+    ))}
+  </div>
+)
+
 const Dashboard = () => {
   const [isNowWeek, setIsNowWeek] = useState(false)
 
@@ -63,136 +146,104 @@ const Dashboard = () => {
       isNowWeek ? window.api.getGameLogByModeThisWeek() : window.api.getGameLogByModeLastWeek()
   })
 
-  const switchToWeekData = () => {
-    setIsNowWeek(true)
-  }
-  const switchToLastWeekData = () => {
-    setIsNowWeek(false)
-  }
+  // 顶部概览卡片数据
+  const overviewItems = [
+    {
+      icon: FiBox,
+      label: '游戏总数',
+      value: `${gameStatistics.gameCount}`,
+      sub: '库中游戏'
+    },
+    {
+      icon: FiClock,
+      label: '总游戏时间',
+      value: `${formatTimeToHours(gameStatistics.gamePlayTime)}h`,
+      sub: '累计游玩'
+    },
+    {
+      icon: FiPlay,
+      label: '总启动次数',
+      value: `${gameStatistics.launchCount}`,
+      sub: '启动统计'
+    },
+    {
+      icon: FiHardDrive,
+      label: '总存储占用',
+      value: gameSizeFormat(gameStatistics.totalDiskSize),
+      sub: '本地占用空间'
+    }
+  ]
+
+  // 近期时长条目
+  const periodItems = [
+    { label: '今日时长', value: gameStatistics.todayHours },
+    { label: '本周时长', value: gameStatistics.weekHours },
+    { label: '本月时长', value: gameStatistics.monthHours }
+  ]
 
   return (
-    <>
-      <div className="mb-4 px-4">
-        {/* 统计数据卡片式展示 */}
-        <div className="mx-auto mt-4 mb-4 max-w-full">
-          <div className="grid grid-cols-4 gap-4">
-            {/* 游戏总数 */}
-            <div className="dashboardCard p-6">
-              <p className="mb-2 text-xs text-slate-600">游戏总数</p>
-              <p className="mb-1 text-3xl font-bold text-slate-900">{gameStatistics.gameCount}</p>
-              <p className="text-xs text-slate-500">总计统计</p>
-            </div>
+    <div className="mx-auto w-full max-w-6xl space-y-5 p-6">
+      {/* 页头 */}
+      <header className="px-1">
+        <h1 className="text-lg font-semibold text-gray-900">统计面板</h1>
+        <p className="mt-0.5 text-xs text-gray-400">游戏时长与模式分布一览</p>
+      </header>
 
-            {/* 总游戏时间 */}
-            <div className="dashboardCard p-6">
-              <p className="mb-2 text-xs text-slate-600">总游戏时间</p>
-              <p className="mb-1 text-3xl font-bold text-slate-900">
-                {formatTimeToHours(gameStatistics.gamePlayTime)}h
-              </p>
-              <p className="text-xs text-slate-500">累计游玩</p>
-            </div>
-
-            {/* 总启动次数 */}
-            <div className="dashboardCard p-6">
-              <p className="mb-2 text-xs text-slate-600">总启动次数</p>
-              <p className="mb-1 text-3xl font-bold text-slate-900">{gameStatistics.launchCount}</p>
-              <p className="text-xs text-slate-500">启动统计</p>
-            </div>
-
-            {/* 总存储占用 */}
-            <div className="dashboardCard p-6">
-              <p className="mb-2 text-xs text-slate-600">总存储占用</p>
-              <p className="mb-1 text-3xl font-bold text-slate-900">
-                {gameSizeFormat(gameStatistics.totalDiskSize)}
-              </p>
-              <p className="text-xs text-slate-500">本地占用空间</p>
-            </div>
-          </div>
-        </div>
-        {/* 饼图和区域图并排展示 */}
-        <div className="mt-4 mb-4 grid grid-cols-[30%_70%] gap-2">
-          <div className="gird grid-rows-2 gap-4">
-            {/* 饼图卡片 */}
-            <div className="dashboardCard mb-4 p-6">
-              <h3 className="mb-2 text-lg font-semibold text-black">全模式游玩占比</h3>
-              <div className="flex items-center justify-center">
-                <div className="w-full max-w-sm">
-                  <MyPieChart gameStatistics={gameStatistics} />
-                </div>
-              </div>
-            </div>
-            {/* 周数据统计卡片 */}
-            <div className="">
-              <div className="grid grid-cols-1 gap-2">
-                {/* 今日时长 */}
-                <div className="dashboardCard p-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs text-gray-600">今日时长</p>
-                    <p className="text-lg font-bold text-gray-900">
-                      {gameStatistics.todayHours.toFixed(2)}h
-                    </p>
-                  </div>
-                </div>
-
-                {/* 本周时长 */}
-                <div className="dashboardCard p-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs text-gray-600">本周时长</p>
-                    <p className="text-lg font-bold text-gray-900">
-                      {gameStatistics.weekHours.toFixed(2)}h
-                    </p>
-                  </div>
-                </div>
-
-                {/* 本月时长 */}
-                <div className="dashboardCard p-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs text-gray-600">本月时长</p>
-                    <p className="text-lg font-bold text-gray-900">
-                      {gameStatistics.monthHours.toFixed(2)}h
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 区域图卡片 */}
-          <div className="dashboardCard flex flex-col p-6">
-            {/* 顶部一排字 */}
-            <div className="flex flex-row">
-              <h3 className="mb-4 text-lg font-semibold text-slate-900">周游玩总览</h3>
-              <div className="mb-2.5 ml-4 flex flex-row justify-center gap-4">
-                {isNowWeek ? (
-                  <>
-                    <button className="text-sm">时间范围:{getWeekRange(isNowWeek)}</button>
-                    <button
-                      onClick={switchToLastWeekData}
-                      className="cursor-pointer text-sm text-blue-600 hover:underline"
-                    >
-                      查看上周
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button className="text-sm">时间范围:{getWeekRange(isNowWeek)}</button>
-                    <button
-                      onClick={switchToWeekData}
-                      className="cursor-pointer text-sm text-blue-600 hover:underline"
-                    >
-                      查看本周
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-            <div className="min-h-0 flex-1">
-              <MyAreaChart weekGameLogsData={weekGameLogsData} />
-            </div>
-          </div>
-        </div>
+      {/* 概览统计 */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {overviewItems.map((item) => (
+          <StatCard
+            key={item.label}
+            icon={item.icon}
+            label={item.label}
+            value={item.value}
+            sub={item.sub}
+          />
+        ))}
       </div>
-    </>
+
+      {/* 图表区：左列占比 + 近期时长，右列周曲线 */}
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+        <div className="flex flex-col gap-5">
+          {/* 模式占比 */}
+          <section className={cardClass}>
+            <CardHeader icon={FiPieChart} title="全模式游玩占比" desc="各模式累计时长分布" />
+            <div className="mt-4">
+              <MyPieChart gameStatistics={gameStatistics} />
+            </div>
+          </section>
+
+          {/* 近期时长 */}
+          <section className={cardClass}>
+            <CardHeader icon={FiClock} title="近期时长" desc="今日 / 本周 / 本月" />
+            <div className="mt-2 divide-y divide-gray-100">
+              {periodItems.map((item) => (
+                <div key={item.label} className="flex items-center justify-between py-2.5">
+                  <p className="text-xs text-gray-500">{item.label}</p>
+                  <p className="text-sm font-semibold text-gray-900 tabular-nums">
+                    {item.value.toFixed(2)}
+                    <span className="ml-0.5 text-xs font-normal text-gray-400">h</span>
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        {/* 周游玩总览 */}
+        <section className={`${cardClass} flex flex-col md:col-span-2`}>
+          <CardHeader
+            icon={FiBarChart2}
+            title="周游玩总览"
+            desc={getWeekRange(isNowWeek)}
+            action={<WeekSwitch isNowWeek={isNowWeek} onChange={setIsNowWeek} />}
+          />
+          <div className="mt-4 min-h-0 flex-1">
+            <MyAreaChart weekGameLogsData={weekGameLogsData} />
+          </div>
+        </section>
+      </div>
+    </div>
   )
 }
 
